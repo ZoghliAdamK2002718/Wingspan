@@ -7,7 +7,7 @@ public FirstGraphic(String framename)
 super(framename);
 setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 setSize(WIDTH,HEIGHT);
-add(new WIngSpanGraphic());
+add(new WingSpanGraphic());
 setVisible(true);
 }
 }
