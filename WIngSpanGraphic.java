@@ -8,13 +8,18 @@ import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 public class WingSpanGraphic extends JPanel implements MouseListener
 {
-    BufferedImage left,right;
+        int screen=1;
+        int turn=1;
+    BufferedImage left,right,P1,P2,Crown;
 public WingSpanGraphic()
 {
 try {
             // Load from a file
             left = ImageIO.read(WingSpanGraphic.class.getResource("/Images/Arrow_Left.png"));
             right = ImageIO.read(WingSpanGraphic.class.getResource("/Images/Arrow_Right.png"));
+            P1=ImageIO.read(WingSpanGraphic.class.getResource("/Images/P1.png"));
+            P2=ImageIO.read(WingSpanGraphic.class.getResource("/Images/P2.png"));
+            Crown=ImageIO.read(WingSpanGraphic.class.getResource("/Images/Crown.png"));
             System.out.println("Image loaded successfully!");
         } catch (IOException e) {
             System.err.println("Error loading image: " + e.getMessage());
@@ -24,6 +29,19 @@ try {
 public void paint(Graphics g)
 {
 super.paint(g);
+
+if(screen==1){
+    if(turn==1){
+g.drawImage(Crown,0,200,50,50,null);
+    }
+g.drawImage(P1,0,200,50,50,null);
+}
+else{
+    if(turn==2){
+g.drawImage(Crown,0,200,50,50,null);
+    }
+g.drawImage(P2,0,200,50,50,null);
+}
 g.drawImage(left,0,200,50,50,null);
 g.drawImage(right,1120,200,50,50,null);
 g.setColor(Color.BLUE);
@@ -39,10 +57,20 @@ public void mouseClicked(MouseEvent e){
     System.out.println("loc is ("+x+"'"+y+")");
     if(e.getButton()==e.BUTTON1){
         if(x>=1120&&y>=200&&x<=1180&&y<250){
-            System.out.println("Hi :D");
+         screen=screen+1;
         }
-        repaint();
+        if(x>=0&&y>=200&&x<=50&&y<250){
+            screen=screen-1;
+        }
     }
+    if(screen>=3){
+        screen=1;
+    }
+    else if(screen==0){
+        screen=2;
+    }
+    System.out.println(screen);
+            repaint();
 }
 }
 
