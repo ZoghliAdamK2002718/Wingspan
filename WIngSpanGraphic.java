@@ -32,15 +32,15 @@ super.paint(g);
 
 if(screen==1){
     if(turn==1){
-g.drawImage(Crown,0,200,50,50,null);
+g.drawImage(Crown,10,350,30,40,null);
     }
-g.drawImage(P1,0,200,50,50,null);
+g.drawImage(P1,0,400,50,50,null);
 }
 else{
     if(turn==2){
-g.drawImage(Crown,0,200,50,50,null);
+g.drawImage(Crown,0,300,50,50,null);
     }
-g.drawImage(P2,0,200,50,50,null);
+g.drawImage(P2,0,400,50,50,null);
 }
 g.drawImage(left,0,200,50,50,null);
 g.drawImage(right,1120,200,50,50,null);
