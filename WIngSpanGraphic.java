@@ -25,7 +25,7 @@ public void paint(Graphics g)
 {
 super.paint(g);
 g.drawImage(left,0,200,50,50,null);
-g.drawImage(right,1150,200,50,50,null);
+g.drawImage(right,1120,200,50,50,null);
 g.setColor(Color.BLUE);
 g.drawLine(0, 0, getWidth(), getHeight());
 }
@@ -38,7 +38,7 @@ public void mouseClicked(MouseEvent e){
     int y= e.getY();
     System.out.println("loc is ("+x+"'"+y+")");
     if(e.getButton()==e.BUTTON1){
-        if(x>=getWidth()/5&&y>=getHeight()-95&&x<=getWidth()/5+getWidth()/5-10&&y<=getHeight()-95+90){
+        if(x>=1120&&y>=200&&x<=1180&&y<250){
             System.out.println("Hi :D");
         }
         repaint();
