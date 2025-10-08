@@ -1,0 +1,100 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+public class Button{
+	private int x1,y1,x2,y2, width, height,PanelWidth,PanelHeight;
+	private static ArrayList<Element> all = new ArrayList<Element>();
+	private boolean clickable,display;
+	private BufferedImage image;
+	private String name= "NONE";
+	public String state = "Normal";
+	public Button(BufferedImage i,boolean c,boolean dint xOne,int yOne,int xTwo,int yTwo) 
+	{
+		x1 = xOne;
+		x2 = xTwo;
+		y1 = yOne;
+		y2 = yTwo;
+		width = x2-x1;
+		height = y2-y1;
+		all.add(this);
+		image = i;
+		
+	}
+	public void paint(Graphics g)
+	{if(display){
+		g.drawImage(image, x1, y1, this.getWidth(), this.getHeight(), null);
+			switch(name)
+			{}
+			
+	}}
+	
+	public int getWidth()
+	{
+		return width;
+	}
+	public int getHeight()
+	{
+		return height;
+	}
+	public void move(int x,int y)
+	{
+		x1 = x;
+		x2 = x1+this.getWidth();
+		y1 = y;
+		y2 = y1+this.getHeight();
+	}
+	public boolean inBounds(int x,int y)
+	{
+		return (x>=x1&&x<=x2&&y>=y1&&y<=y2);
+	}
+	public static ArrayList<Element> getAll()
+	{
+		return all;
+	}
+	public void click()
+	{if(clikable){
+	
+		
+	}}
+			
+		
+	
+	
+	public void setImage(BufferedImage i)
+	{
+		image = i;
+	}
+    public void setClickable(boolean c)
+    {
+        clickable = c;
+    }
+    public void setDisplay(boolean d)
+    {
+        display = d;
+    }
+    public void setName(String n)
+    {
+        name = n;
+    }
+    public String getName()
+    {
+        return name;
+    }
+    public boolean getClickable()
+    {
+        return clickable;
+    }
+    public boolean getDisplay()
+    {
+        return display;
+    }
+    public String getState()
+    {
+        return state;
+    }
+    public void setState(String s)
+    {
+        state = s;
+    }
+}
