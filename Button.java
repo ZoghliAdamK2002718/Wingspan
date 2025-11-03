@@ -4,7 +4,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class Button {
-    private int x1, y1, x2, y2, width, height, PanelWidth, PanelHeight;
+    private int x1, y1, x2, y2, width, height;
     private static ArrayList<Button> all = new ArrayList<Button>();
     private boolean clickable, display;
     private BufferedImage image;
@@ -40,9 +40,9 @@ public class Button {
                     g.setColor(Color.LIGHT_GRAY);
                     else if(state.equals("abnormal"))
                     g.setColor(Color.blue);
-                    g.fillRect(Panel.x(x1), Panel.y(y1), Panel.x(getWidth()), Panel.y(getHeight()));
+                    g.fillRect(x(x1), y(y1), x(width), y(height));
                     g.setColor(Color.BLACK);
-                    g.drawString(name, Panel.x(x1) + Panel.x(4), Panel.y(y1) + Panel.y(14));
+                    g.drawString(name, x(x1) + x(4), y(y1) + y(14));
                 break;
                 
             }
@@ -57,15 +57,17 @@ public class Button {
         return height;
     }
 
+    //Move the button to a new x,y position (top-left corner)
     public void move(int x, int y) {
-        x1 = Panel.x(x);
-        x2 = x1 + Panel.x(this.getWidth());
-        y1 = Panel.y(y);
-        y2 = y1 + Panel.y(this.getHeight());
+        x1 = x(x);
+        x2 = x1 + x(this.getWidth());
+        y1 = y(y);
+        y2 = y1 + y(this.getHeight());
     }
-
+    
+    //Check if a given x,y coordinate is within the button's bounds
     public boolean inBounds(int x, int y) {
-        return (x >= x1 && x <= x2 && y >= y1 && y <= y2);
+        return (x(x) >= x(x1) && x(x) <= x(x2) && y(y) >= y(y1) && y(y) <= y(y2));
     }
 
     public static ArrayList<Button> getAll() {
@@ -127,4 +129,18 @@ public class Button {
         state = s;
     }
 
+    /* Input: in - the x or y value to be scaled (0-1000)
+	 * Output: the scaled value based on the current window size
+	 */
+    public static int x(int in)
+	{
+			System.out.println("Width: " + (Frame.getPanel().getWidth())*(in/1000));
+			return in * Frame.getPanel().getWidth() / 1000;
+	}
+	public static int y(int in)
+	{
+			System.out.println("Width: " + (Frame.getPanel().getHeight())*(in/1000));
+			return in * Frame.getPanel().getHeight() / 1000;
+		
+	}
 }

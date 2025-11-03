@@ -64,17 +64,8 @@ public Panel()
 		// TODO Auto-generated method stub
 		
 	}
-	public static int x(int in)
-	{
-			System.out.println("Width: " + (Frame.getPanel().getWidth())*(in/1000));
-			return in * Frame.getPanel().getWidth() / 1000;
-	}
-	public static int y(int in)
-	{
-			System.out.println("Width: " + (Frame.getPanel().getHeight())*(in/1000));
-			return in * Frame.getPanel().getHeight() / 1000;
-		
-	}
+	
+	
 			
 	
 
