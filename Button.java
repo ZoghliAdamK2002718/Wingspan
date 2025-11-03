@@ -112,11 +112,11 @@ public class Button {
     public String getName() {
         return name;
     }
-
+    // sets if the button is clickable
     public boolean getClickable() {
         return clickable;
     }
-
+    // sets if the button is displayable
     public boolean getDisplay() {
         return display;
     }
