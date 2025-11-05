@@ -12,4 +12,15 @@ private boolean bonusCard, flocking;
 private static TreeSet<Bird> deck;
 private Spot loc;
   
+  public Bird(String n, String sN, String nT, String[] h, Ability bA, TreeMap<String, Integer> co, TreeMap<String, Integer> ca, int po, int eC, int eCa, int s, ArrayList<Bird> p, boolean bc, boolean flo, Spot l)
+  {
+    name = n;sciName = sN;nestType = nT;
+    habitats = h;
+    birdAbility = bA;
+    costs = co;
+    cache = ca;
+    points = po; eggCount = eC; eggCapacity = eCa; size = s;
+    
+
+  }
 }

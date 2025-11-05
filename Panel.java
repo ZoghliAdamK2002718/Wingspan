@@ -3,15 +3,40 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.*;
 import javax.swing.*;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.File;
+import javax.imageio.ImageIO;
+import javax.swing.JPanel;
+import java.util.ArrayList;
+import java.awt.Rectangle;
+import java.awt.Graphics2D;
+import java.awt.Color;
+import java.awt.AlphaComposite;
+import javax.swing.JButton;
+import javax.swing.JTextField;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class Panel extends JPanel implements MouseListener{
 ArrayList<Button> currentScreen = new ArrayList<Button>();
-	
+BufferedImage bg;
 public Panel()
 {
 	setSize(1600,960);
+	try
+	{
+		bg = ImageIO.read(Panel.class.getResource("/Images/wgsbg.jpg"));
+	}
+	catch (IOException e)
+	{
+		e.printStackTrace();
+	}
+
 	addMouseListener(this);
 
+	
 }
 
 	
@@ -19,6 +44,8 @@ public Panel()
 	public void paint(Graphics g)
 {
 	super.paint(g);
+	// paint background
+	g.drawImage(bg, 0, 0, getWidth(), getHeight(), null);
 	for(int i=0;i<currentScreen.size();i++)
 	{
 		currentScreen.get(i).paint(g);
