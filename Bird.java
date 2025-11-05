@@ -20,7 +20,32 @@ private Spot loc;
     costs = co;
     cache = ca;
     points = po; eggCount = eC; eggCapacity = eCa; size = s;
+    prey = p;
+    bonusCard = bc;
+    flocking = flo;
+    loc = l;
     
 
   }
+  public String getName()
+  {
+    return name;
+  }
+  public String getsN()
+  {
+    return sciName;
+  }
+  public String getnT()
+  {
+    return nestType;
+  }
+  public String[] getHab()
+  {
+    return habitats;
+  }
+  public Ability getbirdAbility()
+  {
+    return birdAbility;
+  }
+  public 
 }
