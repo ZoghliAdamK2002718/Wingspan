@@ -36,7 +36,7 @@ public Panel()
 	Bird bird1 = new Bird("Acadian Flycatcher", "Empidonax virescens", "cavity", new String[]{"forest", "wetland"}, null, null, null, 0, 0, 0, 0, null, false, false, null);
 	Bird bird2 = new Bird("American Robin", "Turdus migratorius", "cup", new String[]{"forest", "grassland"}, null, null, null, 0, 0, 0, 0, null, false, false, null);
 	Bird bird3 = new Bird("Mallard", "Anas platyrhynchos", "nest on ground", new String[]{"wetland"}, null, null, null, 0, 0, 0, 0, null, false, false, null);
-	Bird bird4 = new
+	Bird bird4 = new Bird("Red-tailed Hawk", "Buteo jamaicensis", "stick", new String[]{"forest", "grassland", "plains"}, null, null, null, 0, 0, 0, 0, null, false, false, null);
 	addMouseListener(this);
 
 	
