@@ -33,7 +33,10 @@ public Panel()
 	{
 		e.printStackTrace();
 	}
-
+	Bird bird1 = new Bird("Acadian Flycatcher", "Empidonax virescens", "cavity", new String[]{"forest", "wetland"}, null, null, null, 0, 0, 0, 0, null, false, false, null);
+	Bird bird2 = new Bird("American Robin", "Turdus migratorius", "cup", new String[]{"forest", "grassland"}, null, null, null, 0, 0, 0, 0, null, false, false, null);
+	Bird bird3 = new Bird("Mallard", "Anas platyrhynchos", "nest on ground", new String[]{"wetland"}, null, null, null, 0, 0, 0, 0, null, false, false, null);
+	Bird bird4 = new
 	addMouseListener(this);
 
 	
@@ -100,8 +103,8 @@ public Panel()
 	    super.addNotify();
 	    requestFocus();
 	//I reccomend making buttons here
-	Button sample = new Button("default","normal",null,true,true,0,0,500,500);
-	currentScreen.add(sample);
+	Button bird1 = new Button("default","normal",null,true,true,0,0,500,500);
+	currentScreen.addAll(new ArrayList<>({new Button("default","normal",null,true,true,200,200,500,500),new Button("default","normal",null,true,true,0,0,500,500)}));
 	    repaint();
 	}
 }
