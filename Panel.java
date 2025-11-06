@@ -22,7 +22,10 @@ import java.awt.event.ActionEvent;
 public class Panel extends JPanel implements MouseListener{
 ArrayList<Button> currentScreen = new ArrayList<Button>();
 BufferedImage bg;
+<<<<<<< HEAD
 ArrayList<BufferedImage> birdpics;
+=======
+>>>>>>> f38710aa7e93a03d71c5fdbb5149cc3e82f94d4b
 public Panel()
 {
 	setSize(1600,960);
@@ -38,12 +41,18 @@ public Panel()
 	Bird bird2 = new Bird("American Robin", "Turdus migratorius", "cup", new String[]{"forest", "grassland"}, null, null, null, 0, 0, 0, 0, null, false, false, null);
 	Bird bird3 = new Bird("Mallard", "Anas platyrhynchos", "nest on ground", new String[]{"wetland"}, null, null, null, 0, 0, 0, 0, null, false, false, null);
 	Bird bird4 = new Bird("Red-tailed Hawk", "Buteo jamaicensis", "stick", new String[]{"forest", "grassland", "plains"}, null, null, null, 0, 0, 0, 0, null, false, false, null);
+<<<<<<< HEAD
 	Bird bird5 = new Bird("Great Horned Owl", "Bubo virginianus", "stick", new String[]{"forest", "wetland", "grassland"}, null, null, null, 0, 0, 0, 0, null, false, false, null);
+=======
+>>>>>>> f38710aa7e93a03d71c5fdbb5149cc3e82f94d4b
 	addMouseListener(this);
 
 	
 }
+<<<<<<< HEAD
 public 
+=======
+>>>>>>> f38710aa7e93a03d71c5fdbb5149cc3e82f94d4b
 
 	
 @Override
