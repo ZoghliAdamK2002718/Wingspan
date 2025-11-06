@@ -22,12 +22,21 @@ import java.awt.event.ActionEvent;
 public class Panel extends JPanel implements MouseListener{
 ArrayList<Button> currentScreen = new ArrayList<Button>();
 BufferedImage bg;
-<<<<<<< HEAD
 ArrayList<BufferedImage> birdpics;
-=======
->>>>>>> f38710aa7e93a03d71c5fdbb5149cc3e82f94d4b
 public Panel()
 {
+	try{
+		birdpics = new ArrayList<BufferedImage>();
+		birdpics.add(ImageIO.read(Panel.class.getResource("/birds/acadianflycatcher.jpg")));
+		birdpics.add(ImageIO.read(Panel.class.getResource("/birds/songsparrow.jpg")));
+		birdpics.add(ImageIO.read(Panel.class.getResource("/birds/mallard.png")));
+		birdpics.add(ImageIO.read(Panel.class.getResource("/birds/redtailedhawk.png")));
+		birdpics.add(ImageIO.read(Panel.class.getResource("/birds/greathornedowl.png")));
+	}
+	catch (IOException e)
+	{
+		e.printStackTrace();
+	}
 	setSize(1600,960);
 	try
 	{
@@ -38,21 +47,16 @@ public Panel()
 		e.printStackTrace();
 	}
 	Bird bird1 = new Bird("Acadian Flycatcher", "Empidonax virescens", "cavity", new String[]{"forest", "wetland"}, null, null, null, 0, 0, 0, 0, null, false, false, null);
-	Bird bird2 = new Bird("American Robin", "Turdus migratorius", "cup", new String[]{"forest", "grassland"}, null, null, null, 0, 0, 0, 0, null, false, false, null);
+	Bird bird2 = new Bird("Song Sparrow", "Melospiza melodia", "ground", new String[]{"grassland", "wetland", "plains"}, null, null, null, 0, 0, 0, 0, null, false, false, null);
 	Bird bird3 = new Bird("Mallard", "Anas platyrhynchos", "nest on ground", new String[]{"wetland"}, null, null, null, 0, 0, 0, 0, null, false, false, null);
 	Bird bird4 = new Bird("Red-tailed Hawk", "Buteo jamaicensis", "stick", new String[]{"forest", "grassland", "plains"}, null, null, null, 0, 0, 0, 0, null, false, false, null);
-<<<<<<< HEAD
 	Bird bird5 = new Bird("Great Horned Owl", "Bubo virginianus", "stick", new String[]{"forest", "wetland", "grassland"}, null, null, null, 0, 0, 0, 0, null, false, false, null);
-=======
->>>>>>> f38710aa7e93a03d71c5fdbb5149cc3e82f94d4b
+
 	addMouseListener(this);
 
 	
 }
-<<<<<<< HEAD
 public 
-=======
->>>>>>> f38710aa7e93a03d71c5fdbb5149cc3e82f94d4b
 
 	
 @Override
@@ -61,6 +65,7 @@ public
 	super.paint(g);
 	// paint background
 	g.drawImage(bg, 0, 0, getWidth(), getHeight(), null);
+	startingScreen(g, 0);
 	for(int i=0;i<currentScreen.size();i++)
 	{
 		currentScreen.get(i).paint(g);
@@ -69,7 +74,15 @@ public
 }
 
 
+	public void startingScreen(Graphics g, int playerIndex)
+	{
+		for(int i =0;i<5;i++)
+		{
+			g.drawImage(birdpics.get(i), 100 + (i*200), 200, 85,139);
+		}
 
+		
+	}
 	public void mouseClicked(MouseEvent e) {
 		
 		for(int i=0;i<currentScreen.size();i++)
