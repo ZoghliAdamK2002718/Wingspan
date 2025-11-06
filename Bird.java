@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class Bird {
+public class Bird extends Button {
   private String name, sciName, nestType;
 private String[] habitats;
 private Ability birdAbility;
@@ -14,6 +14,7 @@ private Spot loc;
   
   public Bird(String n, String sN, String nT, String[] h, Ability bA, TreeMap<String, Integer> co, TreeMap<String, Integer> ca, int po, int eC, int eCa, int s, ArrayList<Bird> p, boolean bc, boolean flo, Spot l)
   {
+    super(n, sN, i, bc, bc, po, po, po, po);
     name = n;sciName = sN;nestType = nT;
     habitats = h;
     birdAbility = bA;
@@ -21,11 +22,68 @@ private Spot loc;
     cache = ca;
     points = po; eggCount = eC; eggCapacity = eCa; size = s;
     prey = p;
-    bonusCard = bc;
-    flocking = flo;
+    bonusCard = bc; flocking = flo;
     loc = l;
-    
-
+  }
+  public String getName()
+  {
+    return name;
+  }
+  public String getSciName()
+  {
+    return sciName;
+  }
+  public String getNestType()
+  {
+    return nestType;
+  }
+  public String[] getHabitats()
+  {
+    return habitats;
+  }
+  public Ability getAbility()
+  {
+    return birdAbility;
+  }
+  public TreeMap<String, Integer> getCosts()
+  {
+    return costs;
+  }
+  public TreeMap<String, Integer> getCache()
+  {
+    return cache;
+  }
+  public int getPoints()
+  {
+    return points;
+  }
+  public int getEggCount()
+  {
+    return eggCount;
+  }
+  public int getEggCapacity()
+  {
+    return eggCapacity;
+  }
+  public int getSize()
+  {
+    return size;
+  }
+  public ArrayList<Bird> getPrey()
+  {
+    return prey;
+  }
+  public boolean hasBonusCard()
+  {
+    return bonusCard;
+  }
+  public boolean isFlocking()
+  {
+    return flocking;
+  }
+  public Spot getLocation()
+  {
+    return loc;
   }
   public String getName()
   {
