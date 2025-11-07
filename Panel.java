@@ -26,6 +26,7 @@ private int cardH = 278;
 private int cardW = 140;
 private int tokenSize = 100;
 HashMap<String, BufferedImage> miscpics = new HashMap<String, BufferedImage>();
+HashMap<String, Bird> birdcards = new HashMap<String, Bird>();
 ArrayList<Player> players = new ArrayList<Player>();
 Player player1;
 public Panel()
@@ -53,6 +54,12 @@ public Panel()
 	player1 = new Player(new ArrayList<Bird>(), new TreeMap<String,Integer>(), new ArrayList<BonusCard>(), new HashMap<String, ArrayList<Spot>>(), new ArrayList<Button>());
 	player1.playerSetHand(new ArrayList<>(Arrays.asList(bird1, bird2, bird3, bird4, bird5)));
 	players.add(player1);
+	birdcards.put("Acadian Flycatcher", bird1);
+	birdcards.put("Song Sparrow", bird2);
+	birdcards.put("Mallard", bird3);
+	birdcards.put("Red-tailed Hawk", bird4);
+	birdcards.put("Great Horned Owl", bird5);
+	
 
 	/*
 	currentScreen.add(bird1);
