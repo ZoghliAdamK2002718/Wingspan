@@ -44,7 +44,6 @@ public class Button {
                     g.setColor(Color.BLACK);
                     g.drawString(name, x(x1) + x(4), y(y1) + y(14));
                 break;
-                
             }
         }
     }

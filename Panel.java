@@ -23,62 +23,64 @@ public class Panel extends JPanel implements MouseListener{
 ArrayList<Button> currentScreen = new ArrayList<Button>();
 BufferedImage bg;
 ArrayList<BufferedImage> birdpics;
+ArrayList<Player> players = new ArrayList<Player>();
+Player player1;
 public Panel()
 {
-	try{
-		birdpics = new ArrayList<BufferedImage>();
-		birdpics.add(ImageIO.read(Panel.class.getResource("/birds/acadianflycatcher.jpg")));
-		birdpics.add(ImageIO.read(Panel.class.getResource("/birds/songsparrow.jpg")));
-		birdpics.add(ImageIO.read(Panel.class.getResource("/birds/mallard.png")));
-		birdpics.add(ImageIO.read(Panel.class.getResource("/birds/redtailedhawk.png")));
-		birdpics.add(ImageIO.read(Panel.class.getResource("/birds/greathornedowl.png")));
-	}
-	catch (IOException e)
-	{
-		e.printStackTrace();
-	}
 	setSize(1600,960);
+	Bird bird1 = null, bird2 = null, bird3 = null, bird4 = null, bird5 = null;
 	try
 	{
 		bg = ImageIO.read(Panel.class.getResource("/Images/wgsbg.jpg"));
+		bird1 = new Bird("Acadian Flycatcher", "Empidonax virescens", "cavity", new String[]{"forest", "wetland"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/acadianflycatcher.jpg")));
+		bird2 = new Bird("Song Sparrow", "Melospiza melodia", "ground", new String[]{"grassland", "wetland", "plains"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/songsparrow.jpg")));
+		bird3 = new Bird("Mallard", "Anas platyrhynchos", "nest on ground", new String[]{"wetland"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/mallard.png")));
+		bird4 = new Bird("Red-tailed Hawk", "Buteo jamaicensis", "stick", new String[]{"forest", "grassland", "plains"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/redtailedhawk.png")));
+		bird5 = new Bird("Great Horned Owl", "Bubo virginianus", "stick", new String[]{"forest", "wetland", "grassland"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/greathornedowl.png")));
 	}
 	catch (IOException e)
 	{
 		e.printStackTrace();
 	}
-	Bird bird1 = new Bird("Acadian Flycatcher", "Empidonax virescens", "cavity", new String[]{"forest", "wetland"}, null, null, null, 0, 0, 0, 0, null, false, false, null);
-	Bird bird2 = new Bird("Song Sparrow", "Melospiza melodia", "ground", new String[]{"grassland", "wetland", "plains"}, null, null, null, 0, 0, 0, 0, null, false, false, null);
-	Bird bird3 = new Bird("Mallard", "Anas platyrhynchos", "nest on ground", new String[]{"wetland"}, null, null, null, 0, 0, 0, 0, null, false, false, null);
-	Bird bird4 = new Bird("Red-tailed Hawk", "Buteo jamaicensis", "stick", new String[]{"forest", "grassland", "plains"}, null, null, null, 0, 0, 0, 0, null, false, false, null);
-	Bird bird5 = new Bird("Great Horned Owl", "Bubo virginianus", "stick", new String[]{"forest", "wetland", "grassland"}, null, null, null, 0, 0, 0, 0, null, false, false, null);
+	player1 = new Player(new ArrayList<Bird>(), new TreeMap<String,Integer>(), new ArrayList<BonusCard>(), new HashMap<String, ArrayList<Spot>>(), new ArrayList<Button>());
+	player1.playerSetHand(new ArrayList<>(Arrays.asList(bird1, bird2, bird3, bird4, bird5)));
+	players.add(player1);
 
+	/*
+	currentScreen.add(bird1);
+	currentScreen.add(bird2);
+	currentScreen.add(bird3);
+	currentScreen.add(bird4);
+	currentScreen.add(bird5);
+	*/
 	addMouseListener(this);
 
 	
 }
-public 
 
-	
 @Override
 	public void paint(Graphics g)
 {
 	super.paint(g);
 	// paint background
+	/*
 	g.drawImage(bg, 0, 0, getWidth(), getHeight(), null);
-	startingScreen(g, 0);
 	for(int i=0;i<currentScreen.size();i++)
 	{
 		currentScreen.get(i).paint(g);
 	}
+	*/
+	startingScreen(g, 0);
 	
 }
 
 
 	public void startingScreen(Graphics g, int playerIndex)
 	{
+		ArrayList<Bird> hand = players.get(playerIndex).playerGetHand();
 		for(int i =0;i<5;i++)
 		{
-			g.drawImage(birdpics.get(i), 100 + (i*200), 200, 85,139);
+			g.drawImage(hand.get(i).getImage(), 100 + (i*200), 200, 85, 139, null);		
 		}
 
 		
@@ -128,8 +130,10 @@ public
 	    super.addNotify();
 	    requestFocus();
 	//I reccomend making buttons here
-	Button bird1 = new Button("default","normal",null,true,true,0,0,500,500);
-	currentScreen.addAll(new ArrayList<>({new Button("default","normal",null,true,true,200,200,500,500),new Button("default","normal",null,true,true,0,0,500,500)}));
+	//Button bird1 = new Button("default","normal",null,true,true,0,0,500,500);
+	//currentScreen.add(new Button("default","normal",null,true,true,200,200,500,500));
+	currentScreen.add(new Button("default","normal",null,true,true,0,0,500,500));
+	currentScreen.add(new Button("P1.png","normal",null,true,true,0,0,500,500));
 	    repaint();
 	}
 }

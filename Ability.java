@@ -19,5 +19,7 @@ private final TreeMap<String,ArrayList<String>> keyWords = new TreeMap<String,Ar
     put("gain",new ArrayList<String>(Arrays.asList()));//
     put("look",new ArrayList<String>(Arrays.asList("egg","card","hand","seed","fish")));
     put("lay",new ArrayList<String>(Arrays.asList("eggs","another","this","any","each","ground","cavity","burrow","bowl","platform","pendant","cup","scrape","clutch")));
+    put("tuck",new ArrayList<String>(Arrays.asList("NUM")));//
+
 }};
 }

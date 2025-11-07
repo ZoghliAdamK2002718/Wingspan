@@ -1,3 +1,4 @@
+import java.awt.image.BufferedImage;
 import java.util.*;
 
 public class Bird extends Button {
@@ -11,9 +12,12 @@ private ArrayList<Bird> prey;
 private boolean bonusCard, flocking;
 private static TreeSet<Bird> deck;
 private Spot loc;
+private BufferedImage image;
+
   
-  public Bird(String n, String sN, String nT, String[] h, Ability bA, TreeMap<String, Integer> co, TreeMap<String, Integer> ca, int po, int eC, int eCa, int s, ArrayList<Bird> p, boolean bc, boolean flo, Spot l)
+  public Bird(String n, String sN, String nT, String[] h, Ability bA, TreeMap<String, Integer> co, TreeMap<String, Integer> ca, int po, int eC, int eCa, int s, ArrayList<Bird> p, boolean bc, boolean flo, Spot l, BufferedImage i)
   {
+
     super(n, sN, i, bc, bc, po, po, po, po);
     name = n;sciName = sN;nestType = nT;
     habitats = h;
@@ -24,6 +28,7 @@ private Spot loc;
     prey = p;
     bonusCard = bc; flocking = flo;
     loc = l;
+    image = i;
   }
   public String getName()
   {
@@ -73,6 +78,7 @@ private Spot loc;
   {
     return prey;
   }
+  public void bla(){}
   public boolean hasBonusCard()
   {
     return bonusCard;
@@ -84,10 +90,6 @@ private Spot loc;
   public Spot getLocation()
   {
     return loc;
-  }
-  public String getName()
-  {
-    return name;
   }
   public String getsN()
   {
@@ -105,5 +107,12 @@ private Spot loc;
   {
     return birdAbility;
   }
-  public 
+  public TreeMap<String,Integer> getcost()
+  {
+    return costs;
+  }
+  public BufferedImage getImage()
+  {
+    return image;
+  }
 }
