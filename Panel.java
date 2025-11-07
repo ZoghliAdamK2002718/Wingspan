@@ -21,6 +21,8 @@ import java.awt.event.ActionEvent;
 public class Panel extends JPanel implements MouseListener{
 ArrayList<Button> currentScreen = new ArrayList<Button>();
 BufferedImage bg;
+private int cardH = 278;
+private int cardW = 140;
 ArrayList<BufferedImage> birdpics;
 ArrayList<Player> players = new ArrayList<Player>();
 Player player1;
@@ -35,9 +37,9 @@ public Panel()
 		System.out.println("Background loaded: " + (bg != null));
 		bird1 = new Bird("Acadian Flycatcher", "Empidonax virescens", "cavity", new String[]{"forest", "wetland"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/acadianflycatcher.jpg")));
 		bird2 = new Bird("Song Sparrow", "Melospiza melodia", "ground", new String[]{"grassland", "wetland", "plains"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/songsparrow.jpg")));
-		bird3 = new Bird("Mallard", "Anas platyrhynchos", "nest on ground", new String[]{"wetland"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/mallard.png")));
-		bird4 = new Bird("Red-tailed Hawk", "Buteo jamaicensis", "stick", new String[]{"forest", "grassland", "plains"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/redtailedhawk.png")));
-		bird5 = new Bird("Great Horned Owl", "Bubo virginianus", "stick", new String[]{"forest", "wetland", "grassland"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/greathornedowl.png")));
+		bird3 = new Bird("Mallard", "Anas platyrhynchos", "nest on ground", new String[]{"wetland"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/mallard.jpg")));
+		bird4 = new Bird("Red-tailed Hawk", "Buteo jamaicensis", "stick", new String[]{"forest", "grassland", "plains"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/redtailedhawk.jpg")));
+		bird5 = new Bird("Great Horned Owl", "Bubo virginianus", "stick", new String[]{"forest", "wetland", "grassland"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/greathornedowl.jpg")));
 		System.out.println("All images loaded successfully!");
 	}
 	catch (IOException e)
@@ -83,7 +85,7 @@ public Panel()
 		ArrayList<Bird> hand = players.get(playerIndex).playerGetHand();
 		for(int i =0;i<5;i++)
 		{
-			g.drawImage(hand.get(i).getImage(), 100 + (i*200), 200, 85, 139, null);		
+			g.drawImage(hand.get(i).getImage(), 100 + (i*160), 40, cardW, cardH, null);		
 		}
 
 		
