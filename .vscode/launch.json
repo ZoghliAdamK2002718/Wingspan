@@ -7,7 +7,12 @@
         {
             "type": "jdk",
             "request": "launch",
-            "name": "Launch Java App"
+            "name": "Launch Java App",
+            "mainClass": "${workspaceFolder}\\GraphicsRunner.java",
+            "cwd": "${workspaceFolder}",
+            "classPaths": [
+                "${workspaceFolder}"
+            ]
         }
     ]
 }

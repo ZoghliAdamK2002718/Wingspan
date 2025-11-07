@@ -6,7 +6,6 @@ import javax.swing.*;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.io.File;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import java.util.ArrayList;
@@ -31,15 +30,19 @@ public Panel()
 	Bird bird1 = null, bird2 = null, bird3 = null, bird4 = null, bird5 = null;
 	try
 	{
+		System.out.println("Loading images...");
 		bg = ImageIO.read(Panel.class.getResource("/Images/wgsbg.jpg"));
+		System.out.println("Background loaded: " + (bg != null));
 		bird1 = new Bird("Acadian Flycatcher", "Empidonax virescens", "cavity", new String[]{"forest", "wetland"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/acadianflycatcher.jpg")));
 		bird2 = new Bird("Song Sparrow", "Melospiza melodia", "ground", new String[]{"grassland", "wetland", "plains"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/songsparrow.jpg")));
 		bird3 = new Bird("Mallard", "Anas platyrhynchos", "nest on ground", new String[]{"wetland"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/mallard.png")));
 		bird4 = new Bird("Red-tailed Hawk", "Buteo jamaicensis", "stick", new String[]{"forest", "grassland", "plains"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/redtailedhawk.png")));
 		bird5 = new Bird("Great Horned Owl", "Bubo virginianus", "stick", new String[]{"forest", "wetland", "grassland"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/greathornedowl.png")));
+		System.out.println("All images loaded successfully!");
 	}
 	catch (IOException e)
 	{
+		System.out.println("ERROR loading images:");
 		e.printStackTrace();
 	}
 	player1 = new Player(new ArrayList<Bird>(), new TreeMap<String,Integer>(), new ArrayList<BonusCard>(), new HashMap<String, ArrayList<Spot>>(), new ArrayList<Button>());
