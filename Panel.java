@@ -9,6 +9,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.awt.Rectangle;
 import java.awt.Graphics2D;
 import java.awt.Color;
@@ -23,12 +24,14 @@ ArrayList<Button> currentScreen = new ArrayList<Button>();
 BufferedImage bg;
 private int cardH = 278;
 private int cardW = 140;
-ArrayList<BufferedImage> birdpics;
+private int tokenSize = 100;
+HashMap<String, BufferedImage> miscpics = new HashMap<String, BufferedImage>();
 ArrayList<Player> players = new ArrayList<Player>();
 Player player1;
 public Panel()
 {
 	setSize(1600,960);
+	loadInitialImages();
 	Bird bird1 = null, bird2 = null, bird3 = null, bird4 = null, bird5 = null;
 	try
 	{
@@ -62,6 +65,23 @@ public Panel()
 
 	
 }
+public void loadInitialImages()
+{
+	try
+	{
+		BufferedImage invertebretoken = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_ARGB);
+		invertebretoken = ImageIO.read(Panel.class.getResource("/Images/invertebretoken.png"));
+		miscpics.put("invertebretoken", invertebretoken);
+		BufferedImage wheattoken = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_ARGB);
+		wheattoken = ImageIO.read(Panel.class.getResource("/Images/wheattoken.png"));
+		miscpics.put("wheattoken", wheattoken);
+	}
+	catch (IOException e)
+	{
+		System.out.println("ERROR loading images:");
+		e.printStackTrace();
+	}
+}
 
 @Override
 	public void paint(Graphics g)
@@ -87,6 +107,8 @@ public Panel()
 		{
 			g.drawImage(hand.get(i).getImage(), 100 + (i*160), 40, cardW, cardH, null);		
 		}
+		g.drawImage(miscpics.get("wheattoken"), 100, getHeight()-200, tokenSize, tokenSize, null);
+		g.drawImage(miscpics.get("invertebretoken"), 250, getHeight()-200, tokenSize, tokenSize, null);
 
 		
 	}
