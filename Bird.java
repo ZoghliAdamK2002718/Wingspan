@@ -1,3 +1,4 @@
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.*;
 
@@ -15,10 +16,9 @@ private Spot loc;
 private BufferedImage image;
 
   
-  public Bird(String n, String sN, String nT, String[] h, Ability bA, TreeMap<String, Integer> co, TreeMap<String, Integer> ca, int po, int eC, int eCa, int s, ArrayList<Bird> p, boolean bc, boolean flo, Spot l, BufferedImage i)
+  public Bird(String n, String sN, String nT, String[] h, Ability bA, TreeMap<String, Integer> co, TreeMap<String, Integer> ca, int po, int eC, int eCa, int s, ArrayList<Bird> p, boolean bc, boolean flo, Spot l, BufferedImage i, int x, int y)
   {
-
-    super(n, sN, i, bc, bc, po, po, po, po);
+    super(n, "Normal", i, true, true, x, y, x + 140, y + 278);  // Using cardW and cardH for dimensions
     name = n;sciName = sN;nestType = nT;
     habitats = h;
     birdAbility = bA;
@@ -29,6 +29,29 @@ private BufferedImage image;
     bonusCard = bc; flocking = flo;
     loc = l;
     image = i;
+  }
+
+  public void paint(Graphics g) {
+        if (image != null) {
+            g.drawImage(image, x1, y1, x2, y2, null);
+        } 
+
+        //if an object is a bird, draw it here
+        switch (name) {
+        
+          default:
+            break;
+        }
+    }
+
+  public void click()
+  {
+    //define what happens when a bird card is clicked
+    switch (name) {
+        
+          default:
+            break;
+        }
   }
   public String getName()
   {

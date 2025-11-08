@@ -1,5 +1,5 @@
 
-public class Spot {
+public class Spot extends Button{
 private Bird bird;
 private String area;
 private int index;
@@ -7,6 +7,7 @@ private boolean occupied, hasActionToken;
 private Ability spotAbility;
 
     public Spot(String a, int i, Ability sa) {
+        super("Spot "+a+" "+i, "normal", null, true, true, 0, 0, 0, 0);
         area = a;
         index = i;
         spotAbility = sa;

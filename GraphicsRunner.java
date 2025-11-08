@@ -1,7 +1,7 @@
-public class GraphicsRunner {
-
-public static void main(String args[])
+public class GraphicsRunner 
 {
-Frame graphicWindow = new Frame("WingSpanGraphic");
+public static void main(String[] args)
+{
+    Frame graphicWindow = new Frame("WingSpanGraphic");
 }
 }

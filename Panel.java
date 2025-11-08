@@ -8,8 +8,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
-import java.util.ArrayList;
-import java.util.HashMap;
+
 import java.awt.Rectangle;
 import java.awt.Graphics2D;
 import java.awt.Color;
@@ -32,42 +31,8 @@ Player player1;
 public Panel()
 {
 	setSize(1600,960);
-	loadInitialImages();
-	Bird bird1 = null, bird2 = null, bird3 = null, bird4 = null, bird5 = null;
-	try
-	{
-		System.out.println("Loading images...");
-		bg = ImageIO.read(Panel.class.getResource("/Images/wgsbg.jpg"));
-		System.out.println("Background loaded: " + (bg != null));
-		bird1 = new Bird("Acadian Flycatcher", "Empidonax virescens", "cavity", new String[]{"forest", "wetland"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/acadianflycatcher.jpg")));
-		bird2 = new Bird("Song Sparrow", "Melospiza melodia", "ground", new String[]{"grassland", "wetland", "plains"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/songsparrow.jpg")));
-		bird3 = new Bird("Mallard", "Anas platyrhynchos", "nest on ground", new String[]{"wetland"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/mallard.jpg")));
-		bird4 = new Bird("Red-tailed Hawk", "Buteo jamaicensis", "stick", new String[]{"forest", "grassland", "plains"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/redtailedhawk.jpg")));
-		bird5 = new Bird("Great Horned Owl", "Bubo virginianus", "stick", new String[]{"forest", "wetland", "grassland"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/greathornedowl.jpg")));
-		System.out.println("All images loaded successfully!");
-	}
-	catch (IOException e)
-	{
-		System.out.println("ERROR loading images:");
-		e.printStackTrace();
-	}
-	player1 = new Player(new ArrayList<Bird>(), new TreeMap<String,Integer>(), new ArrayList<BonusCard>(), new HashMap<String, ArrayList<Spot>>(), new ArrayList<Button>());
-	player1.playerSetHand(new ArrayList<>(Arrays.asList(bird1, bird2, bird3, bird4, bird5)));
-	players.add(player1);
-	birdcards.put("Acadian Flycatcher", bird1);
-	birdcards.put("Song Sparrow", bird2);
-	birdcards.put("Mallard", bird3);
-	birdcards.put("Red-tailed Hawk", bird4);
-	birdcards.put("Great Horned Owl", bird5);
 	
-
-	/*
-	currentScreen.add(bird1);
-	currentScreen.add(bird2);
-	currentScreen.add(bird3);
-	currentScreen.add(bird4);
-	currentScreen.add(bird5);
-	*/
+	
 	addMouseListener(this);
 
 	
@@ -95,13 +60,13 @@ public void loadInitialImages()
 {
 	super.paint(g);
 	// paint background
-	/*
+	
 	g.drawImage(bg, 0, 0, getWidth(), getHeight(), null);
 	for(int i=0;i<currentScreen.size();i++)
 	{
 		currentScreen.get(i).paint(g);
 	}
-	*/
+	
 	startingScreen(g, 0);
 	
 }
@@ -109,11 +74,11 @@ public void loadInitialImages()
 
 	public void startingScreen(Graphics g, int playerIndex)
 	{
-		ArrayList<Bird> hand = players.get(playerIndex).playerGetHand();
+		/*ArrayList<Bird> hand = players.get(playerIndex).playerGetHand();
 		for(int i =0;i<5;i++)
 		{
 			g.drawImage(hand.get(i).getImage(), 100 + (i*160), 40, cardW, cardH, null);		
-		}
+		}*/
 		g.drawImage(miscpics.get("wheattoken"), 100, getHeight()-200, tokenSize, tokenSize, null);
 		g.drawImage(miscpics.get("invertebretoken"), 250, getHeight()-200, tokenSize, tokenSize, null);
 
@@ -156,18 +121,63 @@ public void loadInitialImages()
 		
 	}
 	
-	
-			
-	
-
+	/*	TRY TO INITIALIZE OBJECTS HERE SO THAT THERE ARE NO POINTER EXCEPTIONS
+	 * 
+	 *
+	 */
 	public void addNotify() {
 	    super.addNotify();
 	    requestFocus();
-	//I reccomend making buttons here
-	//Button bird1 = new Button("default","normal",null,true,true,0,0,500,500);
-	//currentScreen.add(new Button("default","normal",null,true,true,200,200,500,500));
-	currentScreen.add(new Button("default","normal",null,true,true,0,0,500,500));
-	currentScreen.add(new Button("P1.png","normal",null,true,true,0,0,500,500));
+	loadInitialImages();
+	Bird bird1 = null, bird2 = null, bird3 = null, bird4 = null, bird5 = null;
+	try
+	{
+		System.out.println("Loading images...");
+		bg = ImageIO.read(Panel.class.getResource("/Images/wgsbg.jpg"));
+		System.out.println("Background loaded: " + (bg != null));
+		// Position birds horizontally across the screen with spacing
+		int startX = 50;  // Start 50 pixels from the left
+		int spacing = 160;  // Space between cards
+		int startY = 100;  // Start 100 pixels from the top
+		
+		bird1 = new Bird("Acadian Flycatcher", "Empidonax virescens", "cavity", new String[]{"forest", "wetland"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/acadianflycatcher.jpg")), startX, startY);
+		bird2 = new Bird("Song Sparrow", "Melospiza melodia", "ground", new String[]{"grassland", "wetland", "plains"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/songsparrow.jpg")), startX + spacing, startY);
+		bird3 = new Bird("Mallard", "Anas platyrhynchos", "nest on ground", new String[]{"wetland"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/mallard.jpg")), startX + spacing * 2, startY);
+		bird4 = new Bird("Red-tailed Hawk", "Buteo jamaicensis", "stick", new String[]{"forest", "grassland", "plains"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/redtailedhawk.jpg")), startX + spacing * 3, startY);
+		bird5 = new Bird("Great Horned Owl", "Bubo virginianus", "stick", new String[]{"forest", "wetland", "grassland"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/greathornedowl.jpg")), startX + spacing * 4, startY);
+		System.out.println("All images loaded successfully!");
+		
+		
+	}
+	catch (IOException e)
+	{
+		System.out.println("ERROR loading images:");
+		e.printStackTrace();
+	}
+	
+	/*birdcards.put("Acadian Flycatcher", bird1);
+	birdcards.put("Song Sparrow", bird2);
+	birdcards.put("Mallard", bird3);
+	birdcards.put("Red-tailed Hawk", bird4);
+	birdcards.put("Great Horned Owl", bird5);
+	*/
+
+	
+	
+	
+
+	player1 = new Player(new ArrayList<Bird>(),
+                     new TreeMap<String,Integer>(),
+                     new ArrayList<BonusCard>(),
+                     new HashMap<String, ArrayList<Spot>>(),
+                     new ArrayList<Button>());
+
+player1.playerSetHand(new ArrayList<>(Arrays.asList(bird1, bird2, bird3, bird4, bird5)));
+players.add(player1);
+
+//if you are panicking that I made permenant renderings of the birds, don't worry
+	//just comment the bottom line of code to remove them from the screen
+currentScreen.addAll(player1.playerGetHand());
 	    repaint();
 	}
 }
