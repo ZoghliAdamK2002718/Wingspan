@@ -16,21 +16,23 @@ public class Button {
     protected String name = "NONE";
     protected String state = "Normal";
 
-    //Constructor    name    state       image        clickable   display      x1      y1        x2        y2
+    //Constructor    name    state       image        clickable   display      x       y        x+width   y+height
     public Button(String n, String s, BufferedImage i, boolean c, boolean d, int xOne, int yOne, int xTwo, int yTwo) {
-    name = n;
-    state = s;
-    image = i;
-    clickable = c;
-    display = d;
-    x1 = x(xOne);//the x and y coordinates are only scaled in the constructor
-    y1 = y(yOne);
-    x2 = x(xTwo);
-    y2 = y(yTwo);
-    width = x2 - x1;
-    height = y2 - y1;
-    all.add(this);
-}
+        name = n;
+        state = s;
+        image = i;
+        clickable = c;
+        display = d;
+
+        // Scale only position; keep width/height as absolute pixel sizes
+        x1 = x(xOne);
+        y1 = y(yOne);
+        width = (xTwo - xOne);
+        height = (yTwo - yOne);
+        x2 = x1 + width;
+        y2 = y1 + height;
+        all.add(this);
+    }
 
     /*
      * THESE METHODS ARE OVERRIDDEN IN CHILD CLASSES
@@ -91,8 +93,8 @@ public class Button {
     //Move the button to a new x,y position (top-left corner)
     public void move(int x, int y) {
         x1 = x(x);
-        x2 = x1 + this.getWidth();
         y1 = y(y);
+        x2 = x1 + this.getWidth();
         y2 = y1 + this.getHeight();
     }
     

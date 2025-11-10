@@ -1,8 +1,9 @@
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.*;
+import java.awt.Rectangle;
 
-public class Bird extends Button {
+public class Bird /*extends Button*/ {
   private String name, sciName, nestType;
 private String[] habitats;
 private Ability birdAbility;
@@ -14,11 +15,15 @@ private boolean bonusCard, flocking;
 private static TreeSet<Bird> deck;
 private Spot loc;
 private BufferedImage image;
+private int cardH = 278;
+private int cardW = 140;
+private Rectangle bounds;
 
   
   public Bird(String n, String sN, String nT, String[] h, Ability bA, TreeMap<String, Integer> co, TreeMap<String, Integer> ca, int po, int eC, int eCa, int s, ArrayList<Bird> p, boolean bc, boolean flo, Spot l, BufferedImage i, int x, int y)
   {
-    super(n, "Normal", i, true, true, x, y, x + 140, y + 278);  // Using cardW and cardH for dimensions
+
+    /*super(n, "Normal", i, true, true, x, y, x + 140, y + 278);*/  // Using cardW and cardH for dimensions
     name = n;sciName = sN;nestType = nT;
     habitats = h;
     birdAbility = bA;
@@ -29,11 +34,32 @@ private BufferedImage image;
     bonusCard = bc; flocking = flo;
     loc = l;
     image = i;
+    bounds = new Rectangle(x, y, cardW, cardH);
   }
-
+  
+  public Rectangle getBounds()
+  {
+    return bounds;
+  }
+  public void setX(int x)
+  {
+    bounds = this.getBounds();
+    bounds.x = x;
+    this.setBounds(bounds);
+  }
+  public void setY(int y)
+  {
+    bounds = this.getBounds();
+    bounds.y = y;
+    this.setBounds(bounds);
+  }
+  public void setBounds(Rectangle r)
+  {
+    if (r != null) this.bounds = new Rectangle(r);
+  }
   public void paint(Graphics g) {
-        if (image != null) {
-            g.drawImage(image, x1, y1, x2, y2, null);
+        if (image != null && bounds != null) {
+            g.drawImage(image, bounds.x, bounds.y, bounds.width, bounds.height, null);
         } 
 
         //if an object is a bird, draw it here
