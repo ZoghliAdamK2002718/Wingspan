@@ -1,4 +1,4 @@
-import javax.swing.*;
+"""import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -158,4 +158,5 @@ public class Button {
 			return in * Frame.getPanel().getHeight() / 1000;
 		
 	}
-}
+}""";
+
