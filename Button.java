@@ -66,11 +66,14 @@ public class Button {
         
         // Handle bird buttons
         if (name.startsWith("bird_") && bird != null && bird.getImage() != null) {
+            // Don't render if selected (it's in the selection box)
+            if (isSelected) return;
+            
             int drawW = width;
             int drawH = height;
             int drawX = x1;
             int drawY = y1;
-            if (isHovered && !isSelected) {
+            if (isHovered) {
                 double scale = 1.12;
                 drawW = (int)Math.round(width * scale);
                 drawH = (int)Math.round(height * scale);
@@ -83,12 +86,15 @@ public class Button {
         
         // Handle token buttons (circular)
         if (name.startsWith("token_") && image != null) {
+            // Don't render if selected (it's in the selection box)
+            if (isSelected) return;
+            
             g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             int size = radius * 2;
             int x = centerX - size / 2;
             int y = centerY - size / 2;
-            if (isHovered && !isSelected) {
+            if (isHovered) {
                 double scale = 1.18;
                 int newSize = (int)Math.round(size * scale);
                 x = centerX - newSize / 2;
@@ -106,27 +112,33 @@ public class Button {
             g2.setColor(new Color(0, 0, 0, 40));
             g2.drawRect(x1, y1, width, height);
             
-            if (state.equals("has_token") && secondaryImage != null) {
-                int ts = Math.min(width, height) - 10;
-                if (isHovered) ts = (int)Math.round(ts * 1.15);
-                int pad = Math.max(2, (int)(ts * 0.1));
-                int inner = ts - pad * 2;
-                int cx = x1 + (width - ts) / 2;
-                int cy = y1 + (height - ts) / 2;
-                g2.drawImage(secondaryImage, cx + pad, cy + pad, inner, inner, null);
-            } else if (state.equals("has_bird") && bird != null && bird.getImage() != null) {
-                int dw = width;
-                int dh = height;
-                int dx = x1;
-                int dy = y1;
-                if (isHovered) {
-                    double scale = 1.12;
-                    dw = (int)Math.round(width * scale);
-                    dh = (int)Math.round(height * scale);
-                    dx = x1 - (dw - width) / 2;
-                    dy = y1 - (dh - height) / 2;
+            if (state.equals("has_token")) {
+                BufferedImage tokenImg = (secondaryImage != null) ? secondaryImage : image;
+                if (tokenImg != null) {
+                    int ts = Math.min(width, height) - 10;
+                    if (isHovered) ts = (int)Math.round(ts * 1.15);
+                    int pad = Math.max(2, (int)(ts * 0.1));
+                    int inner = ts - pad * 2;
+                    int cx = x1 + (width - ts) / 2;
+                    int cy = y1 + (height - ts) / 2;
+                    g2.drawImage(tokenImg, cx + pad, cy + pad, inner, inner, null);
                 }
-                g2.drawImage(bird.getImage(), dx, dy, dw, dh, null);
+            } else if (state.equals("has_bird")) {
+                BufferedImage birdImg = (bird != null && bird.getImage() != null) ? bird.getImage() : image;
+                if (birdImg != null) {
+                    int dw = width;
+                    int dh = height;
+                    int dx = x1;
+                    int dy = y1;
+                    if (isHovered) {
+                        double scale = 1.12;
+                        dw = (int)Math.round(width * scale);
+                        dh = (int)Math.round(height * scale);
+                        dx = x1 - (dw - width) / 2;
+                        dy = y1 - (dh - height) / 2;
+                    }
+                    g2.drawImage(birdImg, dx, dy, dw, dh, null);
+                }
             }
             return;
         }
@@ -223,9 +235,6 @@ public class Button {
     
     public void setSelected(boolean s) {
         this.isSelected = s;
-        if (name.startsWith("bird_") || name.startsWith("token_")) {
-            this.display = !s; // Hide when selected
-        }
     }
     
     public boolean isSelected() {

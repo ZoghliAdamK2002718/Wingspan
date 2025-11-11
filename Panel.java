@@ -37,6 +37,7 @@ private ArrayList<Button> birdButtons = new ArrayList<Button>();
 private ArrayList<Button> tokenButtons = new ArrayList<Button>();
 private ArrayList<Button> selectionSlotButtons = new ArrayList<Button>();
 private int currentPlayerIndex = 0;
+private int lastInitializedPlayer = -1; // Track which player's buttons were last initialized
 public Panel()
 {
     setSize(1600,960);
@@ -97,11 +98,6 @@ public void loadInitialImages()
 		g.fillRect(0, 0, getWidth(), getHeight());
 	}
 	
-	for(int i=0;i<currentScreen.size();i++)
-	{
-		currentScreen.get(i).paint(g);
-	}
-	
 	// MODIFIED: Only show startingScreen after names are entered
 	if(!namesEntered) {
 		// Draw title over background
@@ -111,7 +107,20 @@ public void loadInitialImages()
 		
 		// Text fields are visible on top
 	} else if(!startingComplete) {
+		// Draw the selection box FIRST (before buttons)
 		startingScreen(g, currentPlayerIndex);
+		
+		// Then draw all buttons (birds, tokens, selection slots) ON TOP
+		for(int i=0;i<currentScreen.size();i++)
+		{
+			currentScreen.get(i).paint(g);
+		}
+	} else {
+		// Normal game mode - just draw buttons
+		for(int i=0;i<currentScreen.size();i++)
+		{
+			currentScreen.get(i).paint(g);
+		}
 	}
 	
 }public void realStartingScreen()
@@ -233,7 +242,10 @@ public void loadInitialImages()
         g2.drawString(playerName + "'s Turn - Select 5 items", 50, 30);
         
         // Initialize buttons if needed (first time or player changed)
-        initializeStartingScreenButtons(playerIndex);
+        if (lastInitializedPlayer != playerIndex) {
+            initializeStartingScreenButtons(playerIndex);
+            lastInitializedPlayer = playerIndex;
+        }
         
         // Draw selection box background
         int margin = 16;
@@ -259,6 +271,7 @@ public void loadInitialImages()
             // Move to next player
             currentPlayerIndex++;
             selectedCount = 0;
+            lastInitializedPlayer = -1; // Reset to force re-initialization for next player
             
             // Clear selections for next player
             for (Button bb : birdButtons) {
@@ -391,7 +404,7 @@ public void loadInitialImages()
                         String tokenName = ssb.getTokenName();
                         // Find matching token button and un-select it
                         for (Button tb : tokenButtons) {
-                            if (tb.getTokenName().equals(tokenName)) {
+                            if (tb.getTokenName() != null && tb.getTokenName().equals(tokenName)) {
                                 tb.setSelected(false);
                                 break;
                             }
@@ -413,10 +426,13 @@ public void loadInitialImages()
                         // Add to first empty slot
                         for (Button ssb : selectionSlotButtons) {
                             if (ssb.isEmpty()) {
-                                ssb.setBird(bb.getBird());
+                                Bird selectedBird = bb.getBird();
+                                ssb.setBird(selectedBird);
+                                ssb.setImage(selectedBird.getImage());
                                 ssb.setState("has_bird");
                                 selectedCount++;
-                                System.out.println("Added bird: " + bb.getBird().getName() + ". Now " + selectedCount + "/5");
+                                System.out.println("Added bird: " + selectedBird.getName() + " to slot. Now " + selectedCount + "/5");
+                                System.out.println("Bird image is null? " + (selectedBird.getImage() == null));
                                 repaint();
                                 return;
                             }
@@ -436,10 +452,12 @@ public void loadInitialImages()
                         for (Button ssb : selectionSlotButtons) {
                             if (ssb.isEmpty()) {
                                 ssb.setTokenName(tb.getTokenName());
-                                ssb.setSecondaryImage((BufferedImage)tb.image);
+                                ssb.setSecondaryImage(tb.image);
+                                ssb.setImage(tb.image);
                                 ssb.setState("has_token");
                                 selectedCount++;
-                                System.out.println("Added token: " + tb.getTokenName() + ". Now " + selectedCount + "/5");
+                                System.out.println("Added token: " + tb.getTokenName() + " to slot. Now " + selectedCount + "/5");
+                                System.out.println("Token image is null? " + (tb.image == null));
                                 repaint();
                                 return;
                             }
