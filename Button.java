@@ -109,13 +109,17 @@ public class Button {
         
         // Handle selection slot buttons
         if (name.startsWith("slot_")) {
-            g2.setColor(new Color(0, 0, 0, 40));
+            // Draw slot border - slightly visible even when empty
+            g2.setColor(new Color(100, 100, 100, 80));
+            g2.setStroke(new BasicStroke(1.5f));
             g2.drawRect(x1, y1, width, height);
             
             if (state.equals("has_token")) {
                 BufferedImage tokenImg = (secondaryImage != null) ? secondaryImage : image;
                 if (tokenImg != null) {
-                    int ts = Math.min(width, height) - 10;
+                    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    int ts = Math.min(width, height) - 20;
                     if (isHovered) ts = (int)Math.round(ts * 1.15);
                     int pad = Math.max(2, (int)(ts * 0.1));
                     int inner = ts - pad * 2;
@@ -126,16 +130,17 @@ public class Button {
             } else if (state.equals("has_bird")) {
                 BufferedImage birdImg = (bird != null && bird.getImage() != null) ? bird.getImage() : image;
                 if (birdImg != null) {
-                    int dw = width;
-                    int dh = height;
-                    int dx = x1;
-                    int dy = y1;
+                    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                    int dw = width - 4;
+                    int dh = height - 4;
+                    int dx = x1 + 2;
+                    int dy = y1 + 2;
                     if (isHovered) {
-                        double scale = 1.12;
-                        dw = (int)Math.round(width * scale);
-                        dh = (int)Math.round(height * scale);
-                        dx = x1 - (dw - width) / 2;
-                        dy = y1 - (dh - height) / 2;
+                        double scale = 1.08;
+                        dw = (int)Math.round((width - 4) * scale);
+                        dh = (int)Math.round((height - 4) * scale);
+                        dx = x1 + 2 - (dw - (width - 4)) / 2;
+                        dy = y1 + 2 - (dh - (height - 4)) / 2;
                     }
                     g2.drawImage(birdImg, dx, dy, dw, dh, null);
                 }

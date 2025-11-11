@@ -13,10 +13,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
-import javax.swing.JButton;
 import javax.swing.JTextField;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 
 public class Panel extends JPanel implements MouseListener, MouseMotionListener{
 ArrayList<Button> currentScreen = new ArrayList<Button>();
@@ -38,6 +35,7 @@ private ArrayList<Button> tokenButtons = new ArrayList<Button>();
 private ArrayList<Button> selectionSlotButtons = new ArrayList<Button>();
 private int currentPlayerIndex = 0;
 private int lastInitializedPlayer = -1; // Track which player's buttons were last initialized
+private boolean playerTransitioning = false; // Prevent multiple transitions
 public Panel()
 {
     setSize(1600,960);
@@ -86,9 +84,9 @@ public void loadInitialImages()
 }
 
 @Override
-	public void paint(Graphics g)
+	public void paintComponent(Graphics g)
 {
-	super.paint(g);
+	super.paintComponent(g);
 	
 	// Always paint background
 	if (bg != null) {
@@ -105,10 +103,14 @@ public void loadInitialImages()
 		g.setColor(Color.WHITE);
 		g.drawString("Wingspan - Enter Player Names", 420, 180);
 		
-		// Text fields are visible on top
+		// Draw the Go button and text fields are visible on top
+		for(int i=0;i<currentScreen.size();i++)
+		{
+			currentScreen.get(i).paint(g);
+		}
 	} else if(!startingComplete) {
-		// Draw the selection box FIRST (before buttons)
-		startingScreen(g, currentPlayerIndex);
+		// Draw the selection box background FIRST
+		drawSelectionBoxBackground(g, currentPlayerIndex);
 		
 		// Then draw all buttons (birds, tokens, selection slots) ON TOP
 		for(int i=0;i<currentScreen.size();i++)
@@ -159,13 +161,29 @@ public void loadInitialImages()
     this.add(tf3);
     this.add(tf4);
     
-    // Create standard Swing "Go!" button below the text fields
-    JButton goButton = new JButton("Go!");
-    goButton.setFont(new Font("Century Gothic", Font.BOLD, 24));
-    goButton.setBounds(centerX + 125, startY + spacing * 4 + 20, 150, 60);
-    goButton.addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent e)
-        {
+    // Create custom Button for "Go!" button
+    Button goButton = new Button("go_button", "normal", null, true, true, 
+                                  centerX + 125, startY + spacing * 4 + 20, 
+                                  centerX + 125 + 150, startY + spacing * 4 + 20 + 60) {
+        @Override
+        public void paint(Graphics g) {
+            if (!display) return;
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setColor(new Color(70, 130, 180));
+            g2.fillRoundRect(x1, y1, width, height, 15, 15);
+            g2.setColor(Color.WHITE);
+            g2.setFont(new Font("Century Gothic", Font.BOLD, 24));
+            FontMetrics fm = g2.getFontMetrics();
+            String text = "Go!";
+            int textX = x1 + (width - fm.stringWidth(text)) / 2;
+            int textY = y1 + ((height - fm.getHeight()) / 2) + fm.getAscent();
+            g2.drawString(text, textX, textY);
+        }
+        
+        @Override
+        public void click() {
+            if (!clickable) return;
+            
             String name1 = tf1.getText();
             String name2 = tf2.getText();
             String name3 = tf3.getText();
@@ -186,14 +204,14 @@ public void loadInitialImages()
                 ArrayList<Bird> playerHand = new ArrayList<>();
                 try {
                     int startX = 50;
-                    int spacing = 160;
+                    int birdSpacing = 160;
                     int startY = 100;
                     
                     playerHand.add(new Bird("Acadian Flycatcher", "Empidonax virescens", "cavity", new String[]{"forest", "wetland"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/acadianflycatcher.jpg")), startX, startY));
-                    playerHand.add(new Bird("Song Sparrow", "Melospiza melodia", "ground", new String[]{"grassland", "wetland", "plains"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/songsparrow.jpg")), startX + spacing, startY));
-                    playerHand.add(new Bird("Mallard", "Anas platyrhynchos", "nest on ground", new String[]{"wetland"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/mallard.jpg")), startX + spacing * 2, startY));
-                    playerHand.add(new Bird("Red-tailed Hawk", "Buteo jamaicensis", "stick", new String[]{"forest", "grassland", "plains"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/redtailedhawk.jpg")), startX + spacing * 3, startY));
-                    playerHand.add(new Bird("Great Horned Owl", "Bubo virginianus", "stick", new String[]{"forest", "wetland", "grassland"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/greathornedowl.jpg")), startX + spacing * 4, startY));
+                    playerHand.add(new Bird("Song Sparrow", "Melospiza melodia", "ground", new String[]{"grassland", "wetland", "plains"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/songsparrow.jpg")), startX + birdSpacing, startY));
+                    playerHand.add(new Bird("Mallard", "Anas platyrhynchos", "nest on ground", new String[]{"wetland"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/mallard.jpg")), startX + birdSpacing * 2, startY));
+                    playerHand.add(new Bird("Red-tailed Hawk", "Buteo jamaicensis", "stick", new String[]{"forest", "grassland", "plains"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/redtailedhawk.jpg")), startX + birdSpacing * 3, startY));
+                    playerHand.add(new Bird("Great Horned Owl", "Bubo virginianus", "stick", new String[]{"forest", "wetland", "grassland"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/greathornedowl.jpg")), startX + birdSpacing * 4, startY));
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -206,12 +224,14 @@ public void loadInitialImages()
                 players.add(newPlayer);
             }
 
-            // Remove text fields and button
+            // Remove text fields
             Panel.this.remove(tf1);
             Panel.this.remove(tf2);
             Panel.this.remove(tf3);
             Panel.this.remove(tf4);
-            Panel.this.remove(goButton);
+            
+            // Remove this button from currentScreen
+            currentScreen.remove(this);
             
             // Start the selection process for first player
             namesEntered = true;
@@ -221,13 +241,13 @@ public void loadInitialImages()
             Panel.this.revalidate();
             Panel.this.repaint();
         }
-    });
+    };
     
-    this.add(goButton);
+    currentScreen.add(goButton);
     this.revalidate();
     this.repaint();
 }
-    public void startingScreen(Graphics g, int playerIndex)
+    private void drawSelectionBoxBackground(Graphics g, int playerIndex)
     {
         // Safety check
         if (players.isEmpty() || playerIndex >= players.size()) {
@@ -247,58 +267,72 @@ public void loadInitialImages()
             lastInitializedPlayer = playerIndex;
         }
         
-        // Draw selection box background
-        int margin = 16;
-        int slotW = cardW;
-        int slotH = cardH;
-        int gap = 12;
-        int padding = 12;
-        int labelH = 22;
-        int boxW = 5 * slotW + 4 * gap + 2 * padding;
-        int boxH = slotH + 2 * padding + labelH;
-        int boxX = getWidth() - boxW - margin;
-        int boxY = margin;
-        g2.setColor(new Color(255,255,255,210));
+        // Draw selection box background - calculate actual pixel positions
+        int panelWidth = getWidth();
+        int panelHeight = getHeight();
+        
+        // Calculate in 0-1000 scale then convert to actual pixels
+        int margin = 10;
+        int gap = 3;
+        int padding = 8;
+        int labelH = 15;
+        int cardWScaled = 87;
+        int cardHScaled = 289;
+        int boxWScaled = 5 * cardWScaled + 4 * gap + 2 * padding;
+        int boxXScaled = 1000 - boxWScaled - margin;
+        int boxYScaled = margin;
+        
+        // Convert to actual pixels
+        int boxX = boxXScaled * panelWidth / 1000;
+        int boxY = boxYScaled * panelHeight / 1000;
+        int boxW = boxWScaled * panelWidth / 1000;
+        int boxH = (cardHScaled + 2 * padding + labelH) * panelHeight / 1000;
+        
+        g2.setColor(new Color(255,255,255,230));  // More opaque white background
         g2.fillRoundRect(boxX, boxY, boxW, boxH, 10, 10);
         g2.setColor(Color.DARK_GRAY);
+        g2.setStroke(new BasicStroke(2));
         g2.drawRoundRect(boxX, boxY, boxW, boxH, 10, 10);
-        g2.drawString("Keep (" + selectedCount + "/5)", boxX + padding, boxY + 16);
+        g2.setFont(new Font("Arial", Font.BOLD, 18));
+        g2.drawString("Keep (" + selectedCount + "/5)", boxX + (padding * panelWidth / 1000), boxY + 16);
+    }
+    
+    private void transitionToNextPlayer()
+    {
+        System.out.println("Player " + (currentPlayerIndex + 1) + " completed selection!");
         
-        // Check if current player has completed selection
-        if (selectedCount >= 5) {
-            System.out.println("Player " + (playerIndex + 1) + " completed selection!");
-            
-            // Move to next player
-            currentPlayerIndex++;
-            selectedCount = 0;
-            lastInitializedPlayer = -1; // Reset to force re-initialization for next player
-            
-            // Clear selections for next player
-            for (Button bb : birdButtons) {
-                bb.setSelected(false);
-            }
-            for (Button tb : tokenButtons) {
-                tb.setSelected(false);
-            }
-            for (Button ssb : selectionSlotButtons) {
-                ssb.clearSlot();
-            }
-            
-            // If all 4 players done, finish starting phase
-            if (currentPlayerIndex >= 4) {
-                startingComplete = true;
-                System.out.println("All players have made their selections!");
-                // Clean up buttons
-                currentScreen.removeAll(birdButtons);
-                currentScreen.removeAll(tokenButtons);
-                currentScreen.removeAll(selectionSlotButtons);
-            } else {
-                // Initialize for next player
-                initializeStartingScreenButtons(currentPlayerIndex);
-            }
-            
-            repaint();
+        // Move to next player
+        currentPlayerIndex++;
+        selectedCount = 0;
+        lastInitializedPlayer = -1; // Reset to force re-initialization for next player
+        playerTransitioning = false; // Reset flag
+        
+        // Clear selections for next player
+        for (Button bb : birdButtons) {
+            bb.setSelected(false);
         }
+        for (Button tb : tokenButtons) {
+            tb.setSelected(false);
+        }
+        for (Button ssb : selectionSlotButtons) {
+            ssb.clearSlot();
+        }
+        
+        // If all 4 players done, finish starting phase
+        if (currentPlayerIndex >= 4) {
+            startingComplete = true;
+            System.out.println("All players have made their selections!");
+            // Clean up buttons
+            currentScreen.removeAll(birdButtons);
+            currentScreen.removeAll(tokenButtons);
+            currentScreen.removeAll(selectionSlotButtons);
+        } else {
+            // Initialize for next player
+            System.out.println("Moving to player " + (currentPlayerIndex + 1));
+            initializeStartingScreenButtons(currentPlayerIndex);
+        }
+        
+        repaint();
     }
     
     private void initializeStartingScreenButtons(int playerIndex) {
@@ -312,49 +346,61 @@ public void loadInitialImages()
         tokenButtons.clear();
         selectionSlotButtons.clear();
         
-        // Create bird buttons
+        // ALL COORDINATES ARE IN 0-1000 SCALE (Button class scales them to actual pixels)
+        // Calculate selection box dimensions in scaled coordinates
+        int margin = 10;  // in 0-1000 scale
+        int gap = 3;  // gap between cards in 0-1000 scale
+        int padding = 8;
+        int labelH = 15;
+        int cardWScaled = 87;  // cardW (140) in 0-1000 scale: 140 * 1000 / 1600
+        int cardHScaled = 289; // cardH (278) in 0-1000 scale: 278 * 1000 / 960
+        int boxW = 5 * cardWScaled + 4 * gap + 2 * padding;
+        int boxX = 1000 - boxW - margin;  // from right edge
+        int boxY = margin;
+        
+        System.out.println("Initializing player " + (playerIndex + 1) + " buttons");
+        System.out.println("Selection box at scaled x=" + boxX + ", y=" + boxY + ", width=" + boxW);
+        
+        // Create bird buttons - positioned below selection box (in 0-1000 scale)
         ArrayList<Bird> hand = players.get(playerIndex).playerGetHand();
-        int topMargin = 60;
+        int topMargin = boxY + cardHScaled + 30;  // Position below the selection box
+        int cardSpacing = 3;  // in 0-1000 scale
         for (int i = 0; i < hand.size() && i < 5; i++) {
             Bird b = hand.get(i);
-            int x = 50 + i * (cardW + 20);
-            Button bb = new Button("bird_" + i, "normal", b.getImage(), true, true, x, topMargin, x + cardW, topMargin + cardH);
+            int x = 20 + i * (cardWScaled + cardSpacing);
+            Button bb = new Button("bird_" + i, "normal", b.getImage(), true, true, x, topMargin, x + cardWScaled, topMargin + cardHScaled);
             bb.setBird(b);
             birdButtons.add(bb);
             currentScreen.add(bb);
         }
         
-        // Create token buttons
-        int yTop = getHeight() - 300;
+        // Create token buttons (in 0-1000 scale)
+        int yTop = 740;  // bottom of screen in 0-1000 scale
+        int tokenSizeScaled = 94;  // tokenSize (150) in 0-1000 scale: 150 * 1000 / 1600
         String[] tokenNames = {"wheattoken", "invertebratetoken", "fishtoken", "foodtoken", "rattoken"};
-        int[] tokenXPositions = {100, 250, 400, 550, 700};
+        int[] tokenXPositions = {63, 156, 250, 344, 438};  // in 0-1000 scale
         for (int i = 0; i < tokenNames.length; i++) {
             BufferedImage img = miscpics.get(tokenNames[i]);
             if (img != null) {
                 Button tb = new Button("token_" + tokenNames[i], "normal", img, true, true, 
-                    tokenXPositions[i], yTop, tokenXPositions[i] + tokenSize, yTop + tokenSize);
+                    tokenXPositions[i], yTop, tokenXPositions[i] + tokenSizeScaled, yTop + tokenSizeScaled);
                 tb.setTokenName(tokenNames[i]);
                 tokenButtons.add(tb);
                 currentScreen.add(tb);
             }
         }
         
-        // Create selection slot buttons
-        int margin = 16;
-        int gap = 12;
-        int padding = 12;
-        int labelH = 22;
-        int boxW = 5 * cardW + 4 * gap + 2 * padding;
-        int boxX = getWidth() - boxW - margin;
-        int boxY = margin;
+        // Create selection slot buttons (in 0-1000 scale)
         int sx = boxX + padding;
         int sy = boxY + labelH + padding;
         for (int i = 0; i < 5; i++) {
-            int x = sx + i * (cardW + gap);
-            Button ssb = new Button("slot_" + i, "empty", null, true, true, x, sy, x + cardW, sy + cardH);
+            int x = sx + i * (cardWScaled + gap);
+            Button ssb = new Button("slot_" + i, "empty", null, true, true, x, sy, x + cardWScaled, sy + cardHScaled);
             selectionSlotButtons.add(ssb);
-            currentScreen.add(ssb);
+            System.out.println("Created slot " + i + " at scaled x=" + x + ", y=" + sy);
         }
+        // Add selection slots after other buttons
+        currentScreen.addAll(selectionSlotButtons);
     }
 
 
@@ -432,7 +478,12 @@ public void loadInitialImages()
                                 ssb.setState("has_bird");
                                 selectedCount++;
                                 System.out.println("Added bird: " + selectedBird.getName() + " to slot. Now " + selectedCount + "/5");
-                                System.out.println("Bird image is null? " + (selectedBird.getImage() == null));
+                                
+                                // Check if this player is done selecting
+                                if (selectedCount >= 5 && !playerTransitioning) {
+                                    playerTransitioning = true;
+                                    transitionToNextPlayer();
+                                }
                                 repaint();
                                 return;
                             }
@@ -457,7 +508,12 @@ public void loadInitialImages()
                                 ssb.setState("has_token");
                                 selectedCount++;
                                 System.out.println("Added token: " + tb.getTokenName() + " to slot. Now " + selectedCount + "/5");
-                                System.out.println("Token image is null? " + (tb.image == null));
+                                
+                                // Check if this player is done selecting
+                                if (selectedCount >= 5 && !playerTransitioning) {
+                                    playerTransitioning = true;
+                                    transitionToNextPlayer();
+                                }
                                 repaint();
                                 return;
                             }
