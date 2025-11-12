@@ -143,24 +143,24 @@ public void loadInitialImages()
     tf3.setFont(tfFont);
     tf4.setFont(tfFont);
     
-    // Position text fields vertically in the center with better spacing
-    int centerX = 375;  // In 0-1000 scale (~600px at 1600px width)
-    int startY = 260;   // In 0-1000 scale (~250px at 960px height)
-    int spacing = 73;   // In 0-1000 scale (~70px)
-    int tfWidth = 250;  // In 0-1000 scale (~400px)
-    int tfHeight = 52;  // In 0-1000 scale (~50px)
+    // Use fixed positioning that will work regardless of panel size
+    // Center at approximately 600px with 400px width
+    int centerX = 600;
+    int startY = 250;
+    int spacing = 70;
+    int tfWidth = 400;
+    int tfHeight = 50;
     
-    // Convert from 0-1000 scale to actual pixels
-    int actualCenterX = (centerX * getWidth()) / 1000;
-    int actualStartY = (startY * getHeight()) / 1000;
-    int actualSpacing = (spacing * getHeight()) / 1000;
-    int actualWidth = (tfWidth * getWidth()) / 1000;
-    int actualHeight = (tfHeight * getHeight()) / 1000;
+    tf1.setBounds(centerX, startY, tfWidth, tfHeight);
+    tf2.setBounds(centerX, startY + spacing, tfWidth, tfHeight);
+    tf3.setBounds(centerX, startY + spacing * 2, tfWidth, tfHeight);
+    tf4.setBounds(centerX, startY + spacing * 3, tfWidth, tfHeight);
     
-    tf1.setBounds(actualCenterX, actualStartY, actualWidth, actualHeight);
-    tf2.setBounds(actualCenterX, actualStartY + actualSpacing, actualWidth, actualHeight);
-    tf3.setBounds(actualCenterX, actualStartY + actualSpacing * 2, actualWidth, actualHeight);
-    tf4.setBounds(actualCenterX, actualStartY + actualSpacing * 3, actualWidth, actualHeight);
+    // Make text fields opaque so they're visible
+    tf1.setOpaque(true);
+    tf2.setOpaque(true);
+    tf3.setOpaque(true);
+    tf4.setOpaque(true);
     
     // Add text fields to the panel
     this.add(tf1);
@@ -169,15 +169,17 @@ public void loadInitialImages()
     this.add(tf4);
     
     // Create custom Button for "Go!" button using 0-1000 scale
-    // Position: centered horizontally, below the text fields
-    int buttonX = centerX + 78;  // In 0-1000 scale (~125px offset from centerX)
-    int buttonY = startY + spacing * 4 + 21;  // In 0-1000 scale
-    int buttonWidth = 94;  // In 0-1000 scale (~150px)
-    int buttonHeight = 63;  // In 0-1000 scale (~60px)
+    // Position: centered horizontally, below the text fields  
+    // 725px at 1600px width = 453 in 0-1000 scale
+    // 550px at 960px height = 573 in 0-1000 scale
+    int btnX = 453;  // In 0-1000 scale
+    int btnY = 573;  // In 0-1000 scale
+    int btnW = 94;   // 150px = 94 in 0-1000 scale
+    int btnH = 63;   // 60px = 63 in 0-1000 scale
     
     Button goButton = new Button("go_button", "normal", null, true, true, 
-                                  buttonX, buttonY, 
-                                  buttonX + buttonWidth, buttonY + buttonHeight) {
+                                  btnX, btnY, 
+                                  btnX + btnW, btnY + btnH) {
         @Override
         public void paint(Graphics g) {
             if (!display) return;
