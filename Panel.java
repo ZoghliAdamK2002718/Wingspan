@@ -1,7 +1,4 @@
-/*  Change the Panel so that the only things that are displayed are Button objects and things that inherit it
-Only do global logic in the Panel class
-this means that only logic in the Panel class should be coordinating between buttons and Player objects
- */
+
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -18,8 +15,10 @@ import javax.swing.JTextField;
 public class Panel extends JPanel implements MouseListener, MouseMotionListener{
 ArrayList<Button> currentScreen = new ArrayList<Button>();
 BufferedImage bg;
+// Card dimensions as percentage of screen (will scale with window size)
+// cardW will be ~12.5% of screen width, cardH will be ~29% of screen height
 private int cardH = 278;
-private int cardW = 140;
+private int cardW = 200;  // Reduced from 250 to fit better
 private int tokenSize = 150;
 HashMap<String, BufferedImage> miscpics = new HashMap<String, BufferedImage>();
 HashMap<String, Bird> birdcards = new HashMap<String, Bird>();
@@ -38,7 +37,8 @@ private int lastInitializedPlayer = -1; // Track which player's buttons were las
 private boolean playerTransitioning = false; // Prevent multiple transitions
 public Panel()
 {
-    setSize(1600,960);
+    // Don't hardcode size - let the frame/container determine the size
+    // setSize(1600,960);  // REMOVED - this prevents proper scaling
     
     
     addMouseListener(this);
@@ -144,16 +144,23 @@ public void loadInitialImages()
     tf4.setFont(tfFont);
     
     // Position text fields vertically in the center with better spacing
-    int centerX = 600;
-    int startY = 250;
-    int spacing = 70;
-    int tfWidth = 400;
-    int tfHeight = 50;
+    int centerX = 375;  // In 0-1000 scale (~600px at 1600px width)
+    int startY = 260;   // In 0-1000 scale (~250px at 960px height)
+    int spacing = 73;   // In 0-1000 scale (~70px)
+    int tfWidth = 250;  // In 0-1000 scale (~400px)
+    int tfHeight = 52;  // In 0-1000 scale (~50px)
     
-    tf1.setBounds(centerX, startY, tfWidth, tfHeight);
-    tf2.setBounds(centerX, startY + spacing, tfWidth, tfHeight);
-    tf3.setBounds(centerX, startY + spacing * 2, tfWidth, tfHeight);
-    tf4.setBounds(centerX, startY + spacing * 3, tfWidth, tfHeight);
+    // Convert from 0-1000 scale to actual pixels
+    int actualCenterX = (centerX * getWidth()) / 1000;
+    int actualStartY = (startY * getHeight()) / 1000;
+    int actualSpacing = (spacing * getHeight()) / 1000;
+    int actualWidth = (tfWidth * getWidth()) / 1000;
+    int actualHeight = (tfHeight * getHeight()) / 1000;
+    
+    tf1.setBounds(actualCenterX, actualStartY, actualWidth, actualHeight);
+    tf2.setBounds(actualCenterX, actualStartY + actualSpacing, actualWidth, actualHeight);
+    tf3.setBounds(actualCenterX, actualStartY + actualSpacing * 2, actualWidth, actualHeight);
+    tf4.setBounds(actualCenterX, actualStartY + actualSpacing * 3, actualWidth, actualHeight);
     
     // Add text fields to the panel
     this.add(tf1);
@@ -161,10 +168,16 @@ public void loadInitialImages()
     this.add(tf3);
     this.add(tf4);
     
-    // Create custom Button for "Go!" button
+    // Create custom Button for "Go!" button using 0-1000 scale
+    // Position: centered horizontally, below the text fields
+    int buttonX = centerX + 78;  // In 0-1000 scale (~125px offset from centerX)
+    int buttonY = startY + spacing * 4 + 21;  // In 0-1000 scale
+    int buttonWidth = 94;  // In 0-1000 scale (~150px)
+    int buttonHeight = 63;  // In 0-1000 scale (~60px)
+    
     Button goButton = new Button("go_button", "normal", null, true, true, 
-                                  centerX + 125, startY + spacing * 4 + 20, 
-                                  centerX + 125 + 150, startY + spacing * 4 + 20 + 60) {
+                                  buttonX, buttonY, 
+                                  buttonX + buttonWidth, buttonY + buttonHeight) {
         @Override
         public void paint(Graphics g) {
             if (!display) return;
@@ -271,13 +284,14 @@ public void loadInitialImages()
         int panelWidth = getWidth();
         int panelHeight = getHeight();
         
-        // Calculate in 0-1000 scale then convert to actual pixels
+        // Calculate dynamically based on actual cardW and cardH from Panel
         int margin = 10;
-        int gap = 3;
-        int padding = 8;
-        int labelH = 15;
-        int cardWScaled = 87;
-        int cardHScaled = 289;
+        int gap = 5;  // Increased gap between cards
+        int padding = 15;  // Increased padding inside box
+        int labelH = 20;  // Increased label height
+        // Convert actual card dimensions to 0-1000 scale based on current panel size
+        int cardWScaled = (cardW * 1000) / panelWidth;
+        int cardHScaled = (cardH * 1000) / panelHeight;
         int boxWScaled = 5 * cardWScaled + 4 * gap + 2 * padding;
         int boxXScaled = 1000 - boxWScaled - margin;
         int boxYScaled = margin;
@@ -347,13 +361,16 @@ public void loadInitialImages()
         selectionSlotButtons.clear();
         
         // ALL COORDINATES ARE IN 0-1000 SCALE (Button class scales them to actual pixels)
-        // Calculate selection box dimensions in scaled coordinates
+        // Calculate selection box dimensions dynamically based on actual card size
+        int panelWidth = getWidth();
+        int panelHeight = getHeight();
         int margin = 10;  // in 0-1000 scale
-        int gap = 3;  // gap between cards in 0-1000 scale
-        int padding = 8;
-        int labelH = 15;
-        int cardWScaled = 87;  // cardW (140) in 0-1000 scale: 140 * 1000 / 1600
-        int cardHScaled = 289; // cardH (278) in 0-1000 scale: 278 * 1000 / 960
+        int gap = 5;  // gap between cards - MUST match drawSelectionBoxBackground
+        int padding = 15;  // padding inside box - MUST match drawSelectionBoxBackground
+        int labelH = 20;  // label height - MUST match drawSelectionBoxBackground
+        // Convert actual card dimensions to 0-1000 scale based on current panel size
+        int cardWScaled = (cardW * 1000) / panelWidth;
+        int cardHScaled = (cardH * 1000) / panelHeight;
         int boxW = 5 * cardWScaled + 4 * gap + 2 * padding;
         int boxX = 1000 - boxW - margin;  // from right edge
         int boxY = margin;

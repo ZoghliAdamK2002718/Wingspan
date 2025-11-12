@@ -1,7 +1,7 @@
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.*;
-import java.awt.Rectangle;
 
 public class Bird /*extends Button*/ {
   private String name, sciName, nestType;
@@ -16,7 +16,7 @@ private static TreeSet<Bird> deck;
 private Spot loc;
 private BufferedImage image;
 private int cardH = 278;
-private int cardW = 140;
+private int cardW = 180;
 private Rectangle bounds;
 
   

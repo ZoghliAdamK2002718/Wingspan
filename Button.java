@@ -32,13 +32,13 @@ public class Button {
         clickable = c;
         display = d;
 
-        // Scale only position; keep width/height as absolute pixel sizes
+        // Scale position AND dimensions from 0-1000 scale to actual pixels
         x1 = x(xOne);
         y1 = y(yOne);
-        width = (xTwo - xOne);
-        height = (yTwo - yOne);
-        x2 = x1 + width;
-        y2 = y1 + height;
+        x2 = x(xTwo);
+        y2 = y(yTwo);
+        width = x2 - x1;
+        height = y2 - y1;
         all.add(this);
         
         // Initialize special fields
