@@ -11,6 +11,8 @@ private ArrayList<Integer> players;/*the players that will execute the ability f
 private static ArrayList<Ability> pinkTriggers;/*all pink abilities in the game that are active*/
 private HashMap<Class,ArrayList<Object>> inputs;/*what is returned by the ability function */
 private Bird bird;/* the bird containing this ability object */
+private Spot spot;/* the spot containing this ability object */
+private Player player;/* the player containing this ability object */
  
 private final TreeMap<String,ArrayList<String>> keyWords = new TreeMap<String,ArrayList<String>>() {{/*all the key words for the ability. If you touch this without knowing exactly what you are doing, I will do a record breaking crash out ^w^ */
     put("play",new ArrayList<String>(Arrays.asList("this", "forest", "wetland", "grassland")));
@@ -93,34 +95,177 @@ public Ability(String rA, String tT, String tN, ArrayList<String> a) {
     }
 }
 
+@SuppressWarnings("unchecked")
 public void execute()
 {
- for(int i=0;i<ability.size();i++)
+ for(int i=0;i<ability.size();i++)//Read each word in the ability
  {
-    String currentString = ability.get(i);
-    if(currentString != null && keyWords.containsKey(currentString))
+    String currentString = ability.get(i);//get current word
+    if(currentString != null && keyWords.containsKey(currentString))//if the word corresponds to a method
     {
-        String method = currentString;
+        String method = currentString;//set method to current word
+        //get parameters for method
         if(i<ability.size()-1)
-        currentString = ability.get(++i);
-        ArrayList<String> params = keyWords.get(method);
-    while(!keyWords.containsKey(currentString)&& i<ability.size()-1)
-    {
-        if(params.contains(currentString))
+        currentString = ability.get(++i);//move to next word
+        ArrayList<String> params = keyWords.get(method);//get parameters for method
+        while(!keyWords.containsKey(currentString)&& i<ability.size())//while the current word is not a method and there are still words left
         {
-            //valid parameter
-            inputs.get(String.class).add(currentString);
+            currentString = ability.get(i++);//move to next word
+            if(params.contains(currentString))//if the current word is a valid parameter
+            {
+                //valid parameter
+                inputs.get(String.class).add(currentString);//add to inputs hashMap
+            }
+            else if(params.contains("NUM")&&currentString.matches("\\d+"))//if the current word is a valid parameter and is a number
+            {
+                //valid parameter
+                inputs.get(Integer.class).add(Integer.parseInt(currentString));//add to inputs hashMap
+            }
         }
-        else if(params.contains("NUM")&&currentString.matches("\\d+"))
+    
+    
+        //call method with parameters
+        switch(method) 
         {
-            //valid parameter
-            inputs.get(Integer.class).add(Integer.parseInt(currentString));
-        }
-    currentString = ability.get(++i);
-    /*to do: Input the correct parameters for the Ability functions*/
-    }
+            case "play":
+                play((String)inputs.get(String.class).get(0));/*input the habitat */
+                break;
+            case "gain":
+            String food = "";/*inputs to the gain method */
+            String source = "";
+            String amount = "";
+            ArrayList<String> keys = keyWords.get("gain");//all possible keywords for gain
+            for(int j=0;j<keys.size();j++)//sort the found keywords into their respective variables
+            {
+                if(inputs.get(String.class).contains(keys.get(j)))
+                {
+                    if(keys.get(j).equals("rodent")||keys.get(j).equals("fish")||keys.get(j).equals("seed")||keys.get(j).equals("invertibrate")||keys.get(j).equals("fruit")||keys.get(j).equals("wild")||keys.get(j).equals("or")||keys.get(j).equals("die"))
+                    {
+                        food += keys.get(j);
+                        inputs.get(String.class).remove(keys.get(j));//remove from inputs so it doesn't get added to amount/source
+                    }
+                    else if(keys.get(j).equals("supply")||keys.get(j).equals("birdfeeder"))
+                    {
+                        source = keys.get(j);
+                        inputs.get(String.class).remove(keys.get(j));//remove from inputs so it doesn't get added to amount/source
+                    }
+                    else if(keys.get(j).equals("any")||keys.get(j).equals("all"))
+                    {
+                        amount = keys.get(j);
+                        inputs.get(String.class).remove(keys.get(j));//remove from inputs so it doesn't get added to amount/source
+                    }
+                    else if(inputs.get(Integer.class).size()>0)
+                    {
+                        amount = Integer.toString((Integer)inputs.get(Integer.class).get(0));
+                        inputs.get(Integer.class).clear();//remove from inputs so it doesn't get added to amount/source
+                    } else {
+                       inputs.get(String.class).remove(keys.get(j));//remove from inputs so it doesn't get added to amount/source
+                    }
+                }
+            
+            }
+            inputs.get(String.class).add(gain(food,source,amount));//call gain method and add what was gained for future methods
+                break;//end of gain case
+            case "right":
+                right();//all the birds do the same thing with this keyword
+                break;
+            case "keep":
+                ArrayList<Bird> birds = new ArrayList<Bird>();
+                birds.addAll((ArrayList<Bird>)(Object)inputs.get(Bird.class));//get birds from inputs
+                ArrayList<BonusCard> bonusCards = new ArrayList<BonusCard>();
+                bonusCards.addAll((ArrayList<BonusCard>)(Object)inputs.get(BonusCard.class));//get bonus cards from inputs
+                String cardType = "";//determine which type of card to keep
+                if(inputs.get(String.class).contains("bonus"))
+                {
+                    cardType = "bonus";
+                }
+                else
+                {
+                    cardType = "bird";
+                }
+                keep(cardType, birds, bonusCards);//call keep method
+                break;
+            case "look":
+                int number = 0;
+                if(inputs.get(Integer.class).size() > 0)//determine if the number of cards is specified
+                {
+                    number = (Integer)inputs.get(Integer.class).get(0);
+                    inputs.get(Integer.class).clear();//remove from inputs so it doesn't get added to number
+                }
+                look("deck", number);//call look method
+                break;
+            case "roll":
+                String foodType = "";
+                if(inputs.get(String.class).size() > 0)
+                {
+                    foodType = (String)inputs.get(String.class).get(0);
+                    inputs.get(String.class).clear();//remove from inputs so it doesn't get added to foodType
+                }
+                roll(foodType);//call roll method
+                break;
+            case "draw":
+                String deckType = "deck";
+                String num = "0";
+                String habitat = "";
+                if(inputs.get(String.class).contains("bonus"))
+                {
+                    deckType = "bonus";
+                    inputs.get(String.class).remove("bonus");//remove from inputs so it doesn't get added to deckType
+                }
+                else
+                {
+                    inputs.get(String.class).remove("deck");//remove from inputs so it doesn't get added to deckType
+                }
+               
+                if(inputs.get(Integer.class).size() > 0)
+                {
+                    num = String.valueOf((Integer)inputs.get(Integer.class).get(0));
+                    inputs.get(Integer.class).clear();//remove from inputs so it doesn't get added to number
+                }
+                else if(inputs.get(String.class).contains("equal"))
+                {
+                    //determine number equal to birds in habitat
+                    //num = number of birds in habitat
+                    num = "equal";
+                    inputs.get(String.class).remove("equal");//remove from inputs so it doesn't get added to deckType
+                }
+                if(inputs.get(String.class).size() > 0)
+                {
+                    habitat = (String)inputs.get(String.class).get(0);
+                    inputs.get(String.class).clear();//remove from inputs so it doesn't get added to habitat
+                }
+
+                draw(deckType,num);//call draw method
+                break;
+            case "lay":
+                String nestType = "";
+                int numEggs = 0;
+                ArrayList<String> layKeys = keyWords.get("lay");//all possible keywords for lay
+                for(int j=0;j<layKeys.size();j++)//sort the found keywords into their respective variables
+                {
+                    if(inputs.get(String.class).contains(layKeys.get(j)))
+                    {
+                        if(layKeys.get(j).equals("ground")||layKeys.get(j).equals("cavity")||layKeys.get(j).equals("burrow")||layKeys.get(j).equals("bowl")||layKeys.get(j).equals("platform"))
+                        {
+                            nestType = layKeys.get(j);
+                            inputs.get(String.class).remove(layKeys.get(j));//remove from inputs so it doesn't get added to nestType
+                        }
+                        else
+                        {
+                            inputs.get(String.class).remove(layKeys.get(j));//remove from inputs so it doesn't get added to nestType
+                        }
+                    }
+                }
+                if(inputs.get(Integer.class).size() > 0)
+                {
+                    numEggs = (Integer)inputs.get(Integer.class).get(0);
+                    inputs.get(Integer.class).clear();//remove from inputs so it doesn't get added to numEggs
+                }
+                lay(nestType, numEggs);//call lay method
+                break;
+        } /*To-do account for "eggs","amount" ect, and Pink ability implementation*/
+    } else {}
  }
-}
 }
 /*
  * ABILITY METHODS:
@@ -131,9 +276,9 @@ public void execute()
  * These methods used auto-fill, so I may make some changes to the parameters or return types later. Pwease don't get angwy ):
  *
  * Important Notes:
- *  NUM: wherever NUM is mentioned in the keywords or parameters, it represents an integer value that will be provided when the ability is executed
+ *  NUM: wherever NUM is mentioned in the keywords or parameters, it represents an integer value that will be provided when the ability is executed in the String amount
  *  If you need to add more parameters to the methods please let me know so I can update the ability parsing system accordingly
- *  If you need to clarificatiion on what an ability method should do, first go to the list of birds that I sent, and use CRTL+F to find what bird abilities use that method to get a better understanding
+ *  If you need to clarificatiion on what an ability method should do, first go to the list of birds that I sent, and use CRTL+F to find what bird abilities use that method to get a better understanding. Then ask me if you still need help
  *  In order to change which Players the Ability is activated for, change the players ArrayList within the Ability object to reflect the order of players
  */
 
@@ -202,7 +347,7 @@ public static void right() {
  *  bonus: keep a bonus card
  *  bird: keep a bird card
  */
-public static void keep(String cardType, Bird bird1, Bird bird2, BonusCard bonus1, BonusCard bonus2) {
+public static void keep(String cardType, ArrayList<Bird> birds, ArrayList<BonusCard> bonusCards) {
    
 }
 
@@ -213,7 +358,10 @@ public static void keep(String cardType, Bird bird1, Bird bird2, BonusCard bonus
  * @return void
  *
  * keywords:
- *  NUM: the number of cards to look at
+ *  number: the number of cards to look at
+ *      NUM: the number of cards to look at from the deck specified
+ * deckType:
+ *  deck: look at cards from the bird card deck
  */
 public static void look(String deckType, int number) {
    
@@ -239,12 +387,15 @@ public static String roll(String foodType) {
  * @return void
  *
  * keywords:
+ *amount: the number of cards to draw
  *  equal: draw equal to the number of birds in the habitat specified
  *  NUM: the number of cards to draw
+ * deckType: the type of deck to draw from
  *  bonus: draw from the bonus card deck
  *  deck: draw from the bird card deck
+ * 
  */
-public static void draw(String deckType, int number, String habitat) {
+public static void draw(String deckType, String amount) {
    
 }
 
@@ -396,5 +547,16 @@ public Bird getBird() {
 public void setBird(Bird b) {
     bird = b;
 }
+public Spot getSpot() {
+    return spot;
 }
-
+public void setSpot(Spot s) {
+    spot = s;
+}
+public Player getPlayer() {
+    return player; 
+}
+public void setPlayer(Player p) {
+    player = p;
+}
+}
