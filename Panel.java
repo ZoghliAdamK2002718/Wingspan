@@ -34,6 +34,7 @@ ArrayList<Player> players = new ArrayList<Player>();
 Player player1;
 // starting selection state
 private boolean startingComplete = false;
+private ArrayList<JTextField> nameFields = new ArrayList<JTextField>();
 private ArrayList<ItemRef> selected = new ArrayList<ItemRef>();
 private ArrayList<Slot> selectionSlots = new ArrayList<Slot>();
 private ArrayList<TokenItem> tokenItems = new ArrayList<TokenItem>();
@@ -59,6 +60,11 @@ public void loadInitialImages()
         if(invertebretoken != null) {
             invertebretoken = trimTransparent(invertebretoken);
             miscpics.put("invertebratetoken", invertebretoken);
+        }
+        BufferedImage goButton = ImageIO.read(Panel.class.getResource("/Images/gobutton.png"));
+        if(goButton != null) {
+            goButton = trimTransparent(goButton);
+            miscpics.put("gobutton", goButton);
         }
         BufferedImage wheattoken = ImageIO.read(Panel.class.getResource("/Images/wheattoken.png"));
         if(wheattoken != null) {
@@ -87,7 +93,29 @@ public void loadInitialImages()
         e.printStackTrace();
     }
 }
-
+    public void realStartingScreen(Graphics g)
+    {
+        JTextField name1 = new JTextField();
+        name1.setBounds(100, 100, 200, 30);
+        this.add(name1);
+        nameFields.add(name1);
+        JTextField name2 = new JTextField();
+        name2.setBounds(100, 150, 200, 30);
+        this.add(name2);
+        nameFields.add(name2);
+        JTextField name3 = new JTextField();
+        name3.setBounds(100, 200, 200, 30);
+        this.add(name3);
+        nameFields.add(name3);
+        JTextField name4 = new JTextField();
+        name4.setBounds(100, 250, 200, 30);
+        this.add(name4);
+        nameFields.add(name4);
+        BufferedImage gb = miscpics.get("gobutton");
+        Button goBtn = new Button("Go", gb, 100, 300, 100, 50);
+        goBtn.setClickable(true);
+        this.add(goBtn);
+    }
 @Override
 	public void paint(Graphics g)
 {
