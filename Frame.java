@@ -1,7 +1,7 @@
 import javax.swing.JFrame;
 public class Frame extends JFrame{
-private static final int WIDTH = 1600;
-private static final int HEIGHT = 960;
+private static final int WIDTH = 1200;
+private static final int HEIGHT = 480;
 private static Panel panel;
 
 public Frame(String framename)
@@ -20,4 +20,3 @@ public static Panel getPanel()
 }
 
 }
-

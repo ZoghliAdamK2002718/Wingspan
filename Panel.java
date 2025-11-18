@@ -1,4 +1,3 @@
-
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -6,19 +5,28 @@ import java.awt.event.MouseMotionListener;
 import java.util.*;
 import javax.swing.*;
 
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
+
+import java.awt.Rectangle;
+import java.awt.Graphics2D;
+import java.awt.Color;
+import java.awt.AlphaComposite;
+import javax.swing.JButton;
 import javax.swing.JTextField;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.awt.Rectangle;
+import javafx.scene.shape.Circle;
 
 public class Panel extends JPanel implements MouseListener, MouseMotionListener{
 ArrayList<Button> currentScreen = new ArrayList<Button>();
 BufferedImage bg;
-// Card dimensions as percentage of screen (will scale with window size)
-// cardW will be ~12.5% of screen width, cardH will be ~29% of screen height
 private int cardH = 278;
-private int cardW = 200;  // Reduced from 250 to fit better
+private int cardW = 140;
 private int tokenSize = 150;
 HashMap<String, BufferedImage> miscpics = new HashMap<String, BufferedImage>();
 HashMap<String, Bird> birdcards = new HashMap<String, Bird>();
@@ -26,25 +34,22 @@ ArrayList<Player> players = new ArrayList<Player>();
 Player player1;
 // starting selection state
 private boolean startingComplete = false;
-private boolean namesEntered = false;
-private int selectedCount = 0;
-// Button lists for starting screen
-private ArrayList<Button> birdButtons = new ArrayList<Button>();
-private ArrayList<Button> tokenButtons = new ArrayList<Button>();
-private ArrayList<Button> selectionSlotButtons = new ArrayList<Button>();
-private int currentPlayerIndex = 0;
-private int lastInitializedPlayer = -1; // Track which player's buttons were last initialized
-private boolean playerTransitioning = false; // Prevent multiple transitions
+private ArrayList<ItemRef> selected = new ArrayList<ItemRef>();
+private ArrayList<Slot> selectionSlots = new ArrayList<Slot>();
+private ArrayList<TokenItem> tokenItems = new ArrayList<TokenItem>();
+// hover state
+private Bird hoverBird = null;
+private String hoverTokenName = null; // token name from tokenItems
+private ItemRef hoverSlotItem = null; // item under cursor inside selection box
 public Panel()
 {
-    // Don't hardcode size - let the frame/container determine the size
-    // setSize(1600,960);  // REMOVED - this prevents proper scaling
-    
-    
-    addMouseListener(this);
+	setSize(1600,960);
+	
+	
+	addMouseListener(this);
     addMouseMotionListener(this);
 
-    
+	
 }
 public void loadInitialImages()
 {
@@ -60,21 +65,21 @@ public void loadInitialImages()
             wheattoken = trimTransparent(wheattoken);
             miscpics.put("wheattoken", wheattoken);
         }
-        BufferedImage fishtoken = ImageIO.read(Panel.class.getResource("/Images/fishtoken.png"));
-        if(fishtoken != null) {
-            fishtoken = trimTransparent(fishtoken);
-            miscpics.put("fishtoken", fishtoken);
-        }
-        BufferedImage foodtoken = ImageIO.read(Panel.class.getResource("/Images/foodtoken.png"));
-        if(foodtoken != null) {
-            foodtoken = trimTransparent(foodtoken);
-            miscpics.put("foodtoken", foodtoken);
-        }
-        BufferedImage rattoken = ImageIO.read(Panel.class.getResource("/Images/rattoken.png"));
-        if(rattoken != null) {
-            rattoken = trimTransparent(rattoken);
-            miscpics.put("rattoken", rattoken);
-        }
+		BufferedImage fishtoken = ImageIO.read(Panel.class.getResource("/Images/fishtoken.png"));
+		if(fishtoken != null) {
+			fishtoken = trimTransparent(fishtoken);
+			miscpics.put("fishtoken", fishtoken);
+		}
+		BufferedImage foodtoken = ImageIO.read(Panel.class.getResource("/Images/foodtoken.png"));
+		if(foodtoken != null) {
+			foodtoken = trimTransparent(foodtoken);
+			miscpics.put("foodtoken", foodtoken);
+		}
+		BufferedImage rattoken = ImageIO.read(Panel.class.getResource("/Images/rattoken.png"));
+		if(rattoken != null) {
+			rattoken = trimTransparent(rattoken);
+			miscpics.put("rattoken", rattoken);
+		}
     }
     catch (Exception e)
     {
@@ -84,344 +89,192 @@ public void loadInitialImages()
 }
 
 @Override
-	public void paintComponent(Graphics g)
+	public void paint(Graphics g)
 {
-	super.paintComponent(g);
-	
-	// Always paint background
-	if (bg != null) {
-		g.drawImage(bg, 0, 0, getWidth(), getHeight(), null);
-	} else {
-		g.setColor(new Color(200, 220, 235));
-		g.fillRect(0, 0, getWidth(), getHeight());
+	super.paint(g);
+    // paint background
+    if (bg != null) {
+        g.drawImage(bg, 0, 0, getWidth(), getHeight(), null);
+    } else {
+        g.setColor(new Color(200, 220, 235));
+        g.fillRect(0, 0, getWidth(), getHeight());
+    }
+	for(int i=0;i<currentScreen.size();i++)
+	{
+		currentScreen.get(i).paint(g);
 	}
 	
-	// MODIFIED: Only show startingScreen after names are entered
-	if(!namesEntered) {
-		// Draw title over background
-		g.setFont(new Font("Century Gothic", Font.BOLD, 40));
-		g.setColor(Color.WHITE);
-		g.drawString("Wingspan - Enter Player Names", 420, 180);
-		
-		// Draw the Go button and text fields are visible on top
-		for(int i=0;i<currentScreen.size();i++)
-		{
-			currentScreen.get(i).paint(g);
-		}
-	} else if(!startingComplete) {
-		// Draw the selection box background FIRST
-		drawSelectionBoxBackground(g, currentPlayerIndex);
-		
-		// Then draw all buttons (birds, tokens, selection slots) ON TOP
-		for(int i=0;i<currentScreen.size();i++)
-		{
-			currentScreen.get(i).paint(g);
-		}
-	} else {
-		// Normal game mode - just draw buttons
-		for(int i=0;i<currentScreen.size();i++)
-		{
-			currentScreen.get(i).paint(g);
-		}
-	}
+    	if(!startingComplete)
+    	startingScreen(g, 0);
 	
-}public void realStartingScreen()
-{
-    // Set null layout for absolute positioning
-    this.setLayout(null);
-    
-    // Create 4 text fields for player names with better sizing
-    JTextField tf1 = new JTextField("Player 1");
-    JTextField tf2 = new JTextField("Player 2");
-    JTextField tf3 = new JTextField("Player 3");
-    JTextField tf4 = new JTextField("Player 4");
-    
-    // Make text fields larger and more visible with Century Gothic font
-    Font tfFont = new Font("Century Gothic", Font.PLAIN, 20);
-    tf1.setFont(tfFont);
-    tf2.setFont(tfFont);
-    tf3.setFont(tfFont);
-    tf4.setFont(tfFont);
-    
-    // Use fixed positioning that will work regardless of panel size
-    // Center at approximately 600px with 400px width
-    int centerX = 600;
-    int startY = 250;
-    int spacing = 70;
-    int tfWidth = 400;
-    int tfHeight = 50;
-    
-    tf1.setBounds(centerX, startY, tfWidth, tfHeight);
-    tf2.setBounds(centerX, startY + spacing, tfWidth, tfHeight);
-    tf3.setBounds(centerX, startY + spacing * 2, tfWidth, tfHeight);
-    tf4.setBounds(centerX, startY + spacing * 3, tfWidth, tfHeight);
-    
-    // Make text fields opaque so they're visible
-    tf1.setOpaque(true);
-    tf2.setOpaque(true);
-    tf3.setOpaque(true);
-    tf4.setOpaque(true);
-    
-    // Add text fields to the panel
-    this.add(tf1);
-    this.add(tf2);
-    this.add(tf3);
-    this.add(tf4);
-    
-    // Create custom Button for "Go!" button using 0-1000 scale
-    // Position: centered horizontally, below the text fields  
-    // 725px at 1600px width = 453 in 0-1000 scale
-    // 550px at 960px height = 573 in 0-1000 scale
-    int btnX = 453;  // In 0-1000 scale
-    int btnY = 573;  // In 0-1000 scale
-    int btnW = 94;   // 150px = 94 in 0-1000 scale
-    int btnH = 63;   // 60px = 63 in 0-1000 scale
-    
-    Button goButton = new Button("go_button", "normal", null, true, true, 
-                                  btnX, btnY, 
-                                  btnX + btnW, btnY + btnH) {
-        @Override
-        public void paint(Graphics g) {
-            if (!display) return;
-            Graphics2D g2 = (Graphics2D) g;
-            g2.setColor(new Color(70, 130, 180));
-            g2.fillRoundRect(x1, y1, width, height, 15, 15);
-            g2.setColor(Color.WHITE);
-            g2.setFont(new Font("Century Gothic", Font.BOLD, 24));
-            FontMetrics fm = g2.getFontMetrics();
-            String text = "Go!";
-            int textX = x1 + (width - fm.stringWidth(text)) / 2;
-            int textY = y1 + ((height - fm.getHeight()) / 2) + fm.getAscent();
-            g2.drawString(text, textX, textY);
-        }
-        
-        @Override
-        public void click() {
-            if (!clickable) return;
-            
-            String name1 = tf1.getText();
-            String name2 = tf2.getText();
-            String name3 = tf3.getText();
-            String name4 = tf4.getText();
-            
-            System.out.println("Player names:");
-            System.out.println("1: " + name1);
-            System.out.println("2: " + name2);
-            System.out.println("3: " + name3);
-            System.out.println("4: " + name4);
-            
-            // Create 4 players with their names
-            players.clear();
-            for(int i = 0; i < 4; i++) {
-                String playerName = (i == 0) ? name1 : (i == 1) ? name2 : (i == 2) ? name3 : name4;
-                
-                // Create 5 birds for each player
-                ArrayList<Bird> playerHand = new ArrayList<>();
-                try {
-                    int startX = 50;
-                    int birdSpacing = 160;
-                    int startY = 100;
-                    
-                    playerHand.add(new Bird("Acadian Flycatcher", "Empidonax virescens", "cavity", new String[]{"forest", "wetland"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/acadianflycatcher.jpg")), startX, startY));
-                    playerHand.add(new Bird("Song Sparrow", "Melospiza melodia", "ground", new String[]{"grassland", "wetland", "plains"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/songsparrow.jpg")), startX + birdSpacing, startY));
-                    playerHand.add(new Bird("Mallard", "Anas platyrhynchos", "nest on ground", new String[]{"wetland"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/mallard.jpg")), startX + birdSpacing * 2, startY));
-                    playerHand.add(new Bird("Red-tailed Hawk", "Buteo jamaicensis", "stick", new String[]{"forest", "grassland", "plains"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/redtailedhawk.jpg")), startX + birdSpacing * 3, startY));
-                    playerHand.add(new Bird("Great Horned Owl", "Bubo virginianus", "stick", new String[]{"forest", "wetland", "grassland"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/greathornedowl.jpg")), startX + birdSpacing * 4, startY));
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-                
-                Player newPlayer = new Player(playerHand,
-                                             new TreeMap<String,Integer>(),
-                                             new ArrayList<BonusCard>(),
-                                             new HashMap<String, ArrayList<Spot>>(),
-                                             new ArrayList<Button>());
-                players.add(newPlayer);
-            }
-
-            // Remove text fields
-            Panel.this.remove(tf1);
-            Panel.this.remove(tf2);
-            Panel.this.remove(tf3);
-            Panel.this.remove(tf4);
-            
-            // Remove this button from currentScreen
-            currentScreen.remove(this);
-            
-            // Start the selection process for first player
-            namesEntered = true;
-            currentPlayerIndex = 0;
-            selectedCount = 0;
-            
-            Panel.this.revalidate();
-            Panel.this.repaint();
-        }
-    };
-    
-    currentScreen.add(goButton);
-    this.revalidate();
-    this.repaint();
 }
-    private void drawSelectionBoxBackground(Graphics g, int playerIndex)
-    {
-        // Safety check
-        if (players.isEmpty() || playerIndex >= players.size()) {
-            return;
+
+
+	public void startingScreen(Graphics g, int playerIndex)
+	{
+		ArrayList<Bird> hand = players.get(playerIndex).playerGetHand();
+        int topMargin = 60; // draw near the top of the screen
+        for(int i = 0; i < 5; i++)
+        {
+            Bird b = hand.get(i);
+            if (isSelected(b)) continue; // hide birds already kept
+            b.setX(50 + i * (cardW + 20));
+            b.setY(topMargin);
+            Rectangle r = b.getBounds();
+
+            int drawW = cardW;
+            int drawH = cardH;
+            int drawX = r.x;
+            int drawY = r.y;
+            if (b == hoverBird) {
+                double scale = 1.12;
+                drawW = (int)Math.round(cardW * scale);
+                drawH = (int)Math.round(cardH * scale);
+                drawX = r.x - (drawW - cardW)/2;
+                drawY = r.y - (drawH - cardH)/2;
+            }
+            drawCard(g, b.getImage(), drawX, drawY, drawW, drawH);
         }
-        
-        // Display current player's name at top
         Graphics2D g2 = (Graphics2D) g;
-        g2.setFont(new Font("Arial", Font.BOLD, 24));
-        g2.setColor(Color.BLACK);
-        String playerName = "Player " + (playerIndex + 1);
-        g2.drawString(playerName + "'s Turn - Select 5 items", 50, 30);
-        
-        // Initialize buttons if needed (first time or player changed)
-        if (lastInitializedPlayer != playerIndex) {
-            initializeStartingScreenButtons(playerIndex);
-            lastInitializedPlayer = playerIndex;
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        // Build/refresh token positions for hit testing and draw those not yet kept
+        ensureTokenItems();
+        for (TokenItem t : tokenItems) {
+            if (isSelectedToken(t.name)) continue; // hide tokens already kept
+            int size = tokenSize;
+            int x = t.cx - size/2;
+            int y = t.cy - size/2;
+            if (t.name.equals(hoverTokenName)) {
+                double scale = 1.18;
+                int newSize = (int)Math.round(size * scale);
+                x = t.cx - newSize/2;
+                y = t.cy - newSize/2;
+                size = newSize;
+            }
+            drawToken(g2, t.image, x, y, size);
         }
-        
-        // Draw selection box background - calculate actual pixel positions
-        int panelWidth = getWidth();
-        int panelHeight = getHeight();
-        
-        // Calculate dynamically based on actual cardW and cardH from Panel
-        int margin = 10;
-        int gap = 5;  // Increased gap between cards
-        int padding = 15;  // Increased padding inside box
-        int labelH = 20;  // Increased label height
-        // Convert actual card dimensions to 0-1000 scale based on current panel size
-        int cardWScaled = (cardW * 1000) / panelWidth;
-        int cardHScaled = (cardH * 1000) / panelHeight;
-        int boxWScaled = 5 * cardWScaled + 4 * gap + 2 * padding;
-        int boxXScaled = 1000 - boxWScaled - margin;
-        int boxYScaled = margin;
-        
-        // Convert to actual pixels
-        int boxX = boxXScaled * panelWidth / 1000;
-        int boxY = boxYScaled * panelHeight / 1000;
-        int boxW = boxWScaled * panelWidth / 1000;
-        int boxH = (cardHScaled + 2 * padding + labelH) * panelHeight / 1000;
-        
-        g2.setColor(new Color(255,255,255,230));  // More opaque white background
+
+        // Draw selection box and selected items (top-right) sized for full cards
+        int margin = 16;
+        int slotW = cardW;
+        int slotH = cardH;
+        int gap = 12;
+        int padding = 12;
+        int labelH = 22;
+        int boxW = 5 * slotW + 4 * gap + 2 * padding;
+        int boxH = slotH + 2 * padding + labelH; // include label area
+        int boxX = getWidth() - boxW - margin;
+        int boxY = margin;
+        g2.setColor(new Color(255,255,255,210));
         g2.fillRoundRect(boxX, boxY, boxW, boxH, 10, 10);
         g2.setColor(Color.DARK_GRAY);
-        g2.setStroke(new BasicStroke(2));
         g2.drawRoundRect(boxX, boxY, boxW, boxH, 10, 10);
-        g2.setFont(new Font("Arial", Font.BOLD, 18));
-        g2.drawString("Keep (" + selectedCount + "/5)", boxX + (padding * panelWidth / 1000), boxY + 16);
-    }
-    
-    private void transitionToNextPlayer()
-    {
-        System.out.println("Player " + (currentPlayerIndex + 1) + " completed selection!");
-        
-        // Move to next player
-        currentPlayerIndex++;
-        selectedCount = 0;
-        lastInitializedPlayer = -1; // Reset to force re-initialization for next player
-        playerTransitioning = false; // Reset flag
-        
-        // Clear selections for next player
-        for (Button bb : birdButtons) {
-            bb.setSelected(false);
-        }
-        for (Button tb : tokenButtons) {
-            tb.setSelected(false);
-        }
-        for (Button ssb : selectionSlotButtons) {
-            ssb.clearSlot();
-        }
-        
-        // If all 4 players done, finish starting phase
-        if (currentPlayerIndex >= 4) {
-            startingComplete = true;
-            System.out.println("All players have made their selections!");
-            // Clean up buttons
-            currentScreen.removeAll(birdButtons);
-            currentScreen.removeAll(tokenButtons);
-            currentScreen.removeAll(selectionSlotButtons);
-        } else {
-            // Initialize for next player
-            System.out.println("Moving to player " + (currentPlayerIndex + 1));
-            initializeStartingScreenButtons(currentPlayerIndex);
-        }
-        
-        repaint();
-    }
-    
-    private void initializeStartingScreenButtons(int playerIndex) {
-        if (playerIndex >= players.size()) return;
-        
-        // Clear old buttons from currentScreen
-        currentScreen.removeAll(birdButtons);
-        currentScreen.removeAll(tokenButtons);
-        currentScreen.removeAll(selectionSlotButtons);
-        birdButtons.clear();
-        tokenButtons.clear();
-        selectionSlotButtons.clear();
-        
-        // ALL COORDINATES ARE IN 0-1000 SCALE (Button class scales them to actual pixels)
-        // Calculate selection box dimensions dynamically based on actual card size
-        int panelWidth = getWidth();
-        int panelHeight = getHeight();
-        int margin = 10;  // in 0-1000 scale
-        int gap = 5;  // gap between cards - MUST match drawSelectionBoxBackground
-        int padding = 15;  // padding inside box - MUST match drawSelectionBoxBackground
-        int labelH = 20;  // label height - MUST match drawSelectionBoxBackground
-        // Convert actual card dimensions to 0-1000 scale based on current panel size
-        int cardWScaled = (cardW * 1000) / panelWidth;
-        int cardHScaled = (cardH * 1000) / panelHeight;
-        int boxW = 5 * cardWScaled + 4 * gap + 2 * padding;
-        int boxX = 1000 - boxW - margin;  // from right edge
-        int boxY = margin;
-        
-        System.out.println("Initializing player " + (playerIndex + 1) + " buttons");
-        System.out.println("Selection box at scaled x=" + boxX + ", y=" + boxY + ", width=" + boxW);
-        
-        // Create bird buttons - positioned below selection box (in 0-1000 scale)
-        ArrayList<Bird> hand = players.get(playerIndex).playerGetHand();
-        int topMargin = boxY + cardHScaled + 30;  // Position below the selection box
-        int cardSpacing = 3;  // in 0-1000 scale
-        for (int i = 0; i < hand.size() && i < 5; i++) {
-            Bird b = hand.get(i);
-            int x = 20 + i * (cardWScaled + cardSpacing);
-            Button bb = new Button("bird_" + i, "normal", b.getImage(), true, true, x, topMargin, x + cardWScaled, topMargin + cardHScaled);
-            bb.setBird(b);
-            birdButtons.add(bb);
-            currentScreen.add(bb);
-        }
-        
-        // Create token buttons (in 0-1000 scale)
-        int yTop = 740;  // bottom of screen in 0-1000 scale
-        int tokenSizeScaled = 94;  // tokenSize (150) in 0-1000 scale: 150 * 1000 / 1600
-        String[] tokenNames = {"wheattoken", "invertebratetoken", "fishtoken", "foodtoken", "rattoken"};
-        int[] tokenXPositions = {63, 156, 250, 344, 438};  // in 0-1000 scale
-        for (int i = 0; i < tokenNames.length; i++) {
-            BufferedImage img = miscpics.get(tokenNames[i]);
-            if (img != null) {
-                Button tb = new Button("token_" + tokenNames[i], "normal", img, true, true, 
-                    tokenXPositions[i], yTop, tokenXPositions[i] + tokenSizeScaled, yTop + tokenSizeScaled);
-                tb.setTokenName(tokenNames[i]);
-                tokenButtons.add(tb);
-                currentScreen.add(tb);
-            }
-        }
-        
-        // Create selection slot buttons (in 0-1000 scale)
+        g2.drawString("Keep (" + selected.size() + "/5)", boxX + padding, boxY + 16);
+
+        selectionSlots.clear();
         int sx = boxX + padding;
         int sy = boxY + labelH + padding;
         for (int i = 0; i < 5; i++) {
-            int x = sx + i * (cardWScaled + gap);
-            Button ssb = new Button("slot_" + i, "empty", null, true, true, x, sy, x + cardWScaled, sy + cardHScaled);
-            selectionSlotButtons.add(ssb);
-            System.out.println("Created slot " + i + " at scaled x=" + x + ", y=" + sy);
+            int x = sx + i * (slotW + gap);
+            int y = sy;
+            Rectangle slotRect = new Rectangle(x, y, slotW, slotH);
+            g2.setColor(new Color(0,0,0,40));
+            g2.drawRect(x, y, slotW, slotH);
+            if (i < selected.size()) {
+                ItemRef it = selected.get(i);
+                boolean isHover = (hoverSlotItem == it);
+                if (it.type == ItemRef.Type.TOKEN) {
+                    int ts = Math.min(slotW, slotH) - 10;
+                    if (isHover) ts = (int)Math.round(ts * 1.15);
+                    drawToken(g2, miscpics.get(it.tokenName), x + (slotW - ts)/2, y + (slotH - ts)/2, ts);
+                } else if (it.type == ItemRef.Type.BIRD && it.bird != null) {
+                    BufferedImage bi = it.bird.getImage();
+                    int dw = slotW;
+                    int dh = slotH;
+                    int dx = x;
+                    int dy = y;
+                    if (isHover) {
+                        double scale = 1.12;
+                        dw = (int)Math.round(slotW * scale);
+                        dh = (int)Math.round(slotH * scale);
+                        dx = x - (dw - slotW)/2;
+                        dy = y - (dh - slotH)/2;
+                    }
+                    if (bi != null) g2.drawImage(bi, dx, dy, dw, dh, null);
+                }
+                selectionSlots.add(new Slot(slotRect, it));
+            }
         }
-        // Add selection slots after other buttons
-        currentScreen.addAll(selectionSlotButtons);
+
+        
+	}
+	public void drawCard(Graphics g, BufferedImage img, int x, int y, int width, int height)
+	{
+		g.drawImage(img, x, y, width, height, null);
+	}
+    // helper to normalize token rendering with consistent padding
+    private void drawToken(Graphics2D g2, BufferedImage img, int x, int y, int size) {
+        if (img == null) return;
+        int pad = Math.max(2, (int)(size * 0.1)); 
+        int inner = size - pad * 2;
+        g2.drawImage(img, x + pad, y + pad, inner, inner, null);
     }
 
+    // Helpers to check current selections
+    private boolean isSelected(Bird b) {
+        for (ItemRef it : selected) {
+            if (it.type == ItemRef.Type.BIRD && it.bird == b) return true;
+        }
+        return false;
+    }
+    private boolean isSelectedToken(String name) {
+        for (ItemRef it : selected) {
+            if (it.type == ItemRef.Type.TOKEN && it.tokenName != null && it.tokenName.equals(name)) return true;
+        }
+        return false;
+    }
+
+    // Build token items (centers and radii) for hit-testing
+    private void ensureTokenItems() {
+        if (miscpics.isEmpty()) return;
+        tokenItems.clear();
+        int yTop = getHeight() - 300; // top-left of tokens row
+        int cy = yTop + tokenSize/2;
+        tokenItems.add(new TokenItem("wheattoken", 100 + tokenSize/2, cy, tokenSize/2, miscpics.get("wheattoken")));
+        tokenItems.add(new TokenItem("invertebratetoken", 250 + tokenSize/2, cy, tokenSize/2, miscpics.get("invertebratetoken")));
+        tokenItems.add(new TokenItem("fishtoken", 400 + tokenSize/2, cy, tokenSize/2, miscpics.get("fishtoken")));
+        tokenItems.add(new TokenItem("foodtoken", 550 + tokenSize/2, cy, tokenSize/2, miscpics.get("foodtoken")));
+        tokenItems.add(new TokenItem("rattoken", 700 + tokenSize/2, cy, tokenSize/2, miscpics.get("rattoken")));
+    }
+
+    // Simple item reference for selection box
+    private static class ItemRef {
+        enum Type { BIRD, TOKEN }
+        final Type type;
+        final Bird bird;
+        final String tokenName;
+        private ItemRef(Type t, Bird b, String tn) { this.type = t; this.bird = b; this.tokenName = tn; }
+        static ItemRef token(String name) { return new ItemRef(Type.TOKEN, null, name); }
+        static ItemRef bird(Bird b) { return new ItemRef(Type.BIRD, b, null); }
+    }
+
+    // Slot bounds for click-removal
+    private static class Slot {
+        final Rectangle bounds;
+        final ItemRef item;
+        Slot(Rectangle b, ItemRef i) { this.bounds = b; this.item = i; }
+    }
+
+    // Token drawable + hitbox info
+    private static class TokenItem {
+        final String name;
+        final int cx, cy, radius;
+        final BufferedImage image;
+        TokenItem(String n, int cx, int cy, int r, BufferedImage img) {
+            this.name = n; this.cx = cx; this.cy = cy; this.radius = r; this.image = img;
+        }
+    }
 
     // trims fully transparent borders so different PNG paddings appear same size when scaled
     private BufferedImage trimTransparent(BufferedImage img) {
@@ -451,92 +304,46 @@ public void loadInitialImages()
         }
     }
     public void mouseClicked(MouseEvent e) {
-        if(!startingComplete && namesEntered && !players.isEmpty()){
-            // Check selection slot buttons first (for removal)
-            for (Button ssb : selectionSlotButtons) {
-                if (ssb.inBounds(e.getX(), e.getY()) && !ssb.isEmpty()) {
-                    // Remove from selection
-                    if (ssb.isBird()) {
-                        Bird b = ssb.getBird();
-                        // Find matching bird button and un-select it
-                        for (Button bb : birdButtons) {
-                            if (bb.getBird() == b) {
-                                bb.setSelected(false);
-                                break;
-                            }
-                        }
-                    } else if (ssb.isToken()) {
-                        String tokenName = ssb.getTokenName();
-                        // Find matching token button and un-select it
-                        for (Button tb : tokenButtons) {
-                            if (tb.getTokenName() != null && tb.getTokenName().equals(tokenName)) {
-                                tb.setSelected(false);
-                                break;
-                            }
-                        }
-                    }
-                    ssb.clearSlot();
-                    selectedCount--;
-                    System.out.println("Removed from selection. Now " + selectedCount + "/5");
+        Point p = e.getPoint();
+
+        if(!startingComplete){
+            // Click inside selection box slots -> remove item
+            for (int i = 0; i < selectionSlots.size(); i++) {
+                Slot s = selectionSlots.get(i);
+                if (s.bounds.contains(p)) {
+                    selected.remove(s.item);
+                    System.out.println("Removed from box: " + (s.item.type==ItemRef.Type.TOKEN ? s.item.tokenName : s.item.bird.getName()) + ". Now " + selected.size() + "/5");
                     repaint();
                     return;
                 }
             }
-            
-            // Check bird buttons
-            for (Button bb : birdButtons) {
-                if (bb.inBounds(e.getX(), e.getY()) && !bb.isSelected()) {
-                    if (selectedCount < 5) {
-                        bb.setSelected(true);
-                        // Add to first empty slot
-                        for (Button ssb : selectionSlotButtons) {
-                            if (ssb.isEmpty()) {
-                                Bird selectedBird = bb.getBird();
-                                ssb.setBird(selectedBird);
-                                ssb.setImage(selectedBird.getImage());
-                                ssb.setState("has_bird");
-                                selectedCount++;
-                                System.out.println("Added bird: " + selectedBird.getName() + " to slot. Now " + selectedCount + "/5");
-                                
-                                // Check if this player is done selecting
-                                if (selectedCount >= 5 && !playerTransitioning) {
-                                    playerTransitioning = true;
-                                    transitionToNextPlayer();
-                                }
-                                repaint();
-                                return;
-                            }
-                        }
+
+            // Token circular hit-test (distance)
+            for (TokenItem t : tokenItems) {
+                if (isSelectedToken(t.name)) continue; // already kept
+                int dx = p.x - t.cx;
+                int dy = p.y - t.cy;
+                if (dx*dx + dy*dy <= t.radius*t.radius) {
+                    if (selected.size() < 5) {
+                        selected.add(ItemRef.token(t.name));
+                        System.out.println("Added token: " + t.name + ". Now " + selected.size() + "/5");
+                        if (selected.size() >= 5) { startingComplete = true; System.out.println("Selection complete."); }
                     }
                     repaint();
                     return;
                 }
             }
-            
-            // Check token buttons
-            for (Button tb : tokenButtons) {
-                if (tb.inBounds(e.getX(), e.getY()) && !tb.isSelected()) {
-                    if (selectedCount < 5) {
-                        tb.setSelected(true);
-                        // Add to first empty slot
-                        for (Button ssb : selectionSlotButtons) {
-                            if (ssb.isEmpty()) {
-                                ssb.setTokenName(tb.getTokenName());
-                                ssb.setSecondaryImage(tb.image);
-                                ssb.setImage(tb.image);
-                                ssb.setState("has_token");
-                                selectedCount++;
-                                System.out.println("Added token: " + tb.getTokenName() + " to slot. Now " + selectedCount + "/5");
-                                
-                                // Check if this player is done selecting
-                                if (selectedCount >= 5 && !playerTransitioning) {
-                                    playerTransitioning = true;
-                                    transitionToNextPlayer();
-                                }
-                                repaint();
-                                return;
-                            }
-                        }
+
+            // Bird rectangle hit-test
+            ArrayList<Bird> hand = players.get(0).playerGetHand();
+            for (Bird b : hand) {
+                if (isSelected(b)) continue; // already kept
+                Rectangle r = b.getBounds();
+                if (r != null && r.contains(p)) {
+                    if (selected.size() < 5) {
+                        selected.add(ItemRef.bird(b));
+                        System.out.println("Added bird: " + b.getName() + ". Now " + selected.size() + "/5");
+                        if (selected.size() >= 5) { startingComplete = true; System.out.println("Selection complete."); }
                     }
                     repaint();
                     return;
@@ -544,7 +351,6 @@ public void loadInitialImages()
             }
         }
 
-        // General button click handling
         for(int i=0;i<currentScreen.size();i++)
         {
             if(currentScreen.get(i).inBounds(e.getX(), e.getY()))
@@ -557,34 +363,37 @@ public void loadInitialImages()
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        if (!startingComplete && namesEntered && !players.isEmpty()) {
-            boolean changed = false;
-            
-            // Check hover over selection slots
-            for (Button ssb : selectionSlotButtons) {
-                boolean wasHovered = ssb.isHovered();
-                boolean isNowHovered = ssb.inBounds(e.getX(), e.getY()) && !ssb.isEmpty();
-                ssb.setHovered(isNowHovered);
-                if (wasHovered != isNowHovered) changed = true;
+        if (!startingComplete) {
+            Point p = e.getPoint();
+            // Hover over selection box items
+            ItemRef prevSlot = hoverSlotItem;
+            hoverSlotItem = null;
+            for (Slot s : selectionSlots) {
+                if (s.bounds.contains(p)) { hoverSlotItem = s.item; break; }
             }
-            
-            // Check hover over bird buttons
-            for (Button bb : birdButtons) {
-                boolean wasHovered = bb.isHovered();
-                boolean isNowHovered = bb.inBounds(e.getX(), e.getY()) && !bb.isSelected();
-                bb.setHovered(isNowHovered);
-                if (wasHovered != isNowHovered) changed = true;
+
+            // Hover over tokens
+            String prevToken = hoverTokenName;
+            hoverTokenName = null;
+            ensureTokenItems();
+            for (TokenItem t : tokenItems) {
+                if (isSelectedToken(t.name)) continue;
+                int dx = p.x - t.cx;
+                int dy = p.y - t.cy;
+                if (dx*dx + dy*dy <= t.radius*t.radius) { hoverTokenName = t.name; break; }
             }
-            
-            // Check hover over token buttons
-            for (Button tb : tokenButtons) {
-                boolean wasHovered = tb.isHovered();
-                boolean isNowHovered = tb.inBounds(e.getX(), e.getY()) && !tb.isSelected();
-                tb.setHovered(isNowHovered);
-                if (wasHovered != isNowHovered) changed = true;
+
+            // Hover over birds
+            Bird prevBird = hoverBird;
+            hoverBird = null;
+            ArrayList<Bird> hand = players.get(0).playerGetHand();
+            for (Bird b : hand) {
+                if (isSelected(b)) continue;
+                Rectangle r = b.getBounds();
+                if (r != null && r.contains(p)) { hoverBird = b; break; }
             }
-            
-            if (changed) {
+
+            if (prevSlot != hoverSlotItem || prevToken != hoverTokenName || prevBird != hoverBird) {
                 repaint();
             }
         }
@@ -595,54 +404,88 @@ public void loadInitialImages()
         // not used
     }
 
-    @Override
-    public void mousePressed(MouseEvent e) {
-        // TODO Auto-generated method stub
-        
-    }
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
 
-    @Override
-    public void mouseReleased(MouseEvent e) {
-        // TODO Auto-generated method stub
-        
-    }
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
 
-    @Override
-    public void mouseEntered(MouseEvent e) {
-        // TODO Auto-generated method stub
-        
-    }
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
 
-    @Override
-    public void mouseExited(MouseEvent e) {
-        // TODO Auto-generated method stub
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/*	TRY TO INITIALIZE OBJECTS HERE SO THAT THERE ARE NO POINTER EXCEPTIONS
+	 * 
+	 *
+	 */
+	public void addNotify() {
+	    super.addNotify();
+	    requestFocus();
+	loadInitialImages();
+	Bird bird1 = null, bird2 = null, bird3 = null, bird4 = null, bird5 = null;
+    try
+    {
+        System.out.println("Loading images...");
+        bg = ImageIO.read(Panel.class.getResource("/Images/wgsbg.jpg"));
+        System.out.println("Background loaded: " + (bg != null));
+		// Position birds horizontally across the screen with spacing
+		int startX = 50;  // Start 50 pixels from the left
+		int spacing = 160;  // Space between cards
+		int startY = 100;  // Start 100 pixels from the top
+		
+		bird1 = new Bird("Acadian Flycatcher", "Empidonax virescens", "cavity", new String[]{"forest", "wetland"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/acadianflycatcher.jpg")), startX, startY);
+		bird2 = new Bird("Song Sparrow", "Melospiza melodia", "ground", new String[]{"grassland", "wetland", "plains"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/songsparrow.jpg")), startX + spacing, startY);
+		bird3 = new Bird("Mallard", "Anas platyrhynchos", "nest on ground", new String[]{"wetland"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/mallard.jpg")), startX + spacing * 2, startY);
+		bird4 = new Bird("Red-tailed Hawk", "Buteo jamaicensis", "stick", new String[]{"forest", "grassland", "plains"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/redtailedhawk.jpg")), startX + spacing * 3, startY);
+		bird5 = new Bird("Great Horned Owl", "Bubo virginianus", "stick", new String[]{"forest", "wetland", "grassland"}, null, null, null, 0, 0, 0, 0, null, false, false, null, ImageIO.read(Panel.class.getResource("/birds/greathornedowl.jpg")), startX + spacing * 4, startY);
+		System.out.println("All images loaded successfully!");
+		
         
     }
-    
-    /*	TRY TO INITIALIZE OBJECTS HERE SO THAT THERE ARE NO POINTER EXCEPTIONS
-     * 
-     *
-     */
-    public void addNotify() {
-        super.addNotify();
-        requestFocus();
-        loadInitialImages();
-        
-        try
-        {
-            System.out.println("Loading images...");
-            bg = ImageIO.read(Panel.class.getResource("/Images/wgsbg.jpg"));
-            System.out.println("Background loaded: " + (bg != null));
-        }
-        catch (Exception e)
-        {
-            System.out.println("ERROR loading images:");
-            e.printStackTrace();
-        }
-        
-        currentScreen.clear();
-        
-        // Start with the player name entry screen
-        realStartingScreen();
+    catch (Exception e)
+    {
+        System.out.println("ERROR loading images:");
+        e.printStackTrace();
+    }
+	
+	/*birdcards.put("Acadian Flycatcher", bird1);
+	birdcards.put("Song Sparrow", bird2);
+	birdcards.put("Mallard", bird3);
+	birdcards.put("Red-tailed Hawk", bird4);
+	birdcards.put("Great Horned Owl", bird5);
+	*/
+
+	
+	
+	
+
+	player1 = new Player(new ArrayList<Bird>(),
+                    new TreeMap<String,Integer>(),
+                    new ArrayList<BonusCard>(),
+                    new HashMap<String, ArrayList<Spot>>(),
+                    new ArrayList<Button>());
+
+player1.playerSetHand(new ArrayList<>(Arrays.asList(bird1, bird2, bird3, bird4, bird5)));
+players.add(player1);
+
+//if you are panicking that I made permenant renderings of the birds, don't worry
+    //just comment the bottom line of code to remove them from the screen
+// Remove auto-rendering of the player's hand on startup
+currentScreen.clear();
+    repaint();
     }
 }
