@@ -23,13 +23,13 @@ public class Button {
         image = i;
         clickable = c;
         display = d;
-        // Scale only position; keep width/height as absolute pixel sizes
+        // Scale positions to actual pixels
         x1 = x(xOne);
         y1 = y(yOne);
-        width = (xTwo - xOne);
-        height = (yTwo - yOne);
-        x2 = x1 + width;
-        y2 = y1 + height;
+        x2 = x(xTwo);
+        y2 = y(yTwo);
+        width = x2 - x1;
+        height = y2 - y1;
         all.add(this);
     }
 
@@ -46,18 +46,20 @@ public class Button {
                 g.drawImage(image, x1, y1, getWidth(), getHeight(), null);
             } else
             {
-                System.out.println("No image for button " + name);
-            }
-            switch (name) {//Write specific drawing code for different button names here 
-                default:
-                    if(state.equals("normal"))
+                // Draw a default button if no image
+                if(state.equals("normal"))
+                    g.setColor(new Color(70, 130, 180));
+                else if(state.equals("abnormal"))
+                    g.setColor(new Color(100, 160, 210));
+                else
                     g.setColor(Color.LIGHT_GRAY);
-                    else if(state.equals("abnormal"))
-                    g.setColor(Color.blue);
-                    g.fillRect(x1, y1, width, height);
-                    g.setColor(Color.BLACK);
-                    g.drawString(name, x1 + x(4), y1 + y(14));
-                break;
+                g.fillRoundRect(x1, y1, width, height, 15, 15);
+                g.setColor(Color.WHITE);
+                g.setFont(new Font("Arial", Font.BOLD, 20));
+                FontMetrics fm = g.getFontMetrics();
+                int textWidth = fm.stringWidth(name);
+                int textHeight = fm.getAscent();
+                g.drawString(name, x1 + (width - textWidth) / 2, y1 + (height + textHeight) / 2 - 2);
             }
         }
     }
@@ -99,7 +101,7 @@ public class Button {
     
     //Check if a given x,y coordinate is within the button's bounds
     public boolean inBounds(int x, int y) {
-        return (x(x) >= x1 && x(x) <= x2 && y(y) >= y1 && y(y) <= y2);
+        return (x >= x1 && x <= x2 && y >= y1 && y <= y2);
     }
 
     public static ArrayList<Button> getAll() {
