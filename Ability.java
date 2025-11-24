@@ -22,7 +22,7 @@ private final TreeMap<String,ArrayList<String>> keyWords = new TreeMap<String,Ar
     put("look",new ArrayList<String>(Arrays.asList("NUM")));
     put("roll",new ArrayList<String>(Arrays.asList("rodent","fish")));//add a return statement for the key word
     put("draw",new ArrayList<String>(Arrays.asList("equal","NUM","bonus","deck")));//
-    put("lay",new ArrayList<String>(Arrays.asList("eggs","another","this","any","each","ground","cavity","burrow","bowl","platform")));
+    put("lay",new ArrayList<String>(Arrays.asList(,"another","this","any","each","ground","cavity","burrow","bowl","platform")));
     put("tuck",new ArrayList<String>(Arrays.asList("NUM","hand","deck","it")));//
     put("discard",new ArrayList<String>(Arrays.asList("NUM","egg","other","this","card","seed","fish","rodent","it","end")));
     put("players",new ArrayList<String>(Arrays.asList("selects")));//
@@ -44,9 +44,15 @@ public Ability(String rA, String tT, String tN, ArrayList<String> a) {
         } else if(rA.toUpperCase().contains("GAME END")) {
             triggerType = "end";
             triggerName = "GAME END";
-        } else {
+        } else if(ra.toUpperCase().contains("ONCE BETWEEN TURNS")) {
             triggerType = "pink";
-            triggerName = "WHEN";
+            String[] pinkNames = {"eggs\"","their wetland","predator","thier forest","their grassland","food\""};
+            for(int i=0;i<pinkNames.length;i++)
+            {
+                if(ra.contains(pinkNames[i]))
+                tN = pinkNames[i];
+                ra = ra.substring(pinkNames[i]);
+            }
         }
     } else {
         triggerType = tT;
@@ -98,6 +104,7 @@ public Ability(String rA, String tT, String tN, ArrayList<String> a) {
 @SuppressWarnings("unchecked")
 public void execute()
 {
+triggerName+="\ttriggered for the round";
  for(int i=0;i<ability.size();i++)//Read each word in the ability
  {
     String currentString = ability.get(i);//get current word
@@ -263,7 +270,100 @@ public void execute()
                 }
                 lay(nestType, numEggs);//call lay method
                 break;
-        } /*To-do account for "eggs","amount" ect, and Pink ability implementation*/
+            case "tuck":
+                String tuckSource = "";
+                String tuckAmount = "";
+                ArrayList<String> tuckKeys = keyWords.get("tuck");//all possible keywords for lay
+                for(int j=0;j<tuckKeys.size();j++)//sort the found keywords into their respective variables
+                {
+                    if(inputs.get(String.class).contains(tuckKeys.get(j)))
+                    {
+                        if(tuckKeys.get(j).equals("hand")||tuckKeys.get(j).equals("deck")||tuckKeys.get(j).equals("it"))
+                        {
+                            tuckSource = tuckKeys.get(j);
+                            inputs.get(String.class).remove(tuckKeys.get(j));//remove from inputs so it doesn't get added to nestType
+                        }
+                        else if(tuckKeys.contains("NUM")&&currentString.matches("\\d+"))
+                        {
+                            tuckAmount = tuckKeys.get(j);
+                            inputs.get(Integer.class).remove(tuckKeys.get(j));//remove from inputs so it doesn't get added to nestType
+                        }
+                        else
+                        {
+                            inputs.get(String.class).remove(tuckKeys.get(j));//remove from inputs so it doesn't get added to nestType
+                        }
+                    }
+                }
+               
+                tuck(tuckSource,tuckAmount,(Bird)inputs.get(Bird.class).get(0));//call tuck method
+                break;
+            case "discard":
+                /*String itemType, String location, String amount, Bird birdInput */
+                String discardType = null, discardLocation = null, discardAmount = null;
+                ArrayList<String> discardKeys = keyWords.get("discard");//all possible keywords for lay
+                for(int j=0;j<discardKeys.size();j++)//sort the found keywords into their respective variables
+                {
+                    if(inputs.get(String.class).contains(discardKeys.get(j)))
+                    {
+                        if(discardKeys.get(j).equals("egg")||discardKeys.get(j).equals("card")||discardKeys.get(j).equals("seed")||discardKeys.get(j).equals("it"))
+                        {
+                            discardType = discardKeys.get(j);
+                            inputs.get(String.class).remove(discardKeys.get(j));//remove from inputs so it doesn't get added to nestType
+                        }
+                        else if(discardKeys.contains("NUM")&&currentString.matches("\\d+"))
+                        {
+                            discardAmount = discardKeys.get(j);
+                            inputs.get(String.class).remove(discardKeys.get(j));//remove from inputs so it doesn't get added to nestType
+
+                        }
+                        else if(discardKeys.contains("other")||discardKeys.contains("this")||discardKeys.contains("end"))
+                        {
+                            discardAmount = discardKeys.get(j);
+                            inputs.get(String.class).remove(discardKeys.get(j));//remove from inputs so it doesn't get added to nestType
+                        }
+                    }
+                }
+               
+                discard(discardType, discardLocation, discardAmount, (Bird)inputs.get(Bird.class).get(0));//call discard method
+            case "players":
+                String playerInput = "";
+                ArrayList<String> playersKeys = keyWords.get("players");//all possible keywords for players
+                for(int j=0;j<playersKeys.size();j++)//sort the found keywords into their respective variables
+                {
+                        if(playersKeys.get(j).equals("selects"))
+                        {
+                            playerInput = playersKeys.get(j);
+                            inputs.get(String.class).remove(playersKeys.get(j));//remove from inputs so it doesn't get added to nestType
+                        }
+
+                }
+                players(playerInput);
+            break;
+            case "You":
+                you();
+            break;
+            case "selects":
+                selects();
+            break;
+            case "Each":
+                Each();
+            break;
+            case "cache":
+             String cacheInput = "";
+             ArrayList<String> cacheKeys = keyWords.get("cache");//all possible keywords for players
+                for(int j=0;j<cacheKeys.size();j++)//sort the found keywords into their respective variables
+                {
+                        if(cachekeys.contains())//
+                        {
+                            cacheInput = cacheKeys.get(j);
+                            inputs.get(String.class).remove(cacheKeys.get(j));//remove from inputs so it doesn't get added to nestType
+                        }
+
+                }
+                players(playerInput);
+            break;
+        } /*To-do Pink ability implementation.*/
+
     } else {}
  }
 }
@@ -298,7 +398,13 @@ public void execute()
  */
 public static void play(String habitat) {
 
+//run the below code to execute the pink triggers
+for(int i=0;i<pinkTriggers.size();i++)
+    {
+        if(pinkTriggers.get(i).equals("thier "+habitat))
+        pinkTriggers.get(i).execute();
 
+    }
 }
 
 
@@ -324,6 +430,14 @@ public static void play(String habitat) {
  */
 public static String gain(String food, String source, String amount) {
     return "";
+
+// run the code below to trigger the pink abilities
+    for(int i=0;i<pinkTriggers.size();i++)
+    {
+        if(pinkTriggers.get(i).equals("food\""))
+        pinkTriggers.get(i).execute();
+
+    }
 }
 
 
@@ -417,6 +531,15 @@ public static void draw(String deckType, String amount) {
 public static void lay(String nestType, int number) {
 
 
+/* check for pink bird
+    run the for loop below to trigger the corrosponding pink abilitys.
+ */
+    for(int i=0;i<pinkTriggers.size();i++)
+    {
+        if(pinkTriggers.get(i).equals("eggs\""))
+        pinkTriggers.get(i).execute();
+
+    }
 }
 
 
@@ -427,13 +550,23 @@ public static void lay(String nestType, int number) {
  * @return void
  *
  * keywords:
+ *  amount:
  *  NUM: the number of cards to tuck
+ *  source:
  *  hand: tuck from the player's hand
  *  deck: tuck from the bird card deck
- *  it: there is no source
+ *  it: tuck birdInput
+ *     
  */
 public static void tuck(String source, String amount, Bird birdInput ) {
    
+   // Run the code below to trigger the pink abilities
+   for(int i=0;i<pinkTriggers.size();i++)
+    {
+        if(pinkTriggers.get(i).equals("predator"))
+        pinkTriggers.get(i).execute();
+
+    }
 }
 
 
@@ -444,16 +577,19 @@ public static void tuck(String source, String amount, Bird birdInput ) {
  * @return void
  *
  * keywords:
+    amount:
  *  NUM: the number of items to discard
+    itemType:
  *  egg: discard eggs
- *  other: discard from other players
- *  this: discard the item containing this ability
- *  card: discard bird cards
+    card: discard bird cards
  *  seed, fish, rodent: discard food items
- *  it: there is no item type
+ *  it: use birdInput
+ *  location:
+ *  other: discard from a bird not containing this ability
+ *  this: discard the item containing this ability
  *  end: discard at the end of the turn
  */
-public static void discard(String itemType, String amount, Bird birdInput ) {
+public static void discard(String itemType, String location, String amount, Bird birdInput ) {
 
 
 }
@@ -492,9 +628,12 @@ public static void Each() {
  * @return what was cached
  *
  * keywords:
+ *  foodType:
  *  it: cache food specified by the ability
  *  rodent, fish, seed: specific food types
  *  supply: cache from the supply
+ *  amount:
+ *  "NUM"
  */
 public static String cache(String foodType, String amount) {
     return "";
