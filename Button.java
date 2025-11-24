@@ -41,46 +41,71 @@ public class Button {
     //Each button knows how to draw itself based on the "name" and "state" Strings
     public void paint(Graphics g) 
     {
-        if (display) {//This draws the button only if display is true
-            if (image != null) {
-                g.drawImage(image, x1, y1, getWidth(), getHeight(), null);
-            } else
-            {
-                // Draw a default button if no image
-                if(state.equals("normal"))
-                    g.setColor(new Color(70, 130, 180));
-                else if(state.equals("abnormal"))
-                    g.setColor(new Color(100, 160, 210));
-                else
-                    g.setColor(Color.LIGHT_GRAY);
-                g.fillRoundRect(x1, y1, width, height, 15, 15);
-                g.setColor(Color.WHITE);
-                g.setFont(new Font("Arial", Font.BOLD, 20));
-                FontMetrics fm = g.getFontMetrics();
-                int textWidth = fm.stringWidth(name);
-                int textHeight = fm.getAscent();
-                g.drawString(name, x1 + (width - textWidth) / 2, y1 + (height + textHeight) / 2 - 2);
-            }
+        if(!display) return;
+        switch(name)
+        {
+            case "temp":
+            g.drawString(name,(x1+x2)/2,(y1+y2)/2);
+            break;
+            case "GO":
+            g.setColor(Color.BLACK);
+            g.drawRect(x1, y1, width, height);
+            g.setColor(Color.YELLOW);
+            g.drawString("GO",x1,y1);
+            break;
+            case "Previous Player":
+                g.setColor(Color.BLACK);
+                g.drawString("Previous Player",x1,y1);
+                g.setColor(Color.yellow);
+                g.drawRect(x1, y1, width, height);
+            break;
+            case "Next Player":
+                g.setColor(Color.BLACK);
+                g.drawString("Next Player",x1,y1);
+                g.setColor(Color.yellow);
+                g.drawRect(x1, y1, width, height);
+            break;
+            case "Birdfeeder and Deck":
+                g.setColor(Color.BLACK);
+                g.drawString("Birdfeeder and Deck",x1,y1);
+                g.setColor(Color.yellow);
+                g.drawRect(x1, y1, width, height);
+            break;
+            case "Action Token":
+                g.setColor(Color.BLUE);
+                g.drawRect(x1, y1, width, height);
+            break;
         }
+        
     }
 
     
     public void click() {
-        if (clickable) 
-        {//only respond to clicks if clickable is true
+        if (!clickable) return; 
+        //only respond to clicks if clickable is true
             System.out.println("Button " + name + " clicked.");
         switch (name) 
         {
             //Write specific click behavior for different button names here
-            default:
-                if(state.equals("normal"))
-                state="abnormal";
-                else if(state.equals("abnormal"))
-                state="normal";
+            case "Previous Player":
+            int index = (Player.currentPlayerIndex-1);
+            if(index<0) index = 3; //gets the index of the previous player. When it is not the Player's turn, the display flag for hand and other things will be turned off
+            Panel.setScreen(Player.players().get(index).playerGetScreenDisplay());//display that Player's screen
             break;
-        }
+
+            case "Next Player":
+            Panel.setScreen(Player.players().get((Player.currentPlayerIndex+1)%4).playerGetScreenDisplay());//display the next person's screen
+            break;
+
+            case "Birdfeeder and Deck":
+            Panel.setScreen(Panel.miscellaneousScreen);//display the miscelanious screen
+            break;
+
+            
 
         }
+
+        
     }
 
     public int getWidth() {

@@ -3,7 +3,7 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.*;
 
-public class Bird /*extends Button*/ {
+public class Bird extends Button {
   private String name, sciName, nestType;
 private String[] habitats;
 private Ability birdAbility;
@@ -12,7 +12,7 @@ private TreeMap<String,Integer> cache;
 private int points, eggCount, eggCapacity, size;
 private ArrayList<Bird> prey;
 private boolean bonusCard, flocking;
-private static TreeSet<Bird> deck;
+private static Queue deck;
 private Spot loc;
 private BufferedImage image;
 private int cardH = 278;
@@ -23,7 +23,7 @@ private Rectangle bounds;
   public Bird(String n, String sN, String nT, String[] h, Ability bA, TreeMap<String, Integer> co, TreeMap<String, Integer> ca, int po, int eC, int eCa, int s, ArrayList<Bird> p, boolean bc, boolean flo, Spot l, BufferedImage i, int x, int y)
   {
 
-    /*super(n, "Normal", i, true, true, x, y, x + 140, y + 278);*/  // Using cardW and cardH for dimensions
+    super(n, "Normal", i, true, true, x, y, x + 180, y + 278);  // Using cardW and cardH for dimensions
     name = n;sciName = sN;nestType = nT;
     habitats = h;
     birdAbility = bA;
@@ -34,7 +34,7 @@ private Rectangle bounds;
     bonusCard = bc; flocking = flo;
     loc = l;
     image = i;
-    bounds = new Rectangle(x, y, cardW, cardH);
+    bounds = new Rectangle(x, y, 180, 278);
   }
   
   public Rectangle getBounds()
@@ -127,7 +127,6 @@ private Rectangle bounds;
   {
     return prey;
   }
-  public void bla(){}
   public boolean hasBonusCard()
   {
     return bonusCard;

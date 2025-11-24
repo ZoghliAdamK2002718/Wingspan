@@ -44,14 +44,14 @@ public Ability(String rA, String tT, String tN, ArrayList<String> a) {
         } else if(rA.toUpperCase().contains("GAME END")) {
             triggerType = "end";
             triggerName = "GAME END";
-        } else if(ra.toUpperCase().contains("ONCE BETWEEN TURNS")) {
+        } else if(rA.toUpperCase().contains("ONCE BETWEEN TURNS")) {
             triggerType = "pink";
             String[] pinkNames = {"eggs\"","their wetland","predator","thier forest","their grassland","food\""};
             for(int i=0;i<pinkNames.length;i++)
             {
-                if(ra.contains(pinkNames[i]))
+                if(rA.contains(pinkNames[i]))
                 tN = pinkNames[i];
-                ra = ra.substring(pinkNames[i]);
+                rA = rA.substring(0,rA.indexOf(pinkNames[i]));
             }
         }
     } else {

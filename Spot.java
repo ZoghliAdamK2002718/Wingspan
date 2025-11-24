@@ -1,3 +1,4 @@
+import java.awt.Graphics;
 
 public class Spot extends Button{
 private Bird bird;
@@ -14,6 +15,17 @@ private Ability spotAbility;
         occupied = false;
         hasActionToken = false;
         bird = null;
+    }
+
+    public void paint(Graphics g)
+    {
+        if(!super.display) return;
+        
+
+    }
+
+    public void click() {
+        if(!super.clickable) return;
     }
 
     public Bird getBird() {
