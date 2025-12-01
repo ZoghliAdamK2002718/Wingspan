@@ -76,6 +76,10 @@ public void loadInitialImages()
         if(rattoken != null) {
             rattoken = trimTransparent(rattoken);
             miscpics.put("rattoken", rattoken);
+        BufferedImage board = ImageIO.read(Panel.class.getResource("/Images/Board.png"));
+        miscpics.put("board", board);
+        BufferedImage goBtnImg = ImageIO.read(Panel.class.getResource("/Images/gobutton.png"));
+        miscpics.put("goBtnImg", goBtnImg);
         }
     }
     catch (Exception e)
@@ -150,9 +154,9 @@ public void loadInitialImages()
         if (currentScreen.isEmpty()) {
             // Calculate y position: startY=200, 4 fields with spacing=60, so last field at 200+3*60=380, ends at 420
             int buttonY = 460; // Below all text fields
-            // Use 0-1000 scale, centered at 500 (350 to 650 = 300 units wide)
-            Button goBtn = new Button("GO", "normal", null, true, true,
-                680, 480, 850, 540);
+            // Use 0-1000 scale, centered at 500 - shorter width (200px) and taller height (50px)
+            Button goBtn = new Button("GO", "normal", miscpics.get("goBtnImg"), true, true,
+                getWidth()/2 - 100, getHeight()-110, getWidth()/2 + 100, getHeight()-60);
             currentScreen.add(goBtn);
         }
        
@@ -184,7 +188,8 @@ public void loadInitialImages()
             // paint background for game
             if (bg != null) {
                 g.drawImage(bg, 0, 0, getWidth(), getHeight(), null);
-                setScreen(Player.players().get(0).playerGetScreenDisplay());
+                playerBoardScreen(g, Player.currentPlayerIndex);
+                // setScreen(Player.players().get(0).playerGetScreenDisplay());
                /*  if(currentPlayerIndex==0){
                     setScreen(PlayerOneScreen);
                 }
@@ -209,22 +214,70 @@ public void loadInitialImages()
    
 }
 
-
+    public void playerBoardScreen(Graphics g, int pI)
+    {
+        g.drawImage(miscpics.get("board"), 25, 25, getWidth() - 600, getHeight() - 250, null);
+        displayPlayerHand(g, pI);
+        displayPlayerFood(g, pI);
+    }
+    public void displayPlayerHand(Graphics g, int pI)
+    {
+        for(int i = 0;i<Player.players().get(pI).playerGetHand().size();i++)
+        {
+            Bird b = Player.players().get(pI).playerGetHand().get(i);
+            g.drawImage(b.getImage(), getWidth() - (cardW + 20) * (Player.players().get(pI).playerGetHand().size() - i), getHeight() - cardH - 50, cardW, cardH, null);
+        }
+    }
+    public void displayPlayerFood(Graphics g, int pI)
+    {
+        TreeMap<String, Integer> food = Player.players().get(pI).playerGetFood();
+        int x = 20;
+        int y = getHeight() - 200;
+        int size = 60;
+        int spacing = 70;
+        
+        g.setColor(Color.BLACK);
+        g.setFont(new Font("Arial", Font.BOLD, 16));
+        g.drawString("Food:", x, y - 10);
+        
+        int index = 0;
+        for (Map.Entry<String, Integer> entry : food.entrySet()) {
+            String foodType = entry.getKey();
+            int count = entry.getValue();
+            
+            // Map food type back to token image name
+            String tokenName = mapFoodTypeToToken(foodType);
+            BufferedImage tokenImg = miscpics.get(tokenName);
+            
+            if (tokenImg != null && count > 0) {
+                g.drawImage(tokenImg, x + index * spacing, y, size, size, null);
+                // Draw count
+                g.setColor(Color.WHITE);
+                g.fillOval(x + index * spacing + size - 20, y + size - 20, 20, 20);
+                g.setColor(Color.BLACK);
+                g.drawString("" + count, x + index * spacing + size - 15, y + size - 5);
+                index++;
+            }
+        }
+    }
 
 
     private void finishPlayerSelection() {
         // Store selected items in current player's hand
         ArrayList<Bird> keptBirds = new ArrayList<>();
+        Player currentPlayer = Player.players().get(Player.currentPlayerIndex);
         for (ItemRef item : selected) {
             if (item.type == ItemRef.Type.BIRD && item.bird != null) {
                 keptBirds.add(item.bird);
             } else if (item.type == ItemRef.Type.TOKEN) {
-                // Store token in player's resources (you can expand this later)
+                // Map token image names to food types and add to player's food
+                String foodType = mapTokenToFoodType(item.tokenName);
+                currentPlayer.addFood(foodType, 1);
                 String playerName = playerNames.get(Player.currentPlayerIndex);
-                System.out.println(playerName + " kept token: " + item.tokenName);
+                System.out.println(playerName + " kept token: " + item.tokenName + " (" + foodType + ")");
             }
         }
-        Player.players().get(Player.currentPlayerIndex).playerSetHand(keptBirds);
+        currentPlayer.playerSetHand(keptBirds);
         String playerName = playerNames.get(Player.currentPlayerIndex);
         System.out.println(playerName + " selection complete. Kept " + keptBirds.size() + " birds.");
        
@@ -420,6 +473,30 @@ public void loadInitialImages()
     }
 
 
+    // Helper method to map token image names to food types
+    private String mapTokenToFoodType(String tokenName) {
+        switch(tokenName) {
+            case "wheattoken": return "grain";
+            case "invertebratetoken": return "invertebrate";
+            case "fishtoken": return "fish";
+            case "foodtoken": return "fruit";
+            case "rattoken": return "rodent";
+            default: return tokenName;
+        }
+    }
+    
+    // Helper method to map food types back to token image names
+    private String mapFoodTypeToToken(String foodType) {
+        switch(foodType) {
+            case "grain": return "wheattoken";
+            case "invertebrate": return "invertebratetoken";
+            case "fish": return "fishtoken";
+            case "fruit": return "foodtoken";
+            case "rodent": return "rattoken";
+            default: return foodType + "token";
+        }
+    }
+    
     // trims fully transparent borders so different PNG paddings appear same size when scaled
     private BufferedImage trimTransparent(BufferedImage img) {
         if (img == null) return null;
@@ -682,4 +759,3 @@ public void loadInitialImages()
     }
 }
     
-

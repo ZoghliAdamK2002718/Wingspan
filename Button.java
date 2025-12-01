@@ -91,7 +91,7 @@ public class Button {
             int index = (Player.currentPlayerIndex-1);
             if(index<0) index = 3; //gets the index of the previous player. When it is not the Player's turn, the display flag for hand and other things will be turned off
             Panel.setScreen(Player.players().get(index).playerGetScreenDisplay());//display that Player's screen
-            break;
+            break;//The issue with the code is that it uses current player instead of the player that owns the button
 
             case "Next Player":
             Panel.setScreen(Player.players().get((Player.currentPlayerIndex+1)%4).playerGetScreenDisplay());//display the next person's screen

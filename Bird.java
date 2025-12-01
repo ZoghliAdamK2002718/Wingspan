@@ -24,7 +24,9 @@ private Rectangle bounds;
   {
 
     super(n, "Normal", i, true, true, x, y, x + 180, y + 278);  // Using cardW and cardH for dimensions
-    name = n;sciName = sN;nestType = nT;
+    name = n;
+    sciName = sN;
+    nestType = nT;
     habitats = h;
     birdAbility = bA;
     costs = co;
