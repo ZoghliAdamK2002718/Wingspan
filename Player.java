@@ -11,22 +11,22 @@ private static ArrayList<Player> players = new ArrayList<Player>(Arrays.asList(n
                             new TreeMap<String,Integer>(),
                             new ArrayList<BonusCard>(),
                             new HashMap<String, ArrayList<Spot>>(),
-                            new ArrayList<Button>()),new Player(new ArrayList<Bird>(),
+                            new ArrayList<Button>(),0),new Player(new ArrayList<Bird>(),
                             new TreeMap<String,Integer>(),
                             new ArrayList<BonusCard>(),
                             new HashMap<String, ArrayList<Spot>>(),
-                            new ArrayList<Button>()),new Player(new ArrayList<Bird>(),
+                            new ArrayList<Button>(),1),new Player(new ArrayList<Bird>(),
                             new TreeMap<String,Integer>(),
                             new ArrayList<BonusCard>(),
                             new HashMap<String, ArrayList<Spot>>(),
-                            new ArrayList<Button>()),new Player(new ArrayList<Bird>(),
+                            new ArrayList<Button>(),2),new Player(new ArrayList<Bird>(),
                             new TreeMap<String,Integer>(),
                             new ArrayList<BonusCard>(),
                             new HashMap<String, ArrayList<Spot>>(),
-                            new ArrayList<Button>())));
+                            new ArrayList<Button>(),3)));
 public static int currentPlayerIndex = 0;
 
-    public Player(ArrayList<Bird> h, TreeMap<String,Integer> f, ArrayList<BonusCard> b, HashMap<String, ArrayList<Spot>> bo, ArrayList<Button> t) {
+    public Player(ArrayList<Bird> h, TreeMap<String,Integer> f, ArrayList<BonusCard> b, HashMap<String, ArrayList<Spot>> bo, ArrayList<Button> t,int playerNumber) {
         hand = h;
         food = f;
         bonus = b;
@@ -36,14 +36,15 @@ public static int currentPlayerIndex = 0;
         {
             screenDisplay.addAll(board.get(k));
         }
-        screenDisplay.add(new Button("Previous Player",""+currentPlayerIndex,null,true,true,10,890,110,990));
-        screenDisplay.add(new Button("Next Player",""+currentPlayerIndex,null,true,true,890,890,990,990));
-        screenDisplay.add(new Button("Birdfeeder and Deck","none",null,true,true,10,790,110,880));
+        screenDisplay.add(new Button("Previous Player",""+playerNumber,null,true,true,10,890,110,990));
+        screenDisplay.add(new Button("Next Player",""+playerNumber,null,true,true,890,890,990,990));
+        screenDisplay.add(new Button("Birdfeeder and Deck",""+playerNumber,null,true,true,10,790,110,880));
         for(int i=0;i<8;i++)
         tokens.add(new Button("Action Token",""+i,null,true,true,100*i,100*i,10+(100*i),10+(100*i)));
+    
         screenDisplay.addAll(tokens);
-     
-}
+        System.out.println("Buttons have been made for player "+playerNumber);
+} 
 
     public void playerSetHand(ArrayList<Bird> h) {
         hand = h;
@@ -88,7 +89,7 @@ public static int currentPlayerIndex = 0;
                             new TreeMap<String,Integer>(),
                             new ArrayList<BonusCard>(),
                             new HashMap<String, ArrayList<Spot>>(),
-                            new ArrayList<Button>()));
+                            new ArrayList<Button>(),i));
             System.out.println(players.size());
             return players;
   

@@ -88,17 +88,22 @@ public class Button {
         {
             //Write specific click behavior for different button names here
             case "Previous Player":
-            int index = (Player.currentPlayerIndex-1);
+            int index = (Integer.parseInt(state)-1);
             if(index<0) index = 3; //gets the index of the previous player. When it is not the Player's turn, the display flag for hand and other things will be turned off
             Panel.setScreen(Player.players().get(index).playerGetScreenDisplay());//display that Player's screen
+            System.out.println("PreviousButton "+index);
+            System.out.println(Player.players().get(index).playerGetScreenDisplay());
             break;
 
             case "Next Player":
-            Panel.setScreen(Player.players().get((Player.currentPlayerIndex+1)%4).playerGetScreenDisplay());//display the next person's screen
+            Panel.setScreen(Player.players().get((Integer.parseInt(state)+1)%4).playerGetScreenDisplay());//display the next person's screen
+            System.out.println("NextButton"+(Player.currentPlayerIndex+1)%4);
+            System.out.println(Player.players().get((Integer.parseInt(state)+1)%4).playerGetScreenDisplay());
             break;
 
             case "Birdfeeder and Deck":
             Panel.setScreen(Panel.miscellaneousScreen);//display the miscelanious screen
+            System.out.println("miscelaneousScreen");
             break;
 
             
