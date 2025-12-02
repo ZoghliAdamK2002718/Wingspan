@@ -22,7 +22,7 @@ private final TreeMap<String,ArrayList<String>> keyWords = new TreeMap<String,Ar
     put("look",new ArrayList<String>(Arrays.asList("NUM")));
     put("roll",new ArrayList<String>(Arrays.asList("rodent","fish")));//add a return statement for the key word
     put("draw",new ArrayList<String>(Arrays.asList("equal","NUM","bonus","deck")));//
-    put("lay",new ArrayList<String>(Arrays.asList(,"another","this","any","each","ground","cavity","burrow","bowl","platform")));
+    put("lay",new ArrayList<String>(Arrays.asList("another","this","any","each","ground","cavity","burrow","bowl","platform")));
     put("tuck",new ArrayList<String>(Arrays.asList("NUM","hand","deck","it")));//
     put("discard",new ArrayList<String>(Arrays.asList("NUM","egg","other","this","card","seed","fish","rodent","it","end")));
     put("players",new ArrayList<String>(Arrays.asList("selects")));//
@@ -353,16 +353,16 @@ triggerName+="\ttriggered for the round";
              ArrayList<String> cacheKeys = keyWords.get("cache");//all possible keywords for players
                 for(int j=0;j<cacheKeys.size();j++)//sort the found keywords into their respective variables
                 {
-                        if(cachekeys.contains())//
+                        if(inputs.get(String.class).contains(cacheKeys.get(j)))//
                         {
                             cacheInput = cacheKeys.get(j);
                             inputs.get(String.class).remove(cacheKeys.get(j));//remove from inputs so it doesn't get added to nestType
                         }
 
                 }
-                players(playerInput);
+                players(cacheInput);
             break;
-        } /*To-do Pink ability implementation.*/
+        } 
 
     } else {}
  }
@@ -432,12 +432,12 @@ public static String gain(String food, String source, String amount) {
     return "";
 
 // run the code below to trigger the pink abilities
-    for(int i=0;i<pinkTriggers.size();i++)
+    /*for(int i=0;i<pinkTriggers.size();i++)
     {
         if(pinkTriggers.get(i).equals("food\""))
         pinkTriggers.get(i).execute();
 
-    }
+    }*/
 }
 
 
@@ -638,6 +638,29 @@ public static void Each() {
 public static String cache(String foodType, String amount) {
     return "";
 
+
+}
+/* The only player executing the ability is the one containing this ability
+ *  
+ * @param void
+ * @return void
+ *
+ * keywords:
+ *  You: the player executing the ability
+ */
+public void you() {
+
+}
+
+/*runs players, and removes the cards that other players choose
+ *  
+ * @param void
+ * @return void
+ *
+ * keywords:
+ *  selects: each player selects the option specified in the ability
+ */
+public void selects() {
 
 }
 

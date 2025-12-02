@@ -57,7 +57,10 @@ public static int currentPlayerIndex = 0;
     }
     public TreeMap<String,Integer> playerGetFood() {
         return food;
-    }  
+    }
+    public void addFood(String foodType, int amount) {
+        food.put(foodType, food.getOrDefault(foodType, 0) + amount);
+    }
     public void playerSetBonus(ArrayList<BonusCard> b) {
         bonus = b;
     }
