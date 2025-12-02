@@ -51,8 +51,23 @@ private Player player;
        }
     }
 
-    public int score() {
+    public Player getPlayer(){
         return player;
+    }
+    public int score() {
+        /*Planning space for Anirudh. Can add comments if you want but make sure ot look at the list of birds doc first
+        Algorithm plan:
+        1.see if a card has the word "include". If so, count the birds the player has that has the listed terms in the name
+        2.see if the card description has the word "with", but does not include the word "names". If so, move on to the branches to see what atttributes of the birds to check
+        3.see if the card description has the word "that". If so, move on to the that branches "live", or "eat" accordingly
+        4.disregard the cards that don't have these key words as they would just waste time
+
+        thought process:
+
+        the key word "with" narrows the number of possible cards to just 13, so searching for key words within that would be more efficient to create and run
+        we will disregard the bonus cards that don't have any of the key words above because they would require a lot of effort to create and we don't have that much time
+        */
+        return 0;
     }
 
 }
