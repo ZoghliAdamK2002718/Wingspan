@@ -5,31 +5,33 @@ import java.util.TreeMap;
 
 
 public class Ability {
-private String rawAbility/*the ability put into the constructor */, triggerType/*pink or brown */,triggerName/*name of the object */;
+private String rawAbility;/*the ability put into the constructor */
+private String triggerType;/*pink or brown */
+private String triggerName;/*name of the object */
 private ArrayList<String> ability;/*what is used to read and execute the ability */
-private ArrayList<Integer> players;/*the players that will execute the ability functions */
+private final ArrayList<Integer> players;/*the players that will execute the ability functions */
 private static ArrayList<Ability> pinkTriggers;/*all pink abilities in the game that are active*/
-private HashMap<Class,ArrayList<Object>> inputs;/*what is returned by the ability function */
+private final HashMap<Class<?>,ArrayList<Object>> inputs;/*what is returned by the ability function */
 private Bird bird;/* the bird containing this ability object */
 private Spot spot;/* the spot containing this ability object */
 private Player player;/* the player containing this ability object */
  
 private final TreeMap<String,ArrayList<String>> keyWords = new TreeMap<String,ArrayList<String>>() {{/*all the key words for the ability. If you touch this without knowing exactly what you are doing, I will do a record breaking crash out ^w^ */
-    put("play",new ArrayList<String>(Arrays.asList("this", "forest", "wetland", "grassland")));
-    put("gain",new ArrayList<String>(Arrays.asList("NUM","any","all","or","die","rodent","fish","seed","invertibrate","fruit","wild","supply","available","birdfeeder")));// add a return statement for the key word
-    put("right",new ArrayList<String>(Arrays.asList()));
-    put("keep",new ArrayList<String>(Arrays.asList()));//use either the bonus card or bird card from the variable set
-    put("look",new ArrayList<String>(Arrays.asList("NUM")));
-    put("roll",new ArrayList<String>(Arrays.asList("rodent","fish")));//add a return statement for the key word
-    put("draw",new ArrayList<String>(Arrays.asList("equal","NUM","bonus","deck")));//
-    put("lay",new ArrayList<String>(Arrays.asList("another","this","any","each","ground","cavity","burrow","bowl","platform")));
-    put("tuck",new ArrayList<String>(Arrays.asList("NUM","hand","deck","it")));//
-    put("discard",new ArrayList<String>(Arrays.asList("NUM","egg","other","this","card","seed","fish","rodent","it","end")));
-    put("players",new ArrayList<String>(Arrays.asList("selects")));//
-    put("You",new ArrayList<String>(Arrays.asList()));// You has to be capitalized
-    put("selects",new ArrayList<String>(Arrays.asList()));//runs players, and removes the cards that other players choose
-    put("Each",new ArrayList<String>(Arrays.asList()));// runs players, and has to be capitalized
-    put("cache",new ArrayList<String>(Arrays.asList("it","rodent","fish","seed","supply")));// add a return statement for the key word
+    put("play",new ArrayList<>(Arrays.asList("this", "forest", "wetland", "grassland")));
+    put("gain",new ArrayList<>(Arrays.asList("NUM","any","all","or","die","rodent","fish","seed","invertibrate","fruit","wild","supply","available","birdfeeder")));// add a return statement for the key word
+    put("right",new ArrayList<>());
+    put("keep",new ArrayList<>());//use either the bonus card or bird card from the variable set
+    put("look",new ArrayList<>(Arrays.asList("NUM")));
+    put("roll",new ArrayList<>(Arrays.asList("rodent","fish")));//add a return statement for the key word
+    put("draw",new ArrayList<>(Arrays.asList("equal","NUM","bonus","deck")));//
+    put("lay",new ArrayList<>(Arrays.asList("another","this","any","each","ground","cavity","burrow","bowl","platform")));
+    put("tuck",new ArrayList<>(Arrays.asList("NUM","hand","deck","it")));//
+    put("discard",new ArrayList<>(Arrays.asList("NUM","egg","other","this","card","seed","fish","rodent","it","end")));
+    put("players",new ArrayList<>(Arrays.asList("selects")));//
+    put("You",new ArrayList<>());// You has to be capitalized
+    put("selects",new ArrayList<>());//runs players, and removes the cards that other players choose
+    put("Each",new ArrayList<>());// runs players, and has to be capitalized
+    put("cache",new ArrayList<>(Arrays.asList("it","rodent","fish","seed","supply")));// add a return statement for the key word
 }};
 
 public Ability(String rA, String tT, String tN, ArrayList<String> a) {
@@ -47,11 +49,12 @@ public Ability(String rA, String tT, String tN, ArrayList<String> a) {
         } else if(rA.toUpperCase().contains("ONCE BETWEEN TURNS")) {
             triggerType = "pink";
             String[] pinkNames = {"eggs\"","their wetland","predator","thier forest","their grassland","food\""};
-            for(int i=0;i<pinkNames.length;i++)
-            {
-                if(rA.contains(pinkNames[i]))
-                tN = pinkNames[i];
-                rA = rA.substring(0,rA.indexOf(pinkNames[i]));
+            for(String pinkName : pinkNames) {
+                if(rA.contains(pinkName)) {
+                    tN = pinkName;
+                    rA = rA.substring(0, rA.indexOf(pinkName));
+                    break;
+                }
             }
         }
     } else {
@@ -85,12 +88,12 @@ public Ability(String rA, String tT, String tN, ArrayList<String> a) {
     }
     
     ability = refinedAbility;
-    players = new ArrayList<>();
-    inputs = new HashMap<>();
-    inputs.put(String.class, new ArrayList<Object>(Arrays.asList("")));
-    inputs.put(Bird.class, new ArrayList<Object>());
-    inputs.put(BonusCard.class, new ArrayList<Object>());
-    inputs.put(Integer.class, new ArrayList<Object>());
+    this.players = new ArrayList<>();
+    this.inputs = new HashMap<>();
+    this.inputs.put(String.class, new ArrayList<>(Arrays.asList("")));
+    this.inputs.put(Bird.class, new ArrayList<>());
+    this.inputs.put(BonusCard.class, new ArrayList<>());
+    this.inputs.put(Integer.class, new ArrayList<>());
     
     // Add to pink triggers if this is a pink ability
     if(triggerType != null && triggerType.equalsIgnoreCase("pink")) {
@@ -396,14 +399,26 @@ triggerName+="\ttriggered for the round";
  *  this: the habitat of the bird containing this ability
  *  forest, wetland, grassland: the habitat in which the bird is to be played
  */
-public static void play(String habitat) {
-
-//run the below code to execute the pink triggers
-for(int i=0;i<pinkTriggers.size();i++)
-    {
-        if(pinkTriggers.get(i).equals("thier "+habitat))
-        pinkTriggers.get(i).execute();
-
+public void play(String habitat) {
+    // run the below code to execute the pink triggers
+    if(pinkTriggers != null) {
+        for(Ability trigger : pinkTriggers) {
+            if(trigger.getTriggerName() != null && 
+               trigger.getTriggerName().equals("their " + habitat)) {
+                trigger.execute();
+            }
+        }
+    }
+    
+    // Place bird in habitat
+    if(bird != null && bird.getHabitats() != null && spot != null) {
+        for(String h : bird.getHabitats()) {
+            if(h.equals(spot.getHabitat())) {
+                spot.setBird(bird);
+                spot.setOccupied(true);
+                break;
+            }
+        }
     }
 }
 
@@ -697,11 +712,15 @@ public ArrayList<String> getAbility() {
 public ArrayList<Integer> getPlayers() {
     return players;
 }
-public HashMap<Class,ArrayList<Object>> getInputs() {
+public HashMap<Class<?>,ArrayList<Object>> getInputs() {
     return inputs;
 }
-public void setInputs(HashMap<Class,ArrayList<Object>> i) {
-    inputs = i;
+public void setInputs(HashMap<Class<?>,ArrayList<Object>> i) {
+    // inputs is final, so we can only modify its contents
+    if(i != null) {
+        this.inputs.clear();
+        this.inputs.putAll(i);
+    }
 }
 public Bird getBird() {
     return bird;

@@ -217,6 +217,30 @@ public void loadInitialImages()
     public void playerBoardScreen(Graphics g, int pI)
     {
         g.drawImage(miscpics.get("board"), 25, 25, getWidth() - 600, getHeight() - 250, null);
+        
+        // Paint the spots on the board
+        HashMap<String, ArrayList<Spot>> board = Player.getCurrentPlayerBoard();
+        if(board != null) {
+            // Paint Forest spots
+            if(board.containsKey("Forest")) {
+                for(Spot spot : board.get("Forest")) {
+                    spot.paint(g);
+                }
+            }
+            // Paint Grassland spots
+            if(board.containsKey("Grassland")) {
+                for(Spot spot : board.get("Grassland")) {
+                    spot.paint(g);
+                }
+            }
+            // Paint Wetland spots
+            if(board.containsKey("Wetland")) {
+                for(Spot spot : board.get("Wetland")) {
+                    spot.paint(g);
+                }
+            }
+        }
+        
         displayPlayerHand(g, pI);
         displayPlayerFood(g, pI);
     }

@@ -32,6 +32,12 @@ public static int currentPlayerIndex = 0;
         bonus = b;
         board = bo;
         tokens = t;
+        
+        // Initialize board with spots if empty
+        if(board.isEmpty()) {
+            initializeBoard();
+        }
+        
         for(String k:board.keySet())
         {
             screenDisplay.addAll(board.get(k));
@@ -44,7 +50,25 @@ public static int currentPlayerIndex = 0;
     
         screenDisplay.addAll(tokens);
         System.out.println("Buttons have been made for player "+playerNumber);
-} 
+}
+    
+    private void initializeBoard() {
+        // Create spots for each habitat
+        ArrayList<Spot> forestSpots = new ArrayList<>();
+        ArrayList<Spot> grasslandSpots = new ArrayList<>();
+        ArrayList<Spot> wetlandSpots = new ArrayList<>();
+        
+        // Create 5 spots for each habitat (indices 0-4)
+        for(int i = 0; i < 5; i++) {
+            forestSpots.add(new Spot("Forest", i, null));
+            grasslandSpots.add(new Spot("Grassland", i, null));
+            wetlandSpots.add(new Spot("Wetland", i, null));
+        }
+        
+        board.put("Forest", forestSpots);
+        board.put("Grassland", grasslandSpots);
+        board.put("Wetland", wetlandSpots);
+    } 
 
     public void playerSetHand(ArrayList<Bird> h) {
         hand = h;
@@ -96,6 +120,9 @@ public static int currentPlayerIndex = 0;
             System.out.println(players.size());
             return players;
   
+    }
+    public static HashMap<String, ArrayList<Spot>> getCurrentPlayerBoard(){
+        return players.get(currentPlayerIndex).playerGetBoard();
     }
     
 

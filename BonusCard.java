@@ -1,17 +1,20 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.sql.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.TreeMap;
 public class BonusCard extends Button{
 private String name, ability, scoringType;
 private TreeMap<Integer,Integer> birdScore;
-private ArrayList<String> keyWordList;
+private ArrayList<String> keyWordList, refinedAbility;
 private Player player;
    
     public BonusCard(String n, String s, BufferedImage i, boolean c, boolean d, int xOne, int yOne, int xTwo, int yTwo, String a, String sT, TreeMap<Integer,Integer> bS, ArrayList<String> kWL, Player p) {
             super(n, s, i, c, d, xOne, yOne, xTwo, yTwo);
             ability = a;
+            refinedAbility = new ArrayList<String>(Arrays.asList(ability.split(" ")));
             scoringType = sT;
             birdScore = bS;
             keyWordList = kWL;
@@ -67,6 +70,7 @@ private Player player;
         the key word "with" narrows the number of possible cards to just 13, so searching for key words within that would be more efficient to create and run
         we will disregard the bonus cards that don't have any of the key words above because they would require a lot of effort to create and we don't have that much time
         */
+       
         return 0;
     }
 
