@@ -8,6 +8,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.BorderFactory;
+import javax.swing.JOptionPane;
 
 
 public class Panel extends JPanel implements MouseListener, MouseMotionListener{
@@ -152,11 +153,15 @@ public void loadInitialImages()
        
         // Create GO button below text fields, centered (only once)
         if (currentScreen.isEmpty()) {
-            // Calculate y position: startY=200, 4 fields with spacing=60, so last field at 200+3*60=380, ends at 420
-            int buttonY = 460; // Below all text fields
-            // Use 0-1000 scale, centered at 500 - shorter width (200px) and taller height (50px)
-            Button goBtn = new Button("GO", "normal", miscpics.get("goBtnImg"), true, true,
-                getWidth()/2 - 100, getHeight()-110, getWidth()/2 + 100, getHeight()-60);
+            int btnW = fieldWidth;
+            int btnH = 50;
+            int btnX = startX; // align with text fields
+            int btnY = startY + 4 * spacing + 10;
+            int bx1 = btnX * 1000 / Math.max(1, getWidth());
+            int by1 = btnY * 1000 / Math.max(1, getHeight());
+            int bx2 = (btnX + btnW) * 1000 / Math.max(1, getWidth());
+            int by2 = (btnY + btnH) * 1000 / Math.max(1, getHeight());
+            Button goBtn = new Button("GO", "normal", miscpics.get("goBtnImg"), true, true, bx1, by1, bx2, by2);
             currentScreen.add(goBtn);
         }
        
@@ -216,31 +221,36 @@ public void loadInitialImages()
 
     public void playerBoardScreen(Graphics g, int pI)
     {
-        g.drawImage(miscpics.get("board"), 25, 25, getWidth() - 600, getHeight() - 250, null);
-        
-        // Paint the spots on the board
+        Rectangle boardArea = getBoardArea();
+        g.drawImage(miscpics.get("board"), boardArea.x, boardArea.y, boardArea.width, boardArea.height, null);
+
+        // Ensure spots are laid out to match the current board size
         HashMap<String, ArrayList<Spot>> board = Player.getCurrentPlayerBoard();
+        layoutBoardSpots(board, boardArea);
+
         if(board != null) {
-            // Paint Forest spots
             if(board.containsKey("Forest")) {
                 for(Spot spot : board.get("Forest")) {
                     spot.paint(g);
                 }
             }
-            // Paint Grassland spots
             if(board.containsKey("Grassland")) {
                 for(Spot spot : board.get("Grassland")) {
                     spot.paint(g);
                 }
             }
-            // Paint Wetland spots
             if(board.containsKey("Wetland")) {
                 for(Spot spot : board.get("Wetland")) {
                     spot.paint(g);
                 }
             }
         }
-        
+
+        drawActionCubeHints(g, board);
+
+        int eggs = getTotalEggs(Player.players().get(pI));
+        drawEggCounter(g, eggs);
+
         displayPlayerHand(g, pI);
         displayPlayerFood(g, pI);
     }
@@ -285,15 +295,223 @@ public void loadInitialImages()
         }
     }
 
+    private Rectangle getBoardArea() {
+        int width = Math.max(600, getWidth() - 600);
+        int height = Math.max(400, getHeight() - 250);
+        return new Rectangle(25, 25, width, height);
+    }
+
+    private void layoutBoardSpots(HashMap<String, ArrayList<Spot>> board, Rectangle boardArea) {
+        if (board == null || boardArea == null) return;
+        for (Map.Entry<String, ArrayList<Spot>> entry : board.entrySet()) {
+            ArrayList<Spot> spots = entry.getValue();
+            if (spots == null) continue;
+            for (Spot spot : spots) {
+                if (spot != null) {
+                    spot.layoutInBoard(boardArea, cardW, cardH);
+                }
+            }
+        }
+    }
+
+    private int getTotalEggs(Player player) {
+        if (player == null) return 0;
+        int eggs = 0;
+        HashMap<String, ArrayList<Spot>> board = player.playerGetBoard();
+        if (board != null) {
+            for (ArrayList<Spot> spots : board.values()) {
+                if (spots == null) continue;
+                for (Spot s : spots) {
+                    if (s != null && s.getBird() != null) {
+                        eggs += s.getBird().getEggCount();
+                    }
+                }
+            }
+        }
+        return eggs;
+    }
+
+    private void drawActionCubeHints(Graphics g, HashMap<String, ArrayList<Spot>> board) {
+        if (board == null) return;
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        for (String habitat : Arrays.asList("Forest", "Grassland", "Wetland")) {
+            ArrayList<Spot> spots = board.get(habitat);
+            if (spots == null || spots.isEmpty()) continue;
+
+            Spot target = null;
+            for (Spot s : spots) {
+                if (!s.isOccupied()) {
+                    target = s;
+                    break;
+                }
+            }
+            if (target == null) {
+                target = spots.get(spots.size() - 1);
+            }
+
+            drawActionCube(g2, target, habitat);
+        }
+    }
+
+    private void drawActionCube(Graphics2D g2, Spot target, String habitat) {
+        if (target == null) return;
+        Color base = getHabitatColor(habitat);
+        int pad = Math.max(4, target.getWidth() / 20);
+
+        g2.setColor(new Color(base.getRed(), base.getGreen(), base.getBlue(), 70));
+        g2.fillRoundRect(target.x1 + pad, target.y1 + pad, target.getWidth() - pad * 2, target.getHeight() - pad * 2, 12, 12);
+        g2.setStroke(new BasicStroke(2f));
+        g2.setColor(new Color(base.getRed(), base.getGreen(), base.getBlue(), 140));
+        g2.drawRoundRect(target.x1 + pad, target.y1 + pad, target.getWidth() - pad * 2, target.getHeight() - pad * 2, 12, 12);
+
+        int cubeSize = Math.max(22, Math.min(36, Math.min(target.getWidth(), target.getHeight()) / 4));
+        int cubeX = target.x1 + target.getWidth() - cubeSize - pad;
+        int cubeY = target.y1 + pad;
+        g2.setColor(new Color(base.getRed(), base.getGreen(), base.getBlue(), 220));
+        g2.fillRoundRect(cubeX, cubeY, cubeSize, cubeSize, 6, 6);
+        g2.setColor(new Color(0, 0, 0, 160));
+        g2.drawRoundRect(cubeX, cubeY, cubeSize, cubeSize, 6, 6);
+        g2.setColor(Color.WHITE);
+        g2.setFont(new Font("Arial", Font.BOLD, Math.max(10, cubeSize / 3)));
+        g2.drawString("A", cubeX + cubeSize / 3, cubeY + (int)(cubeSize * 0.72));
+    }
+
+    private Color getHabitatColor(String habitat) {
+        if (habitat == null) return new Color(60, 60, 60);
+        switch (habitat.toLowerCase()) {
+            case "forest":
+                return new Color(46, 160, 80);
+            case "grassland":
+                return new Color(220, 190, 40);
+            case "wetland":
+                return new Color(40, 140, 230);
+            default:
+                return new Color(60, 60, 60);
+        }
+    }
+
+    private void handleSpotAction(Spot spot) {
+        if (spot == null) return;
+
+        String[] options = {"Claim habitat action", "Place a bird", "Cancel"};
+        int choice = JOptionPane.showOptionDialog(this,
+                "What would you like to do on this spot?",
+                "Habitat Action",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                options,
+                options[0]);
+
+        if (choice == 0) {
+            if (!spot.hasActionToken()) {
+                spot.setActionToken(true);
+                JOptionPane.showMessageDialog(this, "Action claimed for " + spot.getHabitat() + " slot " + (spot.getIndex() + 1) + ".");
+            } else {
+                JOptionPane.showMessageDialog(this, "This spot already has an action token.");
+            }
+        } else if (choice == 1) {
+            if (spot.isOccupied()) {
+                JOptionPane.showMessageDialog(this, "This spot already has a bird.");
+                return;
+            }
+            ArrayList<Bird> hand = Player.players().get(Player.currentPlayerIndex).playerGetHand();
+            if (hand == null || hand.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No birds in hand to place.");
+                return;
+            }
+            String[] birdNames = hand.stream().map(Bird::getName).toArray(String[]::new);
+            String selected = (String) JOptionPane.showInputDialog(this, "Choose a bird to place:", "Place Bird",
+                    JOptionPane.PLAIN_MESSAGE, null, birdNames, birdNames[0]);
+            if (selected == null) return;
+
+            Bird chosen = null;
+            for (Bird b : hand) {
+                if (b.getName().equals(selected)) { chosen = b; break; }
+            }
+            if (chosen != null) {
+                spot.setBird(chosen);
+                spot.setOccupied(true);
+                chosen.setBounds(new Rectangle(spot.x1, spot.y1, spot.getWidth(), spot.getHeight()));
+                hand.remove(chosen);
+                JOptionPane.showMessageDialog(this, chosen.getName() + " placed in " + spot.getHabitat() + ".");
+            }
+        }
+    }
+
+    private void handleActionTokenClick() {
+        HashMap<String, ArrayList<Spot>> board = Player.getCurrentPlayerBoard();
+        if (board == null || board.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Board not ready.");
+            return;
+        }
+        String[] habitats = new String[]{"Forest", "Grassland", "Wetland"};
+        String habitat = (String) JOptionPane.showInputDialog(this, "Choose habitat to use your action token:", "Action Token",
+                JOptionPane.PLAIN_MESSAGE, null, habitats, habitats[0]);
+        if (habitat == null) return;
+
+        ArrayList<Spot> spots = board.get(habitat);
+        if (spots == null || spots.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No spots available in " + habitat + ".");
+            return;
+        }
+
+        String[] spotChoices = new String[spots.size()];
+        for (int i = 0; i < spots.size(); i++) {
+            Spot s = spots.get(i);
+            spotChoices[i] = habitat + " " + (i + 1) + (s.isOccupied() ? " (occupied)" : "");
+        }
+        String chosenSpot = (String) JOptionPane.showInputDialog(this, "Select spot:", "Select Spot",
+                JOptionPane.PLAIN_MESSAGE, null, spotChoices, spotChoices[0]);
+        if (chosenSpot == null) return;
+
+        int idx = Arrays.asList(spotChoices).indexOf(chosenSpot);
+        if (idx >= 0 && idx < spots.size()) {
+            handleSpotAction(spots.get(idx));
+        }
+    }
+
+    private void drawEggCounter(Graphics g, int eggCount) {
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        int boxW = 150;
+        int boxH = 60;
+        int x = getWidth() - boxW - 20;
+        int y = 20;
+
+        g2.setColor(new Color(255, 255, 255, 210));
+        g2.fillRoundRect(x, y, boxW, boxH, 10, 10);
+        g2.setColor(new Color(120, 90, 40));
+        g2.setStroke(new BasicStroke(2f));
+        g2.drawRoundRect(x, y, boxW, boxH, 10, 10);
+
+        g2.setFont(new Font("Arial", Font.BOLD, 18));
+        g2.setColor(new Color(90, 60, 20));
+        g2.drawString("Eggs", x + 12, y + 22);
+
+        g2.setFont(new Font("Arial", Font.BOLD, 26));
+        g2.setColor(new Color(50, 30, 10));
+        g2.drawString(Integer.toString(eggCount), x + 12, y + 48);
+
+        g2.setColor(new Color(240, 220, 180));
+        int eggX = x + boxW - 40;
+        int eggY = y + 18;
+        g2.fillOval(eggX, eggY, 22, 30);
+        g2.setColor(new Color(200, 170, 120));
+        g2.drawOval(eggX, eggY, 22, 30);
+    }
+
 
     private void finishPlayerSelection() {
         // Store selected items in current player's hand
         ArrayList<Bird> keptBirds = new ArrayList<>();
         Player currentPlayer = Player.players().get(Player.currentPlayerIndex);
         for (ItemRef item : selected) {
-            if (item.type == ItemRef.Type.BIRD && item.bird != null) {
+            if (item.type == ItemType.BIRD && item.bird != null) {
                 keptBirds.add(item.bird);
-            } else if (item.type == ItemRef.Type.TOKEN) {
+            } else if (item.type == ItemType.TOKEN) {
                 // Map token image names to food types and add to player's food
                 String foodType = mapTokenToFoodType(item.tokenName);
                 currentPlayer.addFood(foodType, 1);
@@ -398,11 +616,11 @@ public void loadInitialImages()
             if (i < selected.size()) {
                 ItemRef it = selected.get(i);
                 boolean isHover = (hoverSlotItem == it);
-                if (it.type == ItemRef.Type.TOKEN) {
+                if (it.type == ItemType.TOKEN) {
                     int ts = Math.min(slotW, slotH) - 10;
                     if (isHover) ts = (int)Math.round(ts * 1.15);
                     drawToken(g2, miscpics.get(it.tokenName), x + (slotW - ts)/2, y + (slotH - ts)/2, ts);
-                } else if (it.type == ItemRef.Type.BIRD && it.bird != null) {
+                } else if (it.type == ItemType.BIRD && it.bird != null) {
                     BufferedImage bi = it.bird.getImage();
                     int dw = slotW;
                     int dh = slotH;
@@ -440,13 +658,13 @@ public void loadInitialImages()
     // Helpers to check current selections
     private boolean isSelected(Bird b) {
         for (ItemRef it : selected) {
-            if (it.type == ItemRef.Type.BIRD && it.bird == b) return true;
+            if (it.type == ItemType.BIRD && it.bird == b) return true;
         }
         return false;
     }
     private boolean isSelectedToken(String name) {
         for (ItemRef it : selected) {
-            if (it.type == ItemRef.Type.TOKEN && it.tokenName != null && it.tokenName.equals(name)) return true;
+            if (it.type == ItemType.TOKEN && it.tokenName != null && it.tokenName.equals(name)) return true;
         }
         return false;
     }
@@ -463,37 +681,6 @@ public void loadInitialImages()
         tokenItems.add(new TokenItem("fishtoken", 400 + tokenSize/2, cy, tokenSize/2, miscpics.get("fishtoken")));
         tokenItems.add(new TokenItem("foodtoken", 550 + tokenSize/2, cy, tokenSize/2, miscpics.get("foodtoken")));
         tokenItems.add(new TokenItem("rattoken", 700 + tokenSize/2, cy, tokenSize/2, miscpics.get("rattoken")));
-    }
-
-
-    // Simple item reference for selection box
-    private static class ItemRef {
-        enum Type { BIRD, TOKEN }
-        final Type type;
-        final Bird bird;
-        final String tokenName;
-        private ItemRef(Type t, Bird b, String tn) { this.type = t; this.bird = b; this.tokenName = tn; }
-        static ItemRef token(String name) { return new ItemRef(Type.TOKEN, null, name); }
-        static ItemRef bird(Bird b) { return new ItemRef(Type.BIRD, b, null); }
-    }
-
-
-    // Slot bounds for click-removal
-    private static class Slot {
-        final Rectangle bounds;
-        final ItemRef item;
-        Slot(Rectangle b, ItemRef i) { this.bounds = b; this.item = i; }
-    }
-
-
-    // Token drawable + hitbox info
-    private static class TokenItem {
-        final String name;
-        final int cx, cy, radius;
-        final BufferedImage image;
-        TokenItem(String n, int cx, int cy, int r, BufferedImage img) {
-            this.name = n; this.cx = cx; this.cy = cy; this.radius = r; this.image = img;
-        }
     }
 
 
@@ -614,7 +801,7 @@ public void loadInitialImages()
                 if (s.bounds.contains(p)) {
                     selected.remove(s.item);
                     String playerName = playerNames.get(Player.currentPlayerIndex);
-                    System.out.println(playerName + " removed: " + (s.item.type==ItemRef.Type.TOKEN ? s.item.tokenName : s.item.bird.getName()) + ". Now " + selected.size() + "/5");
+                    System.out.println(playerName + " removed: " + (s.item.type==ItemType.TOKEN ? s.item.tokenName : s.item.bird.getName()) + ". Now " + selected.size() + "/5");
                     repaint();
                     return;
                 }
@@ -664,9 +851,15 @@ public void loadInitialImages()
 
         for(int i=0;i<currentScreen.size();i++)
         {
-            if(currentScreen.get(i).inBounds(e.getX(), e.getY()))
+            Button btn = currentScreen.get(i);
+            if(btn.inBounds(e.getX(), e.getY()))
             {
-                currentScreen.get(i).click();
+                if (startingComplete && "Action Token".equals(btn.getName())) {
+                    handleActionTokenClick();
+                    repaint();
+                    return;
+                }
+                btn.click();
             }
         }
         repaint();
@@ -782,4 +975,3 @@ public void loadInitialImages()
     repaint();
     }
 }
-    
