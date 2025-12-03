@@ -1,0 +1,4 @@
+enum ItemType {
+    BIRD,
+    TOKEN
+}

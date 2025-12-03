@@ -42,6 +42,10 @@ public class Button {
     public void paint(Graphics g) 
     {
         if(!display) return;
+        if (image != null) {
+            g.drawImage(image, x1, y1, width, height, null);
+            return;
+        }
         switch(name)
         {
             case "temp":
@@ -177,16 +181,16 @@ public class Button {
     }
 
     /* Input: in - the x or y value to be scaled (0-1000)
-	 * Output: the scaled value based on the current window size
+\t * Output: the scaled value based on the current window size
      * Only scale the x and y values in the Button class
-	 */
+\t */
     public static int x(int in)
-	{
-			return in * Frame.getPanel().getWidth() / 1000;
-	}
-	public static int y(int in)
-	{
-			return in * Frame.getPanel().getHeight() / 1000;
-		
-	}
+    {
+            return in * Frame.getPanel().getWidth() / 1000;
+    }
+    public static int y(int in)
+    {
+            return in * Frame.getPanel().getHeight() / 1000;
+        
+    }
 }

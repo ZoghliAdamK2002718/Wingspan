@@ -16,23 +16,25 @@ private Bird bird;/* the bird containing this ability object */
 private Spot spot;/* the spot containing this ability object */
 private Player player;/* the player containing this ability object */
  
-private final TreeMap<String,ArrayList<String>> keyWords = new TreeMap<String,ArrayList<String>>() {{/*all the key words for the ability. If you touch this without knowing exactly what you are doing, I will do a record breaking crash out ^w^ */
-    put("play",new ArrayList<>(Arrays.asList("this", "forest", "wetland", "grassland")));
-    put("gain",new ArrayList<>(Arrays.asList("NUM","any","all","or","die","rodent","fish","seed","invertibrate","fruit","wild","supply","available","birdfeeder")));// add a return statement for the key word
-    put("right",new ArrayList<>());
-    put("keep",new ArrayList<>());//use either the bonus card or bird card from the variable set
-    put("look",new ArrayList<>(Arrays.asList("NUM")));
-    put("roll",new ArrayList<>(Arrays.asList("rodent","fish")));//add a return statement for the key word
-    put("draw",new ArrayList<>(Arrays.asList("equal","NUM","bonus","deck")));//
-    put("lay",new ArrayList<>(Arrays.asList("another","this","any","each","ground","cavity","burrow","bowl","platform")));
-    put("tuck",new ArrayList<>(Arrays.asList("NUM","hand","deck","it")));//
-    put("discard",new ArrayList<>(Arrays.asList("NUM","egg","other","this","card","seed","fish","rodent","it","end")));
-    put("players",new ArrayList<>(Arrays.asList("selects")));//
-    put("You",new ArrayList<>());// You has to be capitalized
-    put("selects",new ArrayList<>());//runs players, and removes the cards that other players choose
-    put("Each",new ArrayList<>());// runs players, and has to be capitalized
-    put("cache",new ArrayList<>(Arrays.asList("it","rodent","fish","seed","supply")));// add a return statement for the key word
-}};
+private static final TreeMap<String,ArrayList<String>> KEYWORDS_STATIC = new TreeMap<>();
+static {
+    KEYWORDS_STATIC.put("play",new ArrayList<>(Arrays.asList("this", "forest", "wetland", "grassland")));
+    KEYWORDS_STATIC.put("gain",new ArrayList<>(Arrays.asList("NUM","any","all","or","die","rodent","fish","seed","invertibrate","fruit","wild","supply","available","birdfeeder")));
+    KEYWORDS_STATIC.put("right",new ArrayList<>());
+    KEYWORDS_STATIC.put("keep",new ArrayList<>());
+    KEYWORDS_STATIC.put("look",new ArrayList<>(Arrays.asList("NUM")));
+    KEYWORDS_STATIC.put("roll",new ArrayList<>(Arrays.asList("rodent","fish")));
+    KEYWORDS_STATIC.put("draw",new ArrayList<>(Arrays.asList("equal","NUM","bonus","deck")));
+    KEYWORDS_STATIC.put("lay",new ArrayList<>(Arrays.asList("another","this","any","each","ground","cavity","burrow","bowl","platform")));
+    KEYWORDS_STATIC.put("tuck",new ArrayList<>(Arrays.asList("NUM","hand","deck","it")));
+    KEYWORDS_STATIC.put("discard",new ArrayList<>(Arrays.asList("NUM","egg","other","this","card","seed","fish","rodent","it","end")));
+    KEYWORDS_STATIC.put("players",new ArrayList<>(Arrays.asList("selects")));
+    KEYWORDS_STATIC.put("You",new ArrayList<>());
+    KEYWORDS_STATIC.put("selects",new ArrayList<>());
+    KEYWORDS_STATIC.put("Each",new ArrayList<>());
+    KEYWORDS_STATIC.put("cache",new ArrayList<>(Arrays.asList("it","rodent","fish","seed","supply")));
+}
+private final TreeMap<String,ArrayList<String>> keyWords = new TreeMap<String,ArrayList<String>>();
 
 public Ability(String rA, String tT, String tN, ArrayList<String> a) {
     // Parse trigger type from raw ability if not provided
@@ -88,6 +90,7 @@ public Ability(String rA, String tT, String tN, ArrayList<String> a) {
     }
     
     ability = refinedAbility;
+    keyWords.putAll(KEYWORDS_STATIC);
     this.players = new ArrayList<>();
     this.inputs = new HashMap<>();
     this.inputs.put(String.class, new ArrayList<>(Arrays.asList("")));

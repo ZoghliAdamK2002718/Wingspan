@@ -1,5 +1,7 @@
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 
 public class Spot extends Button{
 private Bird bird;
@@ -9,7 +11,7 @@ private boolean occupied, hasActionToken;
 private Ability spotAbility;
 
     public Spot(String a, int i, Ability sa) {
-        super("Spot "+a+" "+i, "normal", null, false, true, 0, 0, 0, 0);
+        super("Spot "+a+" "+i, "normal", null, true, true, 0, 0, 0, 0);
         habitat = a;
         index = i;
         spotAbility = sa;
@@ -17,64 +19,17 @@ private Ability spotAbility;
         hasActionToken = false;
         bird = null;
         
-        // Set coordinates based on habitat and index
         setSpotCoordinates();
     }
     
     private void setSpotCoordinates() {
-        // Board starts at (25, 25) and is (getWidth() - 600) x (getHeight() - 250)
-        // Base dimensions: approximately 1000 x 710 for board
-        // Each row has 5 spots, positioned horizontally
-        
-        int boardStartX = 25;
-        int boardStartY = 25;
-        
-        // Spot dimensions - matching card size from Panel.java
-        int spotWidth = 140;  // Width of each card spot (same as cardW)
-        int spotHeight = 278; // Height of each card spot (same as cardH)
-        
-        // Row positions (Y coordinates) - adjusted for taller cards
-        int forestRowY = boardStartY + 50;      // Top row
-        int grasslandRowY = boardStartY + 360;  // Middle row
-        int wetlandRowY = boardStartY + 670;    // Bottom row
-        
-        // Column positions (X coordinates) - spots are horizontally aligned
-        // Starting X for first spot, with spacing between spots
-        int startX = boardStartX + 250;  // After the habitat icons
-        int spacing = 180;  // Wider space between spots to fit board
-        
-        // Calculate position based on habitat and index (0-4)
-        int yPos = 0;
-        switch(habitat.toLowerCase()) {
-            case "forest":
-                yPos = forestRowY;
-                break;
-            case "grassland":
-                yPos = grasslandRowY;
-                break;
-            case "wetland":
-                yPos = wetlandRowY;
-                break;
-            default:
-                yPos = boardStartY;
-        }
-        
-        int xPos = startX + (index * spacing);
-        
-        // Set the button coordinates
-        x1 = xPos;
-        y1 = yPos;
-        x2 = xPos + spotWidth;
-        y2 = yPos + spotHeight;
-        width = spotWidth;
-        height = spotHeight;
+        layoutInBoard(new Rectangle(25, 25, 1000, 710), 140, 278);
     }
 
     public void paint(Graphics g)
     {
         if(!super.display) return;
         
-        // Draw the spot rectangle with a colored outline based on habitat
         Color outlineColor;
         switch(habitat.toLowerCase()) {
             case "forest":
@@ -90,23 +45,23 @@ private Ability spotAbility;
                 outlineColor = Color.BLACK;
         }
         
-        // Draw filled background (semi-transparent white)
         g.setColor(new Color(255, 255, 255, 50));
         g.fillRect(x1, y1, width, height);
         
-        // Draw thick colored outline
         g.setColor(outlineColor);
         for(int i = 0; i < 3; i++) {
             g.drawRect(x1 + i, y1 + i, width - 2*i, height - 2*i);
         }
         
-        // Draw spot number
         g.setColor(Color.BLACK);
         g.drawString(habitat.substring(0, 1).toUpperCase() + (index + 1), x1 + 5, y1 + 15);
         
-        // If occupied, draw the bird
-        if(occupied && bird != null) {
-            // TODO: Draw bird card here
+        if(occupied && bird != null && bird.getImage() != null) {
+            BufferedImage img = bird.getImage();
+            int pad = Math.max(6, width / 20);
+            int drawW = width - pad * 2;
+            int drawH = height - pad * 2;
+            g.drawImage(img, x1 + pad, y1 + pad, drawW, drawH, null);
         }
     }
 
@@ -148,5 +103,45 @@ private Ability spotAbility;
 
     public Ability getSpotAbility() {
         return spotAbility;
+    }
+
+    public void layoutInBoard(Rectangle boardArea, int preferredW, int preferredH) {
+        if (boardArea == null) return;
+
+        // Cap sizes to fit within the board while keeping roughly card proportions
+        int maxSpotWidth = Math.max(60, boardArea.width / 7); // leave room for margins
+        int maxSpotHeight = Math.max(120, boardArea.height / 3);
+        width = Math.min(preferredW, maxSpotWidth);
+        height = Math.min(preferredH, maxSpotHeight);
+
+        // Left margin to clear habitat icons (about 20-25% of the board)
+        int leftMargin = (int)(boardArea.width * 0.22);
+        int usableWidth = boardArea.width - leftMargin;
+        int spacing = Math.max(10, (usableWidth - width * 5) / 4);
+        int startX = boardArea.x + leftMargin;
+        int xPos = startX + index * (width + spacing);
+
+        // Row anchors expressed as a fraction of board height
+        double anchor;
+        switch (habitat.toLowerCase()) {
+            case "forest":
+                anchor = 0.18;
+                break;
+            case "grassland":
+                anchor = 0.52;
+                break;
+            case "wetland":
+                anchor = 0.86;
+                break;
+            default:
+                anchor = 0.18;
+        }
+        int centerY = boardArea.y + (int)(boardArea.height * anchor);
+        int yPos = centerY - height / 2;
+
+        x1 = xPos;
+        y1 = yPos;
+        x2 = x1 + width;
+        y2 = y1 + height;
     }
 }

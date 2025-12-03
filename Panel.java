@@ -441,38 +441,6 @@ public void loadInitialImages()
         }
     }
 
-    private void handleActionTokenClick() {
-        HashMap<String, ArrayList<Spot>> board = Player.getCurrentPlayerBoard();
-        if (board == null || board.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Board not ready.");
-            return;
-        }
-        String[] habitats = new String[]{"Forest", "Grassland", "Wetland"};
-        String habitat = (String) JOptionPane.showInputDialog(this, "Choose habitat to use your action token:", "Action Token",
-                JOptionPane.PLAIN_MESSAGE, null, habitats, habitats[0]);
-        if (habitat == null) return;
-
-        ArrayList<Spot> spots = board.get(habitat);
-        if (spots == null || spots.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "No spots available in " + habitat + ".");
-            return;
-        }
-
-        String[] spotChoices = new String[spots.size()];
-        for (int i = 0; i < spots.size(); i++) {
-            Spot s = spots.get(i);
-            spotChoices[i] = habitat + " " + (i + 1) + (s.isOccupied() ? " (occupied)" : "");
-        }
-        String chosenSpot = (String) JOptionPane.showInputDialog(this, "Select spot:", "Select Spot",
-                JOptionPane.PLAIN_MESSAGE, null, spotChoices, spotChoices[0]);
-        if (chosenSpot == null) return;
-
-        int idx = Arrays.asList(spotChoices).indexOf(chosenSpot);
-        if (idx >= 0 && idx < spots.size()) {
-            handleSpotAction(spots.get(idx));
-        }
-    }
-
     private void drawEggCounter(Graphics g, int eggCount) {
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -849,17 +817,28 @@ public void loadInitialImages()
         }
 
 
+        if (startingComplete) {
+            HashMap<String, ArrayList<Spot>> board = Player.getCurrentPlayerBoard();
+            if (board != null) {
+                for (ArrayList<Spot> spots : board.values()) {
+                    if (spots == null) continue;
+                    for (Spot s : spots) {
+                        Rectangle r = new Rectangle(s.x1, s.y1, s.getWidth(), s.getHeight());
+                        if (r.contains(p)) {
+                            handleSpotAction(s);
+                            repaint();
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
         for(int i=0;i<currentScreen.size();i++)
         {
-            Button btn = currentScreen.get(i);
-            if(btn.inBounds(e.getX(), e.getY()))
+            if(currentScreen.get(i).inBounds(e.getX(), e.getY()))
             {
-                if (startingComplete && "Action Token".equals(btn.getName())) {
-                    handleActionTokenClick();
-                    repaint();
-                    return;
-                }
-                btn.click();
+                currentScreen.get(i).click();
             }
         }
         repaint();
