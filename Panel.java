@@ -392,6 +392,30 @@ public void loadInitialImages()
         }
     }
 
+    private void updateSpotClickability(HashMap<String, ArrayList<Spot>> board) {
+        if (board == null) return;
+        
+        // First, disable all spots
+        for (ArrayList<Spot> spots : board.values()) {
+            if (spots == null) continue;
+            for (Spot s : spots) {
+                s.setClickable(false);
+            }
+        }
+        
+        // Then, enable only the leftmost unoccupied spot in each habitat
+        for (ArrayList<Spot> spots : board.values()) {
+            if (spots == null || spots.isEmpty()) continue;
+            
+            for (Spot s : spots) {
+                if (!s.isOccupied()) {
+                    s.setClickable(true);
+                    break; // Only the first unoccupied one in this habitat row
+                }
+            }
+        }
+    }
+
     private void handleSpotAction(Spot spot) {
         if (spot == null) return;
 
@@ -705,7 +729,7 @@ public void loadInitialImages()
     }
     public void mouseClicked(MouseEvent e) {
         Point p = e.getPoint();
-       
+       System.out.println(p);
         if (!namesEntered) {
             // Check if GO button clicked
             for (Button btn : currentScreen) {
@@ -820,11 +844,14 @@ public void loadInitialImages()
         if (startingComplete) {
             HashMap<String, ArrayList<Spot>> board = Player.getCurrentPlayerBoard();
             if (board != null) {
+                // Update clickable status: only leftmost unoccupied spot in each habitat
+                updateSpotClickability(board);
+                
                 for (ArrayList<Spot> spots : board.values()) {
                     if (spots == null) continue;
                     for (Spot s : spots) {
                         Rectangle r = new Rectangle(s.x1, s.y1, s.getWidth(), s.getHeight());
-                        if (r.contains(p)) {
+                        if (r.contains(p) && s.getClickable()) {
                             handleSpotAction(s);
                             repaint();
                             return;

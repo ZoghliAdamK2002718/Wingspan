@@ -70,8 +70,59 @@ private Player player;
         the key word "with" narrows the number of possible cards to just 13, so searching for key words within that would be more efficient to create and run
         we will disregard the bonus cards that don't have any of the key words above because they would require a lot of effort to create and we don't have that much time
         */
-       
-        return 0;
+       int count=0;
+       for(int i=0;i<refinedAbility.size();i++)
+        {
+           String word=refinedAbility.get(i);
+           switch(word)
+           {
+               case "include" -> 
+                {
+                   for(int j=0;j<keyWordList.size();j++)
+                   {
+                       String keyWord=keyWordList.get(j);
+                       for(Bird b:player.playerGetHand())
+                       {
+                           if(b.getName().toLowerCase().contains(keyWord.toLowerCase()))
+                           {
+                               count++;
+                           }
+                       }
+                   }
+                }
+                case "with" ->
+                 {
+                     if(refinedAbility.contains("nest"))
+                     {
+                          String nestType="";
+                          
+                          for(Bird b:player.playerGetHand())
+                          {
+                            if(b.getNestType().toLowerCase().equals(nestType.toLowerCase()))
+                            {
+                                 count++;
+                            }
+                          }
+                     }
+                     else if(refinedAbility.contains("habitat"))
+                     {
+                          String habitat=refinedAbility.get(i+3); 
+                          for(Bird b:player.playerGetHand())
+                          {
+                            for(String h:b.getHabitat())
+                            {
+                                 if(h.toLowerCase().equals(habitat.toLowerCase()))
+                                 {
+                                      count++;
+                                 }
+                            }
+                          }
+                     }
+        
+        }
     }
 
+        }
+return 0;
+}
 }

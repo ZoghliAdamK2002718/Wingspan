@@ -11,7 +11,7 @@ private boolean occupied, hasActionToken;
 private Ability spotAbility;
 
     public Spot(String a, int i, Ability sa) {
-        super("Spot "+a+" "+i, "normal", null, true, true, 0, 0, 0, 0);
+        super("Spot "+a+" "+i, "normal", null, false, true, 0, 0, 0, 0);
         habitat = a;
         index = i;
         spotAbility = sa;

@@ -69,9 +69,25 @@ public static int currentPlayerIndex = 0;
         board.put("Grassland", grasslandSpots);
         board.put("Wetland", wetlandSpots);
     } 
-
+    private void updateSpotClickability(HashMap<String, ArrayList<Spot>> board) {
+        for (ArrayList<Spot> spots : board.values()) {
+            boolean foundUnoccupied = false;
+            for (Spot s : spots) {
+                if (!s.isOccupied() && !foundUnoccupied) {
+                    s.setClickable(true);
+                    foundUnoccupied = true;
+                } else {
+                    s.setClickable(false);
+                }
+            }
+        }
+    }
     public void playerSetHand(ArrayList<Bird> h) {
         hand = h;
+    
+}
+    public void DrawHand(ArrayList<Bird> h) {
+        hand.addAll(h);
     }
     public ArrayList<Bird> playerGetHand() {
         return hand;
@@ -121,9 +137,24 @@ public static int currentPlayerIndex = 0;
             return players;
   
     }
+
     public static HashMap<String, ArrayList<Spot>> getCurrentPlayerBoard(){
         return players.get(currentPlayerIndex).playerGetBoard();
     }
+
+    public ArrayList<Bird> getAllPlayedBirds(){
+        ArrayList<Bird> played = new ArrayList<Bird>();
+        for(ArrayList<Spot> spots: board.values()){
+            for(Spot s: spots){
+                if(s.getBird()!=null){
+                    played.add(s.getBird());
+                }
+            }
+        }
+        return played;
+    }
+
+
     
 
 }

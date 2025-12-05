@@ -9,10 +9,10 @@ private String[] habitats;
 private Ability birdAbility;
 private TreeMap<String,Integer> costs;
 private TreeMap<String,Integer> cache;
-private int points, eggCount, eggCapacity, size;
+private int points, eggCount, eggCapacity, wingspan;
 private ArrayList<Bird> prey;
 private boolean bonusCard, flocking;
-private static Queue deck;
+private  Queue<Bird> deck = new LinkedList<>();
 private Spot loc;
 private BufferedImage image;
 private int cardH = 278;
@@ -31,7 +31,7 @@ private Rectangle bounds;
     birdAbility = bA;
     costs = co;
     cache = ca;
-    points = po; eggCount = eC; eggCapacity = eCa; size = s;
+    points = po; eggCount = eC; eggCapacity = eCa; wingspan = s;
     prey = p;
     bonusCard = bc; flocking = flo;
     loc = l;
@@ -93,6 +93,10 @@ private Rectangle bounds;
   {
     return nestType;
   }
+ public Bird drawDeck(){
+    return deck.poll();
+  }
+
   public String[] getHabitats()
   {
     return habitats;
@@ -121,9 +125,9 @@ private Rectangle bounds;
   {
     return eggCapacity;
   }
-  public int getSize()
+  public int getWingspan()
   {
-    return size;
+    return wingspan;
   }
   public ArrayList<Bird> getPrey()
   {
@@ -149,7 +153,7 @@ private Rectangle bounds;
   {
     return nestType;
   }
-  public String[] getHab()
+  public String[] getHabitat()
   {
     return habitats;
   }
