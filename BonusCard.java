@@ -4,10 +4,14 @@ import java.awt.image.BufferedImage;
 import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.TreeMap;
+import java.util.TreeSet;
 public class BonusCard extends Button{
 private String name, ability, scoringType;
-private TreeMap<Integer,Integer> birdScore;
+private TreeMap<Integer,Integer> birdScore; // positive numbers in the left Integer indicate minnimum threshold, and a -1 indicates per bird. EX: 5 to 7 birds: 3 point 8+ birds:7 point would have {5=3, 8=7} while 1 point per bird would have {-1=1}
+
 private ArrayList<String> keyWordList, refinedAbility;
 private Player player;
    
@@ -69,19 +73,21 @@ private Player player;
 
         the key word "with" narrows the number of possible cards to just 13, so searching for key words within that would be more efficient to create and run
         we will disregard the bonus cards that don't have any of the key words above because they would require a lot of effort to create and we don't have that much time
+        
+        will add comments explaining the code later
         */
        int count=0;
-       for(int i=0;i<refinedAbility.size();i++)
+       for(int i=0;i<refinedAbility.size();i++)//iterates through the ability to find certain key words and counts the number of birds that qualify for the bonu card
         {
            String word=refinedAbility.get(i);
-           switch(word)
+           switch(word)//check what key word the word it
            {
                case "include" -> 
                 {
-                   for(int j=0;j<keyWordList.size();j++)
+                   for(int j=0;j<keyWordList.size();j++)//see if the name has any of the cases specified in the bonus card
                    {
                        String keyWord=keyWordList.get(j);
-                       for(Bird b:player.playerGetHand())
+                       for(Bird b:player.getAllPlayedBirds())
                        {
                            if(b.getName().toLowerCase().contains(keyWord.toLowerCase()))
                            {
@@ -92,7 +98,8 @@ private Player player;
                 }
                 case "with" ->
                  {
-                     if(refinedAbility.contains("nest"))
+                    if(refinedAbility.contains("names")||refinedAbility.contains("named")) break;
+                     if(refinedAbility.contains("nests"))//looking at nest type
                      {
                           String nestType="";
                           
@@ -104,25 +111,92 @@ private Player player;
                             }
                           }
                      }
-                     else if(refinedAbility.contains("habitat"))
+                     else if(refinedAbility.contains("power"))
                      {
-                          String habitat=refinedAbility.get(i+3); 
-                          for(Bird b:player.playerGetHand())
-                          {
-                            for(String h:b.getHabitat())
-                            {
-                                 if(h.toLowerCase().equals(habitat.toLowerCase()))
-                                 {
-                                      count++;
-                                 }
-                            }
-                          }
+                        String power = refinedAbility.get(4);
+                        for(Bird b:player.getAllPlayedBirds())
+                       {
+                           if(b.getPower().equals(power))
+                           {
+                               count++; 
+                           }
+                       }
                      }
-        
-        }
-    }
+                     else if(refinedAbility.contains("birds"))
+                     {
+                        TreeSet<Integer> habitatSize = new TreeSet<Integer>();
+                        for(ArrayList<Spot> s:player.playerGetBoard().values())
+                        {
+                            int c = 0;
+                            Iterator<Spot> sIter = s.iterator();
+                            while(sIter.hasNext()&&sIter.next().isOccupied())
+                            c++;
+                        habitatSize.add(c);
+                        }
+                        count = habitatSize.getFirst();
+                     }
+                     else if(refinedAbility.contains("wingspans"))
+                     {
+                        if(refinedAbility.contains("over"))
+                         for(Bird b:player.getAllPlayedBirds())
+                       {
+                           if(b.getWingspan()>65)
+                            count++;
+                       }
+                        if(refinedAbility.contains("less"))
+                         for(Bird b:player.getAllPlayedBirds())
+                       {
+                           if(b.getWingspan()<30)
+                            count++;
+                       }   
+                     }
+                }
+                case "eat" ->
+                {
+                    ArrayList<String> keys = new ArrayList<String>(Arrays.asList("seed, fish, fruit, wild, rodent, wild"));
+                    Iterator<String> iterKeys = keys.iterator();
+                    String food = iterKeys.next();
+                    while(iterKeys.hasNext()&&!refinedAbility.contains(food))
+                    {
+                        food = iterKeys.next();
+                    }
+                    for(Bird b:player.getAllPlayedBirds())
+                    {
+                           if(b.getCosts().containsKey(food))
+                            count++;
+                           else if(b.getCosts().keySet().size()==1&&b.getCosts().keySet().contains("invertibrate"))
+                           {
+                            count++;
+                           }
+                    }  
+                }
+                case "that" ->
+                {
+                    if(refinedAbility.contains("laid"))
+                    {
+                        int th = Integer.parseInt(refinedAbility.get(refinedAbility.indexOf("laid")-2));//th stands for threshold, as in the threshold for being counted toward the score
+                         for(Bird b:player.getAllPlayedBirds())
+                       {
+                           if(b.getEggCount()>th)
+                            count++;
+                       }   
+                    }
+                    else if(ability.contains("only live"))
+                    {
+                        String hab = refinedAbility.get(refinedAbility.indexOf("live")+2);
+                        for(Bird b:player.getAllPlayedBirds())
+                       {
+                           if(b.getHabitats().length==1&&b.getHabitats()[0].equals(hab))
+                            count++;
+                       } 
+                    }
+                }
+    
+            }
 
         }
+         //make the scoring system
+
 return 0;
 }
 }

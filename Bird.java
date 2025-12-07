@@ -3,7 +3,7 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.*;
 
-public class Bird extends Button {
+public class Bird extends Button implements Comparable {
   private String name, sciName, nestType;
 private String[] habitats;
 private Ability birdAbility;
@@ -12,13 +12,14 @@ private TreeMap<String,Integer> cache;
 private int points, eggCount, eggCapacity, wingspan;
 private ArrayList<Bird> prey;
 private boolean bonusCard, flocking;
-private  Queue<Bird> deck = new LinkedList<>();
+private  PriorityQueue<Bird> deck = new PriorityQueue<>();
 private Spot loc;
 private BufferedImage image;
 private int cardH = 278;
 private int cardW = 180;
 private Rectangle bounds;
-
+private Double order;
+private String power = "We need to add this later";
   
   public Bird(String n, String sN, String nT, String[] h, Ability bA, TreeMap<String, Integer> co, TreeMap<String, Integer> ca, int po, int eC, int eCa, int s, ArrayList<Bird> p, boolean bc, boolean flo, Spot l, BufferedImage i, int x, int y)
   {
@@ -37,6 +38,8 @@ private Rectangle bounds;
     loc = l;
     image = i;
     bounds = new Rectangle(x, y, 180, 278);
+    order = Math.random();
+    deck.add(this);
   }
   
   public Rectangle getBounds()
@@ -184,5 +187,19 @@ private Rectangle bounds;
   public BufferedImage getImage()
   {
     return image;
+  }
+  public String getPower()
+  {
+    return power;
+  }
+
+  public Double getOrder()
+  {
+    return order;
+  }
+  @Override
+  public int compareTo(Object o) {
+   Bird in = (Bird)o;
+   return Double.compare(this.order, in.getOrder()); 
   }
 }
