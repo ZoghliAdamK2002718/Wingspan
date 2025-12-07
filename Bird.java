@@ -121,6 +121,22 @@ private Rectangle bounds;
   {
     return eggCount;
   }
+  public void addEggs(int amount)
+  {
+    if(amount <= 0) return;
+    eggCount += amount;
+    if(eggCapacity > 0 && eggCount > eggCapacity)
+    {
+      eggCount = eggCapacity;
+    }
+  }
+  public int removeEggs(int amount)
+  {
+    if(amount <= 0) return 0;
+    int removed = Math.min(amount, eggCount);
+    eggCount -= removed;
+    return removed;
+  }
   public int getEggCapacity()
   {
     return eggCapacity;

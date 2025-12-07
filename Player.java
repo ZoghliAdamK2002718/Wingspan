@@ -7,6 +7,7 @@ private ArrayList<BonusCard> bonus;
 private HashMap<String, ArrayList<Spot>> board;
 private ArrayList<Button> screenDisplay = new ArrayList<Button>();
 private ArrayList<Button> tokens;
+private int storedEggs = 0;
 private static ArrayList<Player> players = new ArrayList<Player>(Arrays.asList(new Player(new ArrayList<Bird>(),
                             new TreeMap<String,Integer>(),
                             new ArrayList<BonusCard>(),
@@ -32,6 +33,7 @@ public static int currentPlayerIndex = 0;
         bonus = b;
         board = bo;
         tokens = t;
+        storedEggs = 0;
         
         // Initialize board with spots if empty
         if(board.isEmpty()) {
@@ -101,6 +103,21 @@ public static int currentPlayerIndex = 0;
     public void addFood(String foodType, int amount) {
         food.put(foodType, food.getOrDefault(foodType, 0) + amount);
     }
+    public boolean spendFood(String foodType, int amount) {
+        if(foodType == null || amount <= 0) return false;
+        if(food == null) {
+            food = new TreeMap<String,Integer>();
+        }
+        int current = food.getOrDefault(foodType, 0);
+        if(current < amount) return false;
+        int remaining = current - amount;
+        if(remaining > 0) {
+            food.put(foodType, remaining);
+        } else {
+            food.remove(foodType);
+        }
+        return true;
+    }
     public void playerSetBonus(ArrayList<BonusCard> b) {
         bonus = b;
     }
@@ -118,6 +135,19 @@ public static int currentPlayerIndex = 0;
     }
     public ArrayList<Button> playerGetTokens() {
         return tokens;
+    }
+    public void addStoredEggs(int amount) {
+        if(amount <= 0) return;
+        storedEggs += amount;
+    }
+    public boolean spendStoredEggs(int amount) {
+        if(amount <= 0) return false;
+        if(storedEggs < amount) return false;
+        storedEggs -= amount;
+        return true;
+    }
+    public int getStoredEggs() {
+        return storedEggs;
     }
     public ArrayList<Button> playerGetScreenDisplay(){
         return screenDisplay;

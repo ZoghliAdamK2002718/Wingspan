@@ -32,6 +32,7 @@ private ArrayList<TokenItem> tokenItems = new ArrayList<TokenItem>();
 private Bird hoverBird = null;
 private String hoverTokenName = null;
 private ItemRef hoverSlotItem = null;
+private int placeholderCardCounter = 1;
 public static ArrayList<Button> miscellaneousScreen = new ArrayList<Button>();
 public Panel()
 {
@@ -328,6 +329,7 @@ public void loadInitialImages()
                 }
             }
         }
+        eggs += player.getStoredEggs();
         return eggs;
     }
 
@@ -416,6 +418,294 @@ public void loadInitialImages()
         }
     }
 
+    private void resolveHabitatAction(Spot spot) {
+        if (spot == null) return;
+        Player player = Player.players().get(Player.currentPlayerIndex);
+        if (player == null) return;
+        String habitat = spot.getHabitat().toLowerCase();
+        if (habitat.equals("forest")) {
+            doForestAction(player, spot);
+        } else if (habitat.equals("grassland") || habitat.equals("plains")) {
+            doGrasslandAction(player, spot);
+        } else if (habitat.equals("wetland")) {
+            doWetlandAction(player, spot);
+        }
+    }
+
+    private void doForestAction(Player player, Spot spot) {
+        int idx = spot.getIndex();
+        switch(idx) {
+            case 0:
+                JOptionPane.showMessageDialog(this, "Take 1 food from the bird feeder (placeholder until feeder is added).");
+                grantFood(player, 1, "Choose a food to take:");
+                break;
+            case 1:
+                grantFood(player, 1, "Gain 1 food.");
+                handleCardForFoodTrade(player);
+                break;
+            case 2:
+                grantFood(player, 2, "Gain 2 food.");
+                break;
+            case 3:
+                grantFood(player, 2, "Gain 2 food.");
+                handleCardForFoodTrade(player);
+                break;
+            case 4:
+                grantFood(player, 3, "Gain 3 food.");
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void handleCardForFoodTrade(Player player) {
+        ArrayList<Bird> hand = player.playerGetHand();
+        if (hand == null || hand.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "You need a card in hand to trade for extra food.");
+            return;
+        }
+        int trade = JOptionPane.showConfirmDialog(this, "Trade 1 card from your hand for 1 extra food?", "Trade card for food", JOptionPane.YES_NO_OPTION);
+        if (trade != JOptionPane.YES_OPTION) return;
+        Bird discard = promptCardFromHand(player, "Choose a card to discard for food:");
+        if (discard != null) {
+            hand.remove(discard);
+            grantFood(player, 1, "Choose the food gained from the trade:");
+        }
+    }
+
+    private void doGrasslandAction(Player player, Spot spot) {
+        int idx = spot.getIndex();
+        int baseEggs = 0;
+        boolean allowFoodTrade = false;
+        switch(idx) {
+            case 0:
+                baseEggs = 2;
+                break;
+            case 1:
+                baseEggs = 2;
+                allowFoodTrade = true;
+                break;
+            case 2:
+                baseEggs = 3;
+                break;
+            case 3:
+                baseEggs = 3;
+                allowFoodTrade = true;
+                break;
+            case 4:
+                baseEggs = 4;
+                break;
+            default:
+                break;
+        }
+        if (baseEggs > 0) {
+            placeEggsOnBoard(player, baseEggs);
+        }
+        if (allowFoodTrade) {
+            if (!hasAnyFood(player)) {
+                JOptionPane.showMessageDialog(this, "You need at least 1 food to trade for an extra egg.");
+                return;
+            }
+            int choice = JOptionPane.showConfirmDialog(this, "Trade 1 random food you own for 1 extra egg?", "Food for egg", JOptionPane.YES_NO_OPTION);
+            if (choice == JOptionPane.YES_OPTION) {
+                if (removeRandomFood(player)) {
+                    placeEggsOnBoard(player, 1);
+                } else {
+                    JOptionPane.showMessageDialog(this, "No food available to trade.");
+                }
+            }
+        }
+    }
+
+    private void doWetlandAction(Player player, Spot spot) {
+        int idx = spot.getIndex();
+        int cardsToDraw = 0;
+        boolean allowTrade = false;
+        switch(idx) {
+            case 0:
+                cardsToDraw = 1;
+                break;
+            case 1:
+                cardsToDraw = 1;
+                allowTrade = true;
+                break;
+            case 2:
+                cardsToDraw = 2;
+                break;
+            case 3:
+                cardsToDraw = 2;
+                allowTrade = true;
+                break;
+            case 4:
+                cardsToDraw = 3;
+                break;
+            default:
+                break;
+        }
+        if (cardsToDraw > 0) {
+            drawCards(player, cardsToDraw);
+        }
+        if (allowTrade) {
+            ArrayList<Bird> hand = player.playerGetHand();
+            if (hand == null || hand.isEmpty() || getTotalEggs(player) <= 0) {
+                JOptionPane.showMessageDialog(this, "You need at least 1 egg and 1 card to trade for another card.");
+                return;
+            }
+            int trade = JOptionPane.showConfirmDialog(this, "Trade 1 egg and 1 card for 1 extra card?", "Trade resources for card", JOptionPane.YES_NO_OPTION);
+            if (trade == JOptionPane.YES_OPTION) {
+                Bird discard = promptCardFromHand(player, "Choose a card to discard:");
+                if (discard != null) {
+                    boolean spent = spendEggs(player, 1);
+                    if (spent) {
+                        hand.remove(discard);
+                        drawCards(player, 1);
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Not enough eggs to spend.");
+                    }
+                }
+            }
+        }
+    }
+
+    private void grantFood(Player player, int foodCount, String title) {
+        for (int i = 0; i < foodCount; i++) {
+            String foodType = promptFoodType(title);
+            if (foodType == null) return;
+            player.addFood(foodType, 1);
+        }
+    }
+
+    private String promptFoodType(String message) {
+        String[] foodOptions = {"grain", "invertebrate", "fish", "fruit", "rodent"};
+        return (String) JOptionPane.showInputDialog(this, message, "Choose Food", JOptionPane.PLAIN_MESSAGE, null, foodOptions, foodOptions[0]);
+    }
+
+    private boolean hasAnyFood(Player player) {
+        TreeMap<String, Integer> food = player.playerGetFood();
+        if (food == null) return false;
+        for (int count : food.values()) {
+            if (count > 0) return true;
+        }
+        return false;
+    }
+
+    private boolean removeRandomFood(Player player) {
+        TreeMap<String, Integer> food = player.playerGetFood();
+        if (food == null) return false;
+        ArrayList<String> available = new ArrayList<String>();
+        for (Map.Entry<String, Integer> entry : food.entrySet()) {
+            if (entry.getValue() != null && entry.getValue() > 0) {
+                available.add(entry.getKey());
+            }
+        }
+        if (available.isEmpty()) return false;
+        Random rng = new Random();
+        String chosen = available.get(rng.nextInt(available.size()));
+        boolean spent = player.spendFood(chosen, 1);
+        if (spent) {
+            JOptionPane.showMessageDialog(this, "Traded 1 " + chosen + " for an egg.");
+        }
+        return spent;
+    }
+
+    private int placeEggsOnBoard(Player player, int eggsToPlace) {
+        if (eggsToPlace <= 0) return 0;
+        ArrayList<Bird> birds = player.getAllPlayedBirds();
+        if (birds == null || birds.isEmpty()) {
+            player.addStoredEggs(eggsToPlace);
+            return eggsToPlace;
+        }
+        int eggsLeft = eggsToPlace;
+        for (Bird b : birds) {
+            if (b == null) continue;
+            int capacity = b.getEggCapacity() > 0 ? b.getEggCapacity() - b.getEggCount() : eggsLeft;
+            if (capacity <= 0) continue;
+            int toPlace = Math.min(capacity, eggsLeft);
+            b.addEggs(toPlace);
+            eggsLeft -= toPlace;
+            if (eggsLeft <= 0) break;
+        }
+        if (eggsLeft > 0) {
+            player.addStoredEggs(eggsLeft);
+        }
+        return eggsToPlace;
+    }
+
+    private boolean spendEggs(Player player, int eggsNeeded) {
+        if (eggsNeeded <= 0) return true;
+        if (player == null) return false;
+        if (getTotalEggs(player) < eggsNeeded) return false;
+        int remaining = eggsNeeded;
+        // spend stored eggs first
+        int stored = player.getStoredEggs();
+        if (stored > 0) {
+            int use = Math.min(stored, remaining);
+            player.spendStoredEggs(use);
+            remaining -= use;
+        }
+        HashMap<String, ArrayList<Spot>> board = player.playerGetBoard();
+        if (board == null) return false;
+        for (ArrayList<Spot> spots : board.values()) {
+            if (spots == null) continue;
+            for (Spot s : spots) {
+                Bird b = s.getBird();
+                if (b == null) continue;
+                if (remaining <= 0) break;
+                int removed = b.removeEggs(remaining);
+                remaining -= removed;
+            }
+        }
+        return remaining <= 0;
+    }
+
+    private Bird promptCardFromHand(Player player, String title) {
+        ArrayList<Bird> hand = player.playerGetHand();
+        if (hand == null || hand.isEmpty()) return null;
+        String[] options = new String[hand.size()];
+        for (int i = 0; i < hand.size(); i++) {
+            options[i] = hand.get(i).getName();
+        }
+        String choice = (String) JOptionPane.showInputDialog(this, title, "Choose Card", JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+        if (choice == null) return null;
+        for (Bird b : hand) {
+            if (b.getName().equals(choice)) {
+                return b;
+            }
+        }
+        return null;
+    }
+
+    private void drawCards(Player player, int count) {
+        for (int i = 0; i < count; i++) {
+            Bird newCard = promptCardChoice("Pick a card to draw (" + (count - i) + " remaining).");
+            if (newCard != null) {
+                player.playerGetHand().add(newCard);
+            }
+        }
+    }
+
+    private Bird promptCardChoice(String title) {
+        Bird[] options = new Bird[3];
+        options[0] = makePlaceholderCard("Option 1");
+        options[1] = makePlaceholderCard("Option 2");
+        options[2] = makePlaceholderCard("Option 3");
+        String[] names = new String[options.length];
+        for (int i = 0; i < options.length; i++) {
+            names[i] = options[i].getName();
+        }
+        String choice = (String) JOptionPane.showInputDialog(this, title, "Draw Card", JOptionPane.PLAIN_MESSAGE, null, names, names[0]);
+        if (choice == null) return null;
+        for (Bird b : options) {
+            if (b.getName().equals(choice)) return b;
+        }
+        return null;
+    }
+
+    private Bird makePlaceholderCard(String label) {
+        String name = "Placeholder Card " + (placeholderCardCounter++) + " - " + label;
+        return new Bird(name, name, "none", new String[]{"wild"}, null, new TreeMap<String,Integer>(), new TreeMap<String,Integer>(), 0, 0, 0, 0, new ArrayList<Bird>(), false, false, null, null, 0, 0);
+    }
+
     private void handleSpotAction(Spot spot) {
         if (spot == null) return;
 
@@ -430,12 +720,12 @@ public void loadInitialImages()
                 options[0]);
 
         if (choice == 0) {
-            if (!spot.hasActionToken()) {
-                spot.setActionToken(true);
-                JOptionPane.showMessageDialog(this, "Action claimed for " + spot.getHabitat() + " slot " + (spot.getIndex() + 1) + ".");
-            } else {
-                JOptionPane.showMessageDialog(this, "This spot already has an action token.");
+            if (spot.hasActionToken()) {
+                JOptionPane.showMessageDialog(this, "Habitat action already used here. You can still place a bird.");
+                return;
             }
+            spot.setActionToken(true);
+            resolveHabitatAction(spot);
         } else if (choice == 1) {
             if (spot.isOccupied()) {
                 JOptionPane.showMessageDialog(this, "This spot already has a bird.");
