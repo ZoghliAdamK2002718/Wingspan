@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.FontMetrics;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
@@ -56,12 +57,24 @@ private Ability spotAbility;
         g.setColor(Color.BLACK);
         g.drawString(habitat.substring(0, 1).toUpperCase() + (index + 1), x1 + 5, y1 + 15);
         
-        if(occupied && bird != null && bird.getImage() != null) {
-            BufferedImage img = bird.getImage();
+        if(occupied && bird != null) {
             int pad = Math.max(6, width / 20);
             int drawW = width - pad * 2;
             int drawH = height - pad * 2;
-            g.drawImage(img, x1 + pad, y1 + pad, drawW, drawH, null);
+            if(bird.getImage() != null) {
+                g.drawImage(bird.getImage(), x1 + pad, y1 + pad, drawW, drawH, null);
+            } else {
+                g.setColor(new Color(245,245,245));
+                g.fillRoundRect(x1 + pad, y1 + pad, drawW, drawH, 10, 10);
+                g.setColor(Color.DARK_GRAY);
+                g.drawRoundRect(x1 + pad, y1 + pad, drawW, drawH, 10, 10);
+                String name = bird.getName() != null ? bird.getName() : "Bird";
+                FontMetrics fm = g.getFontMetrics();
+                int textWidth = fm.stringWidth(name);
+                int textX = x1 + pad + Math.max(4, (drawW - textWidth)/2);
+                int textY = y1 + pad + drawH/2;
+                g.drawString(name, textX, textY);
+            }
         }
     }
 

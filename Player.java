@@ -7,6 +7,7 @@ private ArrayList<BonusCard> bonus;
 private HashMap<String, ArrayList<Spot>> board;
 private ArrayList<Button> screenDisplay = new ArrayList<Button>();
 private ArrayList<Button> tokens;
+private int remainingTokens = 8;
 private int storedEggs = 0;
 private static ArrayList<Player> players = new ArrayList<Player>(Arrays.asList(new Player(new ArrayList<Bird>(),
                             new TreeMap<String,Integer>(),
@@ -135,6 +136,17 @@ public static int currentPlayerIndex = 0;
     }
     public ArrayList<Button> playerGetTokens() {
         return tokens;
+    }
+    public int getRemainingTokens() {
+        return remainingTokens;
+    }
+    public boolean useActionToken() {
+        if(remainingTokens <= 0) return false;
+        remainingTokens--;
+        return true;
+    }
+    public void resetTokens(int count) {
+        remainingTokens = count;
     }
     public void addStoredEggs(int amount) {
         if(amount <= 0) return;
