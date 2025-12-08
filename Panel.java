@@ -21,6 +21,7 @@ private int cardH = 278;
 private int cardW = 140;
 private int tokenSize = 150;
 HashMap<String, BufferedImage> miscpics = new HashMap<String, BufferedImage>();
+HashMap<String, BufferedImage> birdImages = new HashMap<String, BufferedImage>();
 HashMap<String, Bird> birdcards = new HashMap<String, Bird>();
 //ArrayList<Player> players = new ArrayList<Player>();
 ArrayList<String> playerNames = new ArrayList<String>();
@@ -52,6 +53,77 @@ public Panel()
 
    
 }
+public void loadBirdImages() {
+    try {
+        // All 169 bird image names from the birds folder (excluding back_of_bird.png)
+        String[] birdNames = {
+            "acorn_woodpecker", "american_avocet", "american_bittern", "american_coot",
+            "american_crow", "american_goldfinch", "american_kestrel", "american_oystercatcher",
+            "american_redstart", "american_robin", "american_white_pelican", "american_woodcock",
+            "anhinga", "anna_s_hummingbird", "ash-throated_flycatcher", "atlantic_puffin",
+            "baird_s_sparrow", "bald_eagle", "baltimore_oriole", "barn_owl",
+            "barn_swallow", "barred_owl", "barrow_s_goldeneye", "bell_s_vireo",
+            "belted_kingfisher", "bewick_s_wren", "black-bellied_whistling-duck", "black-billed_magpie",
+            "black-crowned_night-heron", "black-necked_stilt", "black_chinned_hummingbird", "black_skimmer",
+            "black_tern", "black_vulture", "blue-gray_gnatcatcher", "blue-winged_warbler",
+            "blue_grosbeak", "blue_jay", "bobolink", "brant",
+            "brewer_s_blackbird", "broad_winged_hawk", "bronzed_cowbird", "brown-headed_cowbird",
+            "brown_pelican", "burrowing_owl", "bushtit", "california_condor",
+            "california_quail", "canada_goose", "canvasback", "carolina_chickadee",
+            "carolina_wren", "cassin_s_finch", "cassin_s_sparrow", "cedar_waxwing",
+            "cerulean_warbler", "chestnut-collared_longspur", "chihuahuan_raven", "chimney_swift",
+            "chipping_sparrow", "clark_s_grebe", "clark_s_nutcracker", "common_grackle",
+            "common_loon", "common_merganser", "common_nighthawk", "common_raven",
+            "common_yellowthroat", "cooper_s_hawk", "dark-eyed_junco", "dickcissel",
+            "double-crested_cormorant", "downy_woodpecker", "eastern_bluebird", "eastern_kingbird",
+            "eastern_phoebe", "eastern_screech-owl", "ferruginous_hawk", "fish_crow",
+            "forster_s_tern", "franklin_s_gull", "golden_eagle", "grasshopper_sparrow",
+            "gray_catbird", "greater_prairie_chicken", "greater_roadrunner", "great_blue_heron",
+            "great_crested_flycatcher", "great_egret", "great_horned_owl", "green_heron",
+            "hermit_thrush", "hooded_merganser", "hooded_warbler", "horned_lark",
+            "house_finch", "house_wren", "inca_dove", "indigo_bunting",
+            "juniper_titmouse", "killdeer", "king_rail", "lincoln_s_sparrow",
+            "loggerhead_shrike", "mallard", "mississippi_kite", "mountain_bluebird",
+            "mountain_chickadee", "mourning_dove", "northern_bobwhite", "northern_cardinal",
+            "northern_flicker", "northern_harrier", "northern_mockingbird", "northern_shoveler",
+            "osprey", "painted_bunting", "painted_whitestart", "peregrine_falcon",
+            "pileated_woodpecker", "pine_siskin", "prothonotary_warbler", "purple_gallinule",
+            "purple_martin", "pygmy_nuthatch", "red-bellied_woodpecker", "red-breasted_merganser",
+            "red-breasted_nuthatch", "red-cockaded_woodpecker", "red-tailed_hawk", "roseate_spoonbill",
+            "ruby-crowned_kinglet", "sandhill_crane", "savannah_sparrow", "say_s_phoebe",
+            "scaled_quail", "scissor-tailed_flycatcher", "snowy_egret", "song_sparrow",
+            "spotted_owl", "spotted_sandpiper", "spotted_towhee", "sprague_s_pipit",
+            "steller_s_jay", "swainson_s_hawk", "tree_swallow", "trumpeter_swan",
+            "tufted_titmouse", "turkey_vulture", "vaux_s_swift", "violet-green_swallow",
+            "western_meadowlark", "western_tanager", "white-breasted_nuthatch", "white-crested_sparrow",
+            "white-faced_ibis", "white-throated_swift", "whooping_crane", "wild_turkey",
+            "willet", "wilson_s_snipe", "wood_duck", "wood_stork",
+            "yellow-bellied_sapsucker", "yellow-billed_cuckoo", "yellow-breasted_chat", "yellow-headed_blackbird",
+            "yellow-rumped_warbler", "lazuli_bunting", "pied-billed_grebe", "ruddy_duck",
+            "red_crossbill", "rose-breasted_grosbeak"
+        };
+        
+        int successCount = 0;
+        for (String birdName : birdNames) {
+            try {
+                BufferedImage img = ImageIO.read(Panel.class.getResource("/birds/" + birdName + ".png"));
+                if (img != null) {
+                    birdImages.put(birdName, img);
+                    successCount++;
+                }
+            } catch (Exception e) {
+                // Skip birds without images
+            }
+        }
+        System.out.println("====================================");
+        System.out.println("BIRD IMAGES: Successfully loaded " + successCount + " out of " + birdNames.length + " bird images from /birds/ folder");
+        System.out.println("====================================");
+    } catch (Exception e) {
+        System.out.println("ERROR loading bird images:");
+        e.printStackTrace();
+    }
+}
+
 public void loadInitialImages()
 {
     try
@@ -152,7 +224,7 @@ private Bird cloneBird(Bird b) {
         b.hasBonusCard(),
         b.isFlocking(),
         b.getLocation(),
-        null, // leave image null for now
+        b.getImage(), // preserve the image
         0,
         0
     );
@@ -161,7 +233,21 @@ private Bird cloneBird(Bird b) {
 private Bird makeBird(String name, String sci, String nest, String abilityText, String[] habitats, TreeMap<String,Integer> costs, int points, int eggCapacity, int wingspan) {
     Ability ability = abilityText != null ? new Ability(abilityText, null, null, null) : null;
     TreeMap<String,Integer> costCopy = costs != null ? new TreeMap<String,Integer>(costs) : new TreeMap<String,Integer>();
-    return new Bird(name, sci, nest, habitats, ability, costCopy, new TreeMap<String,Integer>(), points, 0, eggCapacity, wingspan, new ArrayList<Bird>(), false, false, null, null, 0, 0);
+    
+    // Convert bird name to image filename format (lowercase with underscores)
+    String imageKey = nameToImageKey(name);
+    BufferedImage birdImage = birdImages.get(imageKey);
+    
+    return new Bird(name, sci, nest, habitats, ability, costCopy, new TreeMap<String,Integer>(), points, 0, eggCapacity, wingspan, new ArrayList<Bird>(), false, false, null, birdImage, 0, 0);
+}
+
+private String nameToImageKey(String birdName) {
+    // Convert "American Crow" to "american_crow"
+    // Convert "Red-Tailed Hawk" to "red-tailed_hawk"
+    return birdName.toLowerCase()
+        .replace("'", "")
+        .replace(" ", "_")
+        .replace("'", "");
 }
 
 private TreeMap<String,Integer> cost(Object... entries) {
@@ -1672,6 +1758,7 @@ private Bird promptCardChoice(String title) {
         super.addNotify();
         requestFocus();
     loadInitialImages();
+    loadBirdImages();
     rebuildDeckFromLoaded();
     try
     {

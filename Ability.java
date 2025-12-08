@@ -743,4 +743,9 @@ public Player getPlayer() {
 public void setPlayer(Player p) {
     player = p;
 }
+public ArrayList<Button> addPopUpButtons() {
+    ArrayList<Button> buttons = new ArrayList<Button>();
+    //adding the buttons that need to be displayed on the pop up later
+    return buttons;
+}
 }

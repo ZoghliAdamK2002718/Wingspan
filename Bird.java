@@ -39,6 +39,7 @@ private String power = "We need to add this later";
     image = i;
     bounds = new Rectangle(x, y, 180, 278);
     order = Math.random();
+    if(!deck.contains(this))
     deck.add(this);
   }
   

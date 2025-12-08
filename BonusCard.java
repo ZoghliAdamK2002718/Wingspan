@@ -196,7 +196,19 @@ private Player player;
 
         }
          //make the scoring system
-
-return 0;
-}
+Iterator<Integer> scoreIter = birdScore.keySet().iterator();
+ while(scoreIter.hasNext())
+  { int key = scoreIter.next();
+   if(key==-1)
+//per bird case 
+{ 
+    return count*birdScore.get(key);
+} else if(count>=key)
+//threshold case 
+{ 
+    return birdScore.get(key); 
+} 
+} 
+return 0; 
+} 
 }
