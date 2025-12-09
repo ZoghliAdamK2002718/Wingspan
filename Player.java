@@ -48,6 +48,7 @@ public static int currentPlayerIndex = 0;
         screenDisplay.add(new Button("Previous Player",""+playerNumber,null,true,true,10,890,110,990));
         screenDisplay.add(new Button("Next Player",""+playerNumber,null,true,true,890,890,990,990));
         screenDisplay.add(new Button("Birdfeeder and Deck",""+playerNumber,null,true,true,10,790,110,880));
+        screenDisplay.add(new Button("Score",""+playerNumber,null,true,true,450,890,550,990));
         for(int i=0;i<8;i++)
         tokens.add(new Button("Action Token",""+i,null,true,true,100*i,100*i,10+(100*i),10+(100*i)));
     
@@ -102,6 +103,9 @@ public static int currentPlayerIndex = 0;
         return food;
     }
     public void addFood(String foodType, int amount) {
+        if(food == null) {
+            food = new TreeMap<String,Integer>();
+        }
         food.put(foodType, food.getOrDefault(foodType, 0) + amount);
     }
     public boolean spendFood(String foodType, int amount) {

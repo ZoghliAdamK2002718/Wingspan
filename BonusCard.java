@@ -61,6 +61,15 @@ private Player player;
     public Player getPlayer(){
         return player;
     }
+    public BufferedImage getImage() {
+        return super.image;
+    }
+    public String getAbilityText() {
+        return ability;
+    }
+    public void setPlayer(Player p) {
+        player = p;
+    }
     public int score() {
         /*Planning space for Anirudh. Can add comments if you want but make sure ot look at the list of birds doc first
         Algorithm plan:

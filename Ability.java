@@ -37,6 +37,7 @@ static {
 private final TreeMap<String,ArrayList<String>> keyWords = new TreeMap<String,ArrayList<String>>();
 
 public Ability(String rA, String tT, String tN, ArrayList<String> a) {
+    rawAbility = rA;
     // Parse trigger type from raw ability if not provided
     if(tT == null && rA != null) {
         if(rA.toUpperCase().contains("WHEN PLAYED")) {
@@ -110,6 +111,233 @@ public Ability(String rA, String tT, String tN, ArrayList<String> a) {
 @SuppressWarnings("unchecked")
 public void execute()
 {
+    // Modern resolver for all abilities based on the text on the card.
+    Panel panel = Frame.getPanel();
+    Player actingPlayer = player != null ? player : (Player.players().isEmpty() ? null : Player.players().get(Player.currentPlayerIndex));
+    if(panel == null || actingPlayer == null) return;
+    String text = getAbilityText();
+    if(text == null || text.isEmpty()) return;
+    text = text.toLowerCase();
+
+    // Skip pink triggers here; they are invoked from specific events
+    if("pink".equalsIgnoreCase(triggerType)) {
+        panel.handlePinkTrigger(text, actingPlayer, bird);
+        return;
+    }
+
+    if(text.contains("play an additional bird")) {
+        String habitat = panel.inferHabitatFromAbility(text, spot);
+        panel.promptAdditionalBirdPlay(actingPlayer, habitat);
+        return;
+    }
+
+    if(text.contains("right of all other birds")) {
+        panel.moveBirdIfRightmost(actingPlayer, bird);
+        return;
+    }
+
+    if(text.contains("draw 2 new bonus cards") || text.contains("draw 2 bonus cards")) {
+        panel.giveBonusCardChoice(actingPlayer);
+        return;
+    }
+
+    if(text.contains("draw cards equal to the number of players")) {
+        panel.sharedDrawAndKeepExtra(actingPlayer);
+        return;
+    }
+
+    if(text.contains("draw 2 cards.") && text.contains("when played")) {
+        panel.drawCardsToHand(actingPlayer, 2, "Ability draw 2");
+        return;
+    }
+
+    if(text.contains("draw 1 card.") && text.contains("when played")) {
+        panel.drawCardsToHand(actingPlayer, 1, "Ability draw 1");
+        return;
+    }
+
+    if(text.contains("draw 1 card. if you do, discard 1 card from your hand at the end of your turn") || text.contains("draw 1 card. if you do, discard 1 card at end of turn")) {
+        panel.drawThenDiscard(actingPlayer, 1, 1);
+        return;
+    }
+
+    if(text.contains("draw 2 cards. if you do, discard 1 card from your hand at the end of your turn")) {
+        panel.drawThenDiscard(actingPlayer, 2, 1);
+        return;
+    }
+
+    if(text.contains("draw 1 card.") && text.contains("when activated")) {
+        panel.drawCardsToHand(actingPlayer, 1, "Ability draw 1");
+        return;
+    }
+
+    if(text.contains("player(s) with the fewest birds in their wetland draw 1 card")) {
+        panel.fewestWetlandDraw();
+        return;
+    }
+
+    if(text.contains("look at a card from the deck")) {
+        int threshold = panel.extractThreshold(text);
+        panel.predatorHunt(bird, threshold);
+        return;
+    }
+
+    if(text.contains("roll all dice") && text.contains("rodent")) {
+        panel.rollAndCache(bird, "rodent");
+        return;
+    }
+    if(text.contains("roll all dice") && text.contains("fish")) {
+        panel.rollAndCache(bird, "fish");
+        return;
+    }
+
+    if(text.contains("discard 1 egg") && text.contains("gain 1 wild")) {
+        panel.discardEggForFood(actingPlayer, bird, "wild");
+        return;
+    }
+
+    if(text.contains("discard 1 egg to draw 2 cards")) {
+        panel.discardEggDraw(actingPlayer, bird, 2);
+        return;
+    }
+
+    if(text.contains("discard 1 seed") && text.contains("tuck 2 cards")) {
+        panel.discardFoodAndTuck(actingPlayer, bird, "seed", 2);
+        return;
+    }
+
+    if(text.contains("discard 1 fish") && text.contains("tuck 2 cards")) {
+        panel.discardFoodAndTuck(actingPlayer, bird, "fish", 2);
+        return;
+    }
+
+    if(text.contains("tuck 1 card from your hand behind this bird. if you do, draw 1 card")) {
+        panel.tuckFromHand(actingPlayer, bird, 1);
+        panel.drawCardsToHand(actingPlayer, 1, "Tuck reward");
+        return;
+    }
+
+    if(text.contains("tuck 1 card from your hand behind this bird. if you do, gain 1 invertebrate or seed")) {
+        panel.tuckFromHand(actingPlayer, bird, 1);
+        panel.addFood(actingPlayer, "invertebrate", 1);
+        return;
+    }
+
+    if(text.contains("tuck 1 card from your hand behind this bird. if you do, gain 1 seed from the supply")) {
+        panel.tuckFromHand(actingPlayer, bird, 1);
+        panel.addFood(actingPlayer, "seed", 1);
+        return;
+    }
+
+    if(text.contains("tuck 1 card from your hand behind this bird. if you do, you may also lay 1 egg on this bird")) {
+        if(panel.tuckFromHand(actingPlayer, bird, 1)) {
+            panel.layEggOnBird(bird, 1);
+        }
+        return;
+    }
+
+    if(text.contains("lay 1 egg on each of your birds with a bowl nest")) {
+        panel.layEggsOnNest(actingPlayer, "bowl", 1);
+        return;
+    }
+    if(text.contains("lay 1 egg on each of your birds with a cavity nest")) {
+        panel.layEggsOnNest(actingPlayer, "cavity", 1);
+        return;
+    }
+    if(text.contains("lay 1 egg on each of your birds with a ground nest")) {
+        panel.layEggsOnNest(actingPlayer, "ground", 1);
+        return;
+    }
+    if(text.contains("lay 1 egg on each of your birds with a platform nest")) {
+        panel.layEggsOnNest(actingPlayer, "platform", 1);
+        return;
+    }
+
+    if(text.contains("lay 1 egg on any bird")) {
+        panel.layEggsOnAny(actingPlayer, 1);
+        return;
+    }
+    if(text.contains("lay 1 egg on this bird")) {
+        panel.layEggOnBird(bird, 1);
+        return;
+    }
+
+    if(text.contains("all players lay 1 egg on any 1 bowl bird")) {
+        panel.allPlayersLayEgg("bowl", 1, true);
+        return;
+    }
+    if(text.contains("all players lay 1 egg on any 1 cavity bird")) {
+        panel.allPlayersLayEgg("cavity", 1, true);
+        return;
+    }
+    if(text.contains("all players lay 1 egg on any 1 ground bird")) {
+        panel.allPlayersLayEgg("ground", 1, true);
+        return;
+    }
+
+    if(text.contains("gain 3 seed from the supply")) {
+        panel.addFood(actingPlayer, "seed", 3);
+        return;
+    }
+
+    if(text.contains("gain all fish that are in the birdfeeder")) {
+        panel.gainAllFish();
+        return;
+    }
+
+    if(text.contains("gain 1 seed from the birdfeeder")) {
+        panel.gainFoodFromFeeder(actingPlayer, bird, "seed", true);
+        return;
+    }
+    if(text.contains("gain 1 seed or fruit from the birdfeeder")) {
+        panel.gainFoodFromFeeder(actingPlayer, bird, "seed/fruit", false);
+        return;
+    }
+    if(text.contains("gain 1 invertebrate or fruit from the birdfeeder")) {
+        panel.gainFoodFromFeeder(actingPlayer, bird, "invertebrate/fruit", false);
+        return;
+    }
+    if(text.contains("gain 1 invertebrate from the supply")) {
+        panel.addFood(actingPlayer, "invertebrate", 1);
+        return;
+    }
+    if(text.contains("gain 1 fruit from the supply")) {
+        panel.addFood(actingPlayer, "fruit", 1);
+        return;
+    }
+    if(text.contains("gain 1 seed from the supply")) {
+        panel.addFood(actingPlayer, "seed", 1);
+        return;
+    }
+
+    if(text.contains("all players gain 1 fish from the supply")) {
+        panel.allPlayersGainFood("fish");
+        return;
+    }
+    if(text.contains("all players gain 1 fruit from the supply")) {
+        panel.allPlayersGainFood("fruit");
+        return;
+    }
+    if(text.contains("all players gain 1 invertebrate from the supply")) {
+        panel.allPlayersGainFood("invertebrate");
+        return;
+    }
+    if(text.contains("all players gain 1 seed from the supply")) {
+        panel.allPlayersGainFood("seed");
+        return;
+    }
+
+    if(text.contains("all players draw 1 card from the deck")) {
+        panel.allPlayersDraw(1);
+        return;
+    }
+
+    if(text.contains("trade 1 wild for any other type from the supply")) {
+        panel.tradeWildForAny(actingPlayer);
+        return;
+    }
+
+    // Fallback to legacy keyword parsing if nothing matched
 triggerName+="\ttriggered for the round";
  for(int i=0;i<ability.size();i++)//Read each word in the ability
  {
@@ -717,6 +945,11 @@ public ArrayList<Integer> getPlayers() {
 }
 public HashMap<Class<?>,ArrayList<Object>> getInputs() {
     return inputs;
+}
+public String getAbilityText() {
+    if(rawAbility != null) return rawAbility;
+    if(ability != null) return String.join(" ", ability);
+    return "";
 }
 public void setInputs(HashMap<Class<?>,ArrayList<Object>> i) {
     // inputs is final, so we can only modify its contents

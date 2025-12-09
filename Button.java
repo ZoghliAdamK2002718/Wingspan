@@ -109,8 +109,11 @@ public class Button {
             Panel.setScreen(Panel.miscellaneousScreen);//display the miscelanious screen
             System.out.println("miscelaneousScreen");
             break;
+            case "Score":
+            Frame.getPanel().showScores();
+            break;
 
-            
+
 
         }
 

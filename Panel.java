@@ -6,7 +6,12 @@ import java.util.*;
 import java.util.Collections;
 import java.util.Random;
 import java.util.List;
+import java.util.stream.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -41,6 +46,16 @@ private ArrayList<Bird> loadedBirds = new ArrayList<Bird>();
 private ArrayList<Bird> birdDeck = new ArrayList<Bird>();
 private ArrayList<Bird> faceUpBirds = new ArrayList<Bird>();
 private Random rng = new Random();
+private ArrayList<ZoomTarget> zoomButtons = new ArrayList<ZoomTarget>();
+private boolean zoomActive = false;
+private Bird zoomBird = null;
+private Rectangle zoomRect = null;
+private HashMap<String, BufferedImage> bonusImages = new HashMap<String, BufferedImage>();
+private ArrayList<BonusCard> bonusDeck = new ArrayList<BonusCard>();
+private ArrayList<BonusCard> bonusOffer = new ArrayList<BonusCard>();
+private ArrayList<Rectangle> bonusRects = new ArrayList<Rectangle>();
+private BonusCard chosenBonus = null;
+private int bonusOfferPlayerIndex = -1;
 public static ArrayList<Button> miscellaneousScreen = new ArrayList<Button>();
 public Panel()
 {
@@ -107,6 +122,20 @@ public void loadBirdImages() {
         for (String birdName : birdNames) {
             try {
                 BufferedImage img = ImageIO.read(Panel.class.getResource("/birds/" + birdName + ".png"));
+                if (img == null) {
+                    Path p1 = Paths.get("birds", birdName + ".png");
+                    Path p2 = Paths.get("birds", birdName + ".PNG");
+                    if (Files.exists(p1)) {
+                        img = ImageIO.read(p1.toFile());
+                    } else if (Files.exists(p2)) {
+                        img = ImageIO.read(p2.toFile());
+                    } else {
+                        File[] matches = Paths.get("birds").toFile().listFiles((dir, name) -> name.toLowerCase().startsWith(birdName.toLowerCase()));
+                        if (matches != null && matches.length > 0) {
+                            img = ImageIO.read(matches[0]);
+                        }
+                    }
+                }
                 if (img != null) {
                     birdImages.put(birdName, img);
                     successCount++;
@@ -133,40 +162,122 @@ public void loadInitialImages()
             invertebretoken = trimTransparent(invertebretoken);
             miscpics.put("invertebratetoken", invertebretoken);
         }
+        if(invertebretoken == null) {
+            Path p = Paths.get("Images","invertebratetoken.png");
+            if(Files.exists(p)) {
+                BufferedImage img = ImageIO.read(p.toFile());
+                miscpics.put("invertebratetoken", trimTransparent(img));
+            }
+        }
         BufferedImage goButton = ImageIO.read(Panel.class.getResource("/Images/gobutton.png"));
         if(goButton != null) {
             goButton = trimTransparent(goButton);
             miscpics.put("gobutton", goButton);
+        }
+        if(goButton == null) {
+            Path p = Paths.get("Images","gobutton.png");
+            if(Files.exists(p)) {
+                BufferedImage img = ImageIO.read(p.toFile());
+                miscpics.put("gobutton", trimTransparent(img));
+            }
         }
         BufferedImage wheattoken = ImageIO.read(Panel.class.getResource("/Images/wheattoken.png"));
         if(wheattoken != null) {
             wheattoken = trimTransparent(wheattoken);
             miscpics.put("wheattoken", wheattoken);
         }
+        if(wheattoken == null) {
+            Path p = Paths.get("Images","wheattoken.png");
+            if(Files.exists(p)) {
+                BufferedImage img = ImageIO.read(p.toFile());
+                miscpics.put("wheattoken", trimTransparent(img));
+            }
+        }
         BufferedImage fishtoken = ImageIO.read(Panel.class.getResource("/Images/fishtoken.png"));
         if(fishtoken != null) {
             fishtoken = trimTransparent(fishtoken);
             miscpics.put("fishtoken", fishtoken);
+        }
+        if(fishtoken == null) {
+            Path p = Paths.get("Images","fishtoken.png");
+            if(Files.exists(p)) {
+                BufferedImage img = ImageIO.read(p.toFile());
+                miscpics.put("fishtoken", trimTransparent(img));
+            }
         }
         BufferedImage foodtoken = ImageIO.read(Panel.class.getResource("/Images/foodtoken.png"));
         if(foodtoken != null) {
             foodtoken = trimTransparent(foodtoken);
             miscpics.put("foodtoken", foodtoken);
         }
+        if(foodtoken == null) {
+            Path p = Paths.get("Images","foodtoken.png");
+            if(Files.exists(p)) {
+                BufferedImage img = ImageIO.read(p.toFile());
+                miscpics.put("foodtoken", trimTransparent(img));
+            }
+        }
         BufferedImage rattoken = ImageIO.read(Panel.class.getResource("/Images/rattoken.png"));
         if(rattoken != null) {
             rattoken = trimTransparent(rattoken);
             miscpics.put("rattoken", rattoken);
+        }
         BufferedImage board = ImageIO.read(Panel.class.getResource("/Images/Board.png"));
-        miscpics.put("board", board);
+        if(board != null) {
+            miscpics.put("board", board);
+        }
         BufferedImage goBtnImg = ImageIO.read(Panel.class.getResource("/Images/gobutton.png"));
-        miscpics.put("goBtnImg", goBtnImg);
+        if(goBtnImg != null) {
+            miscpics.put("goBtnImg", goBtnImg);
+        }
+        if(rattoken == null) {
+            Path p = Paths.get("Images","rattoken.png");
+            if(Files.exists(p)) {
+                BufferedImage img = ImageIO.read(p.toFile());
+                miscpics.put("rattoken", trimTransparent(img));
+            }
+        }
+        if(!miscpics.containsKey("board")) {
+            Path p = Paths.get("Images","Board.png");
+            if(Files.exists(p)) {
+                BufferedImage img = ImageIO.read(p.toFile());
+                miscpics.put("board", img);
+            }
+        }
+        if(!miscpics.containsKey("goBtnImg")) {
+            Path p = Paths.get("Images","gobutton.png");
+            if(Files.exists(p)) {
+                BufferedImage img = ImageIO.read(p.toFile());
+                miscpics.put("goBtnImg", img);
+            }
         }
     }
     catch (Exception e)
     {
         System.out.println("ERROR loading images:");
         e.printStackTrace();
+    }
+}
+
+private void loadBonusCardImages() {
+    try {
+        Path dir = Paths.get("bonuscards");
+        if(!Files.exists(dir)) return;
+        Files.list(dir).forEach(p -> {
+            try {
+                if(p.getFileName().toString().toLowerCase().endsWith(".png")) {
+                    String key = p.getFileName().toString().toLowerCase().replace(".png","").replace(" copy","");
+                    BufferedImage img = ImageIO.read(p.toFile());
+                    bonusImages.put(key, img);
+                }
+            } catch (Exception ex) {
+                System.out.println("ERROR loading bonus image " + p.getFileName());
+            }
+        });
+        System.out.println("Loaded bonus images: " + bonusImages.keySet());
+    } catch (Exception ex) {
+        System.out.println("ERROR loading bonus images:");
+        ex.printStackTrace();
     }
 }
 
@@ -202,6 +313,10 @@ private ArrayList<Bird> copyBirds(List<Bird> birds) {
     return copy;
 }
 
+private void grantBonusChoice(Player player) {
+    // unused with new visual picker
+}
+
 private Bird cloneBird(Bird b) {
     if (b == null) return null;
     String[] habitats = b.getHabitats() != null ? Arrays.copyOf(b.getHabitats(), b.getHabitats().length) : new String[0];
@@ -230,15 +345,56 @@ private Bird cloneBird(Bird b) {
     );
 }
 
+private static class ZoomTarget {
+    final Bird bird;
+    final Rectangle button;
+    ZoomTarget(Bird b, Rectangle r) { bird = b; button = r; }
+}
+
 private Bird makeBird(String name, String sci, String nest, String abilityText, String[] habitats, TreeMap<String,Integer> costs, int points, int eggCapacity, int wingspan) {
     Ability ability = abilityText != null ? new Ability(abilityText, null, null, null) : null;
     TreeMap<String,Integer> costCopy = costs != null ? new TreeMap<String,Integer>(costs) : new TreeMap<String,Integer>();
     
     // Convert bird name to image filename format (lowercase with underscores)
     String imageKey = nameToImageKey(name);
-    BufferedImage birdImage = birdImages.get(imageKey);
+    BufferedImage birdImage = fetchBirdImage(imageKey);
+    if(birdImage == null) {
+        System.out.println("SKIPPING BIRD (missing image): " + name + " expected key: " + imageKey);
+        return null;
+    }
     
     return new Bird(name, sci, nest, habitats, ability, costCopy, new TreeMap<String,Integer>(), points, 0, eggCapacity, wingspan, new ArrayList<Bird>(), false, false, null, birdImage, 0, 0);
+}
+
+// On-demand bird image fetch so cards render even if initial preload failed
+private BufferedImage fetchBirdImage(String imageKey) {
+    if(imageKey == null) return null;
+    BufferedImage cached = birdImages.get(imageKey);
+    if(cached != null) return cached;
+    // Try common filename cases
+    Path p1 = Paths.get("birds", imageKey + ".png");
+    Path p2 = Paths.get("birds", imageKey + ".PNG");
+    try {
+        if(Files.exists(p1)) {
+            cached = ImageIO.read(p1.toFile());
+        } else if(Files.exists(p2)) {
+            cached = ImageIO.read(p2.toFile());
+        } else {
+            File[] matches = Paths.get("birds").toFile().listFiles((dir, name) -> name.toLowerCase().startsWith(imageKey.toLowerCase()));
+            if (matches != null && matches.length > 0) {
+                cached = ImageIO.read(matches[0]);
+            }
+        }
+        if(cached != null) {
+            birdImages.put(imageKey, cached);
+        } else {
+            System.out.println("BIRD IMAGE MISSING: " + imageKey);
+        }
+    } catch (Exception ex) {
+        System.out.println("ERROR loading bird image for " + imageKey);
+        ex.printStackTrace();
+    }
+    return cached;
 }
 
 private String nameToImageKey(String birdName) {
@@ -278,17 +434,614 @@ private void rebuildDeckFromLoaded() {
     ensureFaceUp();
 }
 
+private void buildBonusDeck() {
+    bonusDeck.clear();
+    String[][] defs = {
+        {"anatomist","Birds with a body part in their name"},
+        {"backyard_birder","Birds with any printed nest type"},
+        {"bird_counter","Number of birds in your habitats"},
+        {"bird_feeder","Birds that eat seed or fruit"},
+        {"breeding_manager","Birds with egg capacity 4+."},
+        {"cartographer","Habitats with at least 3 birds"},
+        {"ecologist","Birds with 2+ habitats or wild"},
+        {"enclosure_builder","Birds with cavity or platform nests"},
+        {"falconer","Birds with rodent cost or wingspan 65+"},
+        {"fishery_manager","Birds that eat fish"},
+        {"food_web_expert","Birds with 2+ food types or wild"},
+        {"forester","Birds in forest habitat"},
+        {"historian","Birds with possessive/apostrophe name"},
+        {"large_bird_specialist","Birds with wingspan 100+"},
+        {"nest_box_builder","Birds with cavity nests"},
+        {"omnivore_specialist","Birds with wild in cost"},
+        {"oologist","Birds with egg capacity 3+"},
+        {"passerine_specialist","Birds with wingspan < 30"},
+        {"photographer","Birds worth 5+ points"},
+        {"platform_builder","Birds with platform nests"},
+        {"prairie_manager","Birds in grassland habitat"},
+        {"rodentologist","Birds that eat rodent"},
+        {"visionary_leader","Birds worth 7+ points"},
+        {"viticulturalist","Birds that eat fruit"},
+        {"wetland_scientist","Birds in wetland habitat"},
+        {"wildlife_gardener","Birds with bowl or ground nests"}
+    };
+    for(String[] def : defs) {
+        String key = def[0];
+        String ability = def[1];
+        BufferedImage img = bonusImages.get(key);
+        if(img == null) continue;
+        BonusCard bc = new BonusCard(prettyName(key), "", img, true, true, 0,0,0,0, ability, "count", new TreeMap<Integer,Integer>(), new ArrayList<String>(), null);
+        bonusDeck.add(bc);
+    }
+    Collections.shuffle(bonusDeck, rng);
+}
+
+private String prettyName(String key) {
+    String[] parts = key.split("_");
+    StringBuilder sb = new StringBuilder();
+    for(String p : parts) {
+        if(p.isEmpty()) continue;
+        sb.append(Character.toUpperCase(p.charAt(0))).append(p.substring(1)).append(" ");
+    }
+    return sb.toString().trim();
+}
+
+private void ensureBonusOffer(int playerIndex) {
+    if(bonusOfferPlayerIndex == playerIndex && !bonusOffer.isEmpty()) return;
+    bonusOffer.clear();
+    bonusRects.clear();
+    chosenBonus = null;
+    bonusOfferPlayerIndex = playerIndex;
+    if(bonusDeck.size() < 2) {
+        buildBonusDeck();
+    }
+    for(int i=0;i<2 && !bonusDeck.isEmpty();i++) {
+        bonusOffer.add(bonusDeck.remove(0));
+    }
+}
+
 private void ensureFaceUp() {
     while (faceUpBirds.size() < 3 && !birdDeck.isEmpty()) {
         faceUpBirds.add(drawTopOfDeck());
     }
 }
 
-private Bird drawTopOfDeck() {
+public Bird drawTopOfDeck() {
     if (birdDeck.isEmpty()) return null;
     return birdDeck.remove(0);
 }
 
+public int extractThreshold(String text) {
+    if(text == null) return 0;
+    Scanner sc = new Scanner(text.replaceAll("[^0-9 ]", " "));
+    int last = 0;
+    while(sc.hasNextInt()) {
+        last = sc.nextInt();
+    }
+    sc.close();
+    return last;
+}
+
+public String inferHabitatFromAbility(String text, Spot defaultSpot) {
+    if(text == null) return defaultSpot != null ? defaultSpot.getHabitat() : "";
+    if(text.contains("forest")) return "forest";
+    if(text.contains("grassland")) return "grassland";
+    if(text.contains("wetland")) return "wetland";
+    if(text.contains("this bird")) return defaultSpot != null ? defaultSpot.getHabitat() : "";
+    return "";
+}
+
+public void addFood(Player player, String type, int amount) {
+    if(player == null || type == null || amount <= 0) return;
+    player.addFood(type, amount);
+    int idx = Player.players().indexOf(player);
+    String name = (idx >= 0 && idx < playerNames.size()) ? playerNames.get(idx) : "Player";
+    JOptionPane.showMessageDialog(this, name + " gained " + amount + " " + type + ".", "Ability", JOptionPane.INFORMATION_MESSAGE);
+}
+
+public void gainAllFish() {
+    Player p = Player.players().get(Player.currentPlayerIndex);
+    addFood(p, "fish", 3);
+}
+
+public void gainFoodFromFeeder(Player player, Bird bird, String type, boolean allowCache) {
+    if(player == null) return;
+    String foodType = type;
+    if(type.contains("/")) {
+        String[] options = type.split("/");
+        foodType = (String)JOptionPane.showInputDialog(this, "Choose food type:", "Gain food", JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+        if(foodType == null) return;
+    }
+    addFood(player, foodType, 1);
+    if(allowCache && bird != null) {
+        int cache = JOptionPane.showConfirmDialog(this, "Cache the " + foodType + " on " + bird.getName() + "?", "Cache?", JOptionPane.YES_NO_OPTION);
+        if(cache == JOptionPane.YES_OPTION) {
+            bird.cacheFood(foodType, 1);
+            player.spendFood(foodType, 1);
+        }
+    }
+}
+
+public void promptAdditionalBirdPlay(Player player, String habitat) {
+    if(player == null) return;
+    if(habitat == null || habitat.isEmpty()) habitat = "any";
+    ArrayList<Bird> hand = player.playerGetHand();
+    if(hand == null || hand.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "No birds in hand to play.");
+        return;
+    }
+    ArrayList<Bird> options = new ArrayList<Bird>();
+    for(Bird b : hand) {
+        if("any".equals(habitat)) { options.add(b); continue; }
+        for(String h : b.getHabitats()) {
+            if(h.equalsIgnoreCase(habitat)) {
+                options.add(b);
+                break;
+            }
+        }
+    }
+    if(options.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "No birds in hand that can live in " + habitat + ".");
+        return;
+    }
+    String[] names = options.stream().map(Bird::getName).toArray(String[]::new);
+    String choice = (String)JOptionPane.showInputDialog(this, "Choose a bird to play in " + habitat + ":", "Play additional bird", JOptionPane.PLAIN_MESSAGE, null, names, names[0]);
+    if(choice == null) return;
+    Bird chosen = null;
+    for(Bird b : options) if(b.getName().equals(choice)) { chosen = b; break; }
+    if(chosen == null) return;
+    if(!canAttemptPay(player, chosen)) {
+        JOptionPane.showMessageDialog(this, "Not enough food to play " + chosen.getName() + ".");
+        return;
+    }
+    String targetHabitat = habitat;
+    if("any".equalsIgnoreCase(habitat) || habitat.isEmpty()) {
+        String[] optionsHab = chosen.getHabitats();
+        if(optionsHab != null && optionsHab.length > 0) {
+            targetHabitat = (String)JOptionPane.showInputDialog(this, "Choose habitat for " + chosen.getName(), "Habitat", JOptionPane.PLAIN_MESSAGE, null, optionsHab, optionsHab[0]);
+            if(targetHabitat == null) return;
+        }
+    }
+    Spot open = findOpenSpot(player, targetHabitat);
+    if(open == null) {
+        JOptionPane.showMessageDialog(this, "No open spots in " + targetHabitat + ".");
+        return;
+    }
+    if(!payForBird(player, chosen)) return;
+    open.setBird(chosen);
+    open.setOccupied(true);
+    chosen.setBounds(new Rectangle(open.x1, open.y1, open.getWidth(), open.getHeight()));
+    chosen.setLocation(open);
+    chosen.setX(open.x1);
+    chosen.setY(open.y1);
+    chosen.getAbility().setBird(chosen);
+    chosen.getAbility().setSpot(open);
+    chosen.getAbility().setPlayer(player);
+    hand.remove(chosen);
+    JOptionPane.showMessageDialog(this, chosen.getName() + " placed in " + habitat + " via ability.");
+}
+
+public void moveBirdIfRightmost(Player player, Bird b) {
+    if(player == null || b == null) return;
+    Spot currentSpot = findSpotForBird(player, b);
+    if(currentSpot == null) return;
+    ArrayList<Spot> row = player.playerGetBoard().get(currentSpot.getHabitat());
+    if(row == null) return;
+    for(int i = currentSpot.getIndex()+1; i < row.size(); i++) {
+        if(row.get(i).isOccupied()) {
+            JOptionPane.showMessageDialog(this, b.getName() + " is not the rightmost bird.");
+            return;
+        }
+    }
+    String[] habitats = {"forest","grassland","wetland"};
+    String choice = (String)JOptionPane.showInputDialog(this, "Move " + b.getName() + " to which habitat?", "Move bird", JOptionPane.PLAIN_MESSAGE, null, habitats, habitats[0]);
+    if(choice == null || choice.equalsIgnoreCase(currentSpot.getHabitat())) return;
+    Spot target = findOpenSpot(player, choice);
+    if(target == null) {
+        JOptionPane.showMessageDialog(this, "No open spot in " + choice + ".");
+        return;
+    }
+    currentSpot.setBird(null);
+    currentSpot.setOccupied(false);
+    target.setBird(b);
+    target.setOccupied(true);
+    b.setLocation(target);
+    b.setBounds(new Rectangle(target.x1, target.y1, target.getWidth(), target.getHeight()));
+    JOptionPane.showMessageDialog(this, b.getName() + " moved to " + choice + ".");
+}
+
+public Spot findSpotForBird(Player player, Bird b) {
+    if(player == null || b == null) return null;
+    HashMap<String, ArrayList<Spot>> board = player.playerGetBoard();
+    for(ArrayList<Spot> spots : board.values()) {
+        for(Spot s : spots) {
+            if(s.getBird() == b) return s;
+        }
+    }
+    return null;
+}
+
+public Spot findOpenSpot(Player player, String habitat) {
+    if(player == null || habitat == null) return null;
+    ArrayList<Spot> spots = player.playerGetBoard().get(capitalizeHabitat(habitat));
+    if(spots == null) return null;
+    for(Spot s : spots) {
+        if(!s.isOccupied()) return s;
+    }
+    return null;
+}
+
+public void giveBonusCardChoice(Player player) {
+    if(player == null) return;
+    TreeMap<Integer,Integer> scoring = new TreeMap<Integer,Integer>();
+    scoring.put(-1, 0);
+    BonusCard bonus = new BonusCard("Bonus Card", "", null, false, true, 0, 0, 0, 0, "Drawn bonus", "threshold", scoring, new ArrayList<String>(), player);
+    player.playerGetBonus().add(bonus);
+    JOptionPane.showMessageDialog(this, "Bonus card added to your collection (placeholder scoring).");
+}
+
+public void sharedDrawAndKeepExtra(Player player) {
+    if(player == null) return;
+    int count = Player.players().size() + 1;
+    drawCardsToHand(player, count, "Draw " + count + " cards");
+    JOptionPane.showMessageDialog(this, "Cards drawn. Each other player should select one from your hand; keep the extra manually.");
+}
+
+public void drawCardsToHand(Player player, int count, String title) {
+    if(player == null || count <= 0) return;
+    for (int i = 0; i < count; i++) {
+        Bird newCard = selectBirdFromMarket(title == null ? "Draw Bird" : title);
+        if (newCard != null) {
+            player.playerGetHand().add(cloneBird(newCard));
+        }
+    }
+}
+
+public void drawThenDiscard(Player player, int drawCount, int discardCount) {
+    if(player == null) return;
+    drawCardsToHand(player, drawCount, "Ability draw");
+    for(int i = 0; i < discardCount; i++) {
+        Bird discard = promptCardFromHand(player, "Choose a card to discard (ability requirement):");
+        if(discard != null) {
+            player.playerGetHand().remove(discard);
+        }
+    }
+}
+
+public boolean tuckFromHand(Player player, Bird target, int amount) {
+    if(player == null || target == null || amount <= 0) return false;
+    boolean success = false;
+    for(int i = 0; i < amount; i++) {
+        Bird chosen = promptCardFromHand(player, "Choose a card to tuck onto " + target.getName());
+        if(chosen != null) {
+            player.playerGetHand().remove(chosen);
+            target.tuckCards(1);
+            success = true;
+        }
+    }
+    return success;
+}
+
+public void predatorHunt(Bird hunter, int threshold) {
+    if(hunter == null) return;
+    Bird card = drawTopOfDeck();
+    if(card == null) return;
+    if(card.getWingspan() < threshold) {
+        hunter.tuckCards(1);
+        JOptionPane.showMessageDialog(this, hunter.getName() + " tucked a card (wingspan " + card.getWingspan() + ").");
+    } else {
+        JOptionPane.showMessageDialog(this, hunter.getName() + " failed to hunt (wingspan " + card.getWingspan() + ").");
+    }
+}
+
+public void rollAndCache(Bird bird, String foodType) {
+    if(bird == null) return;
+    boolean success = new Random().nextBoolean();
+    if(success) {
+        bird.cacheFood(foodType, 1);
+        JOptionPane.showMessageDialog(this, bird.getName() + " cached 1 " + foodType + ".");
+    } else {
+        JOptionPane.showMessageDialog(this, bird.getName() + " rolled, but no " + foodType + " showed.");
+    }
+}
+
+public void discardEggForFood(Player player, Bird sourceBird, String foodType) {
+    if(player == null) return;
+    boolean spent = spendEggsExcluding(player, 1, sourceBird);
+    if(spent) {
+        addFood(player, foodType, 1);
+    } else {
+        JOptionPane.showMessageDialog(this, "No eggs available to discard.");
+    }
+}
+
+private boolean spendEggsExcluding(Player player, int eggsNeeded, Bird exclude) {
+    if(eggsNeeded <= 0 || player == null) return true;
+    if(getTotalEggs(player) < eggsNeeded) return false;
+    int remaining = eggsNeeded;
+    for(ArrayList<Spot> spots : player.playerGetBoard().values()) {
+        for(Spot s : spots) {
+            Bird b = s.getBird();
+            if(b == null || b == exclude) continue;
+            if(remaining <= 0) break;
+            int removed = b.removeEggs(remaining);
+            remaining -= removed;
+        }
+    }
+    if(remaining > 0 && exclude != null) {
+        remaining -= exclude.removeEggs(remaining);
+    }
+    return remaining <= 0;
+}
+
+public void discardEggDraw(Player player, Bird sourceBird, int count) {
+    if(discardEggs(player, sourceBird, 1)) {
+        drawCardsToHand(player, count, "Draw after discarding egg");
+    } else {
+        JOptionPane.showMessageDialog(this, "Could not discard an egg.");
+    }
+}
+
+public boolean discardEggs(Player player, Bird sourceBird, int count) {
+    return spendEggsExcluding(player, count, sourceBird);
+}
+
+public void discardFoodAndTuck(Player player, Bird bird, String foodType, int tuckCount) {
+    if(player == null || bird == null) return;
+    if(!player.spendFood(foodType, 1)) {
+        JOptionPane.showMessageDialog(this, "Not enough " + foodType + " to discard.");
+        return;
+    }
+    for(int i = 0; i < tuckCount; i++) {
+        Bird card = drawTopOfDeck();
+        if(card != null) {
+            bird.tuckCards(1);
+        }
+    }
+    JOptionPane.showMessageDialog(this, bird.getName() + " tucked " + tuckCount + " card(s).");
+}
+
+public void layEggOnBird(Bird bird, int count) {
+    if(bird == null || count <= 0) return;
+    bird.addEggs(count);
+}
+
+public void layEggsOnNest(Player player, String nestType, int amountEach) {
+    if(player == null || nestType == null) return;
+    for(Bird b : player.getAllPlayedBirds()) {
+        if(nestType.equalsIgnoreCase(b.getNestType())) {
+            b.addEggs(amountEach);
+        }
+    }
+}
+
+public void layEggsOnAny(Player player, int eggs) {
+    if(player == null) return;
+    placeEggsOnBoard(player, eggs);
+}
+
+public void allPlayersLayEgg(String nestType, int eggs, boolean hostExtra) {
+    for(Player p : Player.players()) {
+        int placed = 0;
+        for(Bird b : p.getAllPlayedBirds()) {
+            if(nestType.equalsIgnoreCase(b.getNestType())) {
+                b.addEggs(1);
+                placed++;
+                break;
+            }
+        }
+        if(placed == 0 && !p.getAllPlayedBirds().isEmpty()) {
+            p.getAllPlayedBirds().get(0).addEggs(1);
+        }
+    }
+    if(hostExtra) {
+        Player host = Player.players().get(Player.currentPlayerIndex);
+        if(host != null) {
+            for(Bird b : host.getAllPlayedBirds()) {
+                if(nestType.equalsIgnoreCase(b.getNestType())) {
+                    b.addEggs(1);
+                    break;
+                }
+            }
+        }
+    }
+}
+
+public void allPlayersGainFood(String type) {
+    for(Player p : Player.players()) {
+        p.addFood(type, 1);
+    }
+}
+
+public void allPlayersDraw(int count) {
+    for(Player p : Player.players()) {
+        drawCardsToHand(p, count, "Global draw");
+    }
+}
+
+public void tradeWildForAny(Player player) {
+    if(player == null) return;
+    if(!player.spendFood("wild", 1)) {
+        JOptionPane.showMessageDialog(this, "No wild food to trade.");
+        return;
+    }
+    String[] options = {"invertebrate","seed","fish","fruit","rodent"};
+    String choice = (String)JOptionPane.showInputDialog(this, "Choose food to receive:", "Trade", JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+    if(choice != null) {
+        player.addFood(choice, 1);
+    }
+}
+
+public void fewestWetlandDraw() {
+    int min = Integer.MAX_VALUE;
+    ArrayList<Player> targets = new ArrayList<Player>();
+    for(Player p : Player.players()) {
+        int count = 0;
+        ArrayList<Spot> wetlands = p.playerGetBoard().get("Wetland");
+        if(wetlands != null) {
+            for(Spot s : wetlands) if(s.isOccupied()) count++;
+        }
+        if(count < min) {
+            min = count;
+            targets.clear();
+            targets.add(p);
+        } else if(count == min) {
+            targets.add(p);
+        }
+    }
+    for(Player p : targets) {
+        drawCardsToHand(p, 1, "Fewest wetland draw");
+    }
+}
+
+public void handlePinkTrigger(String text, Player owner, Bird b) {
+    // Hook for between-turn abilities. Currently provide simple logging.
+    System.out.println("Pink ability for " + (b != null ? b.getName() : "unknown bird") + ": " + text);
+}
+
+// Expose draw helper for other classes
+public Bird drawFromDeck() {
+    return drawTopOfDeck();
+}
+
+// ------------ end of ability helpers ------------
+
+public int calculateScore(Player player) {
+    if(player == null) return 0;
+    int score = 0;
+    for(Bird b : player.getAllPlayedBirds()) {
+        score += b.getPoints();
+        score += b.getEggCount();
+        score += b.getCachedFoodCount();
+        score += b.getTuckedCards();
+    }
+    for(BonusCard bc : player.playerGetBonus()) {
+        score += scoreBonusCard(bc, player);
+    }
+    return score;
+}
+
+private int scoreBonusCard(BonusCard bc, Player player) {
+    if(bc == null || player == null) return 0;
+    String key = bc.getName().toLowerCase().replace(" ","_");
+    int count = 0;
+    ArrayList<Bird> birds = player.getAllPlayedBirds();
+    switch(key) {
+        case "anatomist":
+            count = (int)birds.stream().filter(b -> hasBodyPart(b.getName())).count();
+            break;
+        case "backyard_birder":
+            count = (int)birds.stream().filter(b -> !b.getNestType().equalsIgnoreCase("wild")).count();
+            break;
+        case "bird_counter":
+            count = birds.size();
+            break;
+        case "bird_feeder":
+            count = (int)birds.stream().filter(b -> b.getCosts().containsKey("seed") || b.getCosts().containsKey("fruit")).count();
+            break;
+        case "breeding_manager":
+            count = (int)birds.stream().filter(b -> b.getEggCapacity() >= 4).count();
+            break;
+        case "cartographer":
+            HashSet<String> full = new HashSet<String>();
+            for(Bird b : birds) {
+                full.addAll(Arrays.asList(b.getHabitats()));
+            }
+            count = full.size();
+            break;
+        case "ecologist":
+            count = (int)birds.stream().filter(b -> b.getHabitats().length >= 2 || Arrays.asList(b.getHabitats()).contains("wild")).count();
+            break;
+        case "enclosure_builder":
+            count = (int)birds.stream().filter(b -> b.getNestType().equalsIgnoreCase("cavity") || b.getNestType().equalsIgnoreCase("platform")).count();
+            break;
+        case "falconer":
+            count = (int)birds.stream().filter(b -> b.getCosts().containsKey("rodent") || b.getWingspan() >= 65).count();
+            break;
+        case "fishery_manager":
+            count = (int)birds.stream().filter(b -> b.getCosts().containsKey("fish")).count();
+            break;
+        case "food_web_expert":
+            count = (int)birds.stream().filter(b -> b.getCosts().keySet().size() >= 2 || b.getCosts().containsKey("wild")).count();
+            break;
+        case "forester":
+            count = (int)birds.stream().filter(b -> Arrays.asList(b.getHabitats()).contains("forest")).count();
+            break;
+        case "historian":
+            count = (int)birds.stream().filter(b -> b.getName().contains("'")).count();
+            break;
+        case "large_bird_specialist":
+            count = (int)birds.stream().filter(b -> b.getWingspan() >= 100).count();
+            break;
+        case "nest_box_builder":
+            count = (int)birds.stream().filter(b -> b.getNestType().equalsIgnoreCase("cavity")).count();
+            break;
+        case "omnivore_specialist":
+            count = (int)birds.stream().filter(b -> b.getCosts().containsKey("wild")).count();
+            break;
+        case "oologist":
+            count = (int)birds.stream().filter(b -> b.getEggCapacity() >= 3).count();
+            break;
+        case "passerine_specialist":
+            count = (int)birds.stream().filter(b -> b.getWingspan() < 30).count();
+            break;
+        case "photographer":
+            count = (int)birds.stream().filter(b -> b.getPoints() >= 5).count();
+            break;
+        case "platform_builder":
+            count = (int)birds.stream().filter(b -> b.getNestType().equalsIgnoreCase("platform")).count();
+            break;
+        case "prairie_manager":
+            count = (int)birds.stream().filter(b -> Arrays.asList(b.getHabitats()).contains("grassland")).count();
+            break;
+        case "rodentologist":
+            count = (int)birds.stream().filter(b -> b.getCosts().containsKey("rodent")).count();
+            break;
+        case "visionary_leader":
+            count = (int)birds.stream().filter(b -> b.getPoints() >= 7).count();
+            break;
+        case "viticulturalist":
+            count = (int)birds.stream().filter(b -> b.getCosts().containsKey("fruit")).count();
+            break;
+        case "wetland_scientist":
+            count = (int)birds.stream().filter(b -> Arrays.asList(b.getHabitats()).contains("wetland")).count();
+            break;
+        case "wildlife_gardener":
+            count = (int)birds.stream().filter(b -> b.getNestType().equalsIgnoreCase("bowl") || b.getNestType().equalsIgnoreCase("ground")).count();
+            break;
+        default:
+            count = 0;
+    }
+    return count * 2; // simple 2 points per qualifying bird/habitat
+}
+
+private boolean hasBodyPart(String name) {
+    String n = name.toLowerCase();
+    String[] parts = {"eye","tail","wing","head","throat","bill","beak","crest","back","breast","crown","foot","leg","cheek"};
+    for(String p : parts) if(n.contains(p)) return true;
+    return false;
+}
+
+public void showScores() {
+    StringBuilder sb = new StringBuilder();
+    for(int i = 0; i < Player.players().size(); i++) {
+        Player p = Player.players().get(i);
+        String name = (i < playerNames.size()) ? playerNames.get(i) : ("Player " + (i+1));
+        int total = calculateScore(p);
+        sb.append(name).append(": ").append(total).append(" pts");
+        sb.append(" (birds ")
+            .append(p.getAllPlayedBirds().stream().mapToInt(Bird::getPoints).sum())
+            .append(", eggs ")
+            .append(p.getAllPlayedBirds().stream().mapToInt(Bird::getEggCount).sum())
+            .append(", cache ")
+            .append(p.getAllPlayedBirds().stream().mapToInt(Bird::getCachedFoodCount).sum())
+            .append(", tucked ")
+            .append(p.getAllPlayedBirds().stream().mapToInt(Bird::getTuckedCards).sum())
+            .append(", bonus ")
+            .append(p.playerGetBonus().stream().mapToInt(bc -> scoreBonusCard(bc, p)).sum())
+            .append(")\n");
+    }
+    JOptionPane.showMessageDialog(this, sb.toString(), "Scores", JOptionPane.INFORMATION_MESSAGE);
+}
 private void activateHabitatAbilities(String habitat) {
     if (habitat == null) return;
     HashMap<String, ArrayList<Spot>> board = Player.getCurrentPlayerBoard();
@@ -301,7 +1054,13 @@ private void activateHabitatAbilities(String habitat) {
         if (s == null) continue;
         Bird b = s.getBird();
         if (b != null && b.getAbility() != null) {
-            b.getAbility().execute();
+            Ability ab = b.getAbility();
+            ab.setBird(b);
+            ab.setSpot(s);
+            ab.setPlayer(Player.players().get(Player.currentPlayerIndex));
+            if(ab.getTriggerType() == null || ab.getTriggerType().equalsIgnoreCase("brown")) {
+                ab.execute();
+            }
         }
     }
 }
@@ -487,6 +1246,8 @@ private ArrayList<Bird> defaultBirds() {
     list.add(makeBird("Spotted Towhee","Pipilo maculatus","Ground","WHEN ACTIVATED: Gain 1 seed from the supply.",new String[]{"grassland"},cost("invertebrate",1,"seed",1),0,4,28));
     list.add(makeBird("Steller's Jay","Cyanocitta stelleri","Bowl","WHEN ACTIVATED: Gain 1 seed from the birdfeeder, if available. You may cache it on this bird.",new String[]{"forest"},cost("seed",2,"wild",1),5,2,48));
 
+    // Remove any birds whose images were missing
+    list.removeIf(Objects::isNull);
     return list;
 }
     public void realStartingScreen(Graphics g)
@@ -574,6 +1335,7 @@ private ArrayList<Bird> defaultBirds() {
     public void paint(Graphics g)
 {
     super.paint(g);
+        zoomButtons.clear();
    
         if(!namesEntered) {
             // paint solid bg for name screen
@@ -616,6 +1378,11 @@ private ArrayList<Bird> defaultBirds() {
                 currentScreen.get(i).paint(g);
             }
         }
+
+        // overlay zoomed bird if active
+        if(zoomActive && zoomBird != null && zoomBird.getImage() != null) {
+            drawZoomOverlay((Graphics2D)g, zoomBird.getImage(), zoomBird.getName());
+        }
    
 }
 
@@ -653,6 +1420,7 @@ private ArrayList<Bird> defaultBirds() {
 
         displayPlayerHand(g, pI);
         displayPlayerFood(g, pI);
+        drawPlayerBonusCards(g, Player.players().get(pI));
     }
     public void displayPlayerHand(Graphics g, int pI)
     {
@@ -1009,7 +1777,7 @@ private ArrayList<Bird> defaultBirds() {
         return spent;
     }
 
-    private int placeEggsOnBoard(Player player, int eggsToPlace) {
+    public int placeEggsOnBoard(Player player, int eggsToPlace) {
         if (eggsToPlace <= 0) return 0;
         ArrayList<Bird> birds = player.getAllPlayedBirds();
         if (birds == null || birds.isEmpty()) {
@@ -1032,7 +1800,7 @@ private ArrayList<Bird> defaultBirds() {
         return eggsToPlace;
     }
 
-    private boolean spendEggs(Player player, int eggsNeeded) {
+    public boolean spendEggs(Player player, int eggsNeeded) {
         if (eggsNeeded <= 0) return true;
         if (player == null) return false;
         if (getTotalEggs(player) < eggsNeeded) return false;
@@ -1059,7 +1827,7 @@ private ArrayList<Bird> defaultBirds() {
         return remaining <= 0;
     }
 
-    private Bird promptCardFromHand(Player player, String title) {
+    public Bird promptCardFromHand(Player player, String title) {
         ArrayList<Bird> hand = player.playerGetHand();
         if (hand == null || hand.isEmpty()) return null;
         String[] options = new String[hand.size()];
@@ -1076,7 +1844,7 @@ private ArrayList<Bird> defaultBirds() {
         return null;
     }
 
-private void drawCards(Player player, int count) {
+public void drawCards(Player player, int count) {
     for (int i = 0; i < count; i++) {
         Bird newCard = selectBirdFromMarket("Pick a card to draw (" + (count - i) + " remaining).");
         if (newCard != null) {
@@ -1148,20 +1916,57 @@ private Bird promptCardChoice(String title) {
                 if (b.getName().equals(selected)) { chosen = b; break; }
             }
             if (chosen != null) {
-                if (!canAffordBird(Player.players().get(Player.currentPlayerIndex), chosen)) {
+                if (!canAttemptPay(Player.players().get(Player.currentPlayerIndex), chosen)) {
                     JOptionPane.showMessageDialog(this, "Not enough food to play this bird.");
                     return;
                 }
-                payForBird(Player.players().get(Player.currentPlayerIndex), chosen);
+                if(!payForBird(Player.players().get(Player.currentPlayerIndex), chosen)) {
+                    return;
+                }
                 current.useActionToken();
                 spot.setActionToken(true);
                 spot.setBird(chosen);
                 spot.setOccupied(true);
                 chosen.setBounds(new Rectangle(spot.x1, spot.y1, spot.getWidth(), spot.getHeight()));
+                chosen.setLocation(spot);
                 hand.remove(chosen);
                 JOptionPane.showMessageDialog(this, chosen.getName() + " placed in " + spot.getHabitat() + ".");
+                if(chosen.getAbility() != null) {
+                    Ability ab = chosen.getAbility();
+                    ab.setBird(chosen);
+                    ab.setSpot(spot);
+                    ab.setPlayer(current);
+                    if(ab.getTriggerType() == null || "white".equalsIgnoreCase(ab.getTriggerType())) {
+                        ab.execute();
+                    }
+                }
                 activateHabitatAbilities(spot.getHabitat());
                 advanceTurn();
+            }
+        }
+    }
+
+    private void drawPlayerBonusCards(Graphics g, Player player) {
+        ArrayList<BonusCard> cards = player.playerGetBonus();
+        if(cards == null || cards.isEmpty()) return;
+        int sizeW = 110;
+        int sizeH = 160;
+        int x = 20;
+        int y = 40;
+        int gap = 12;
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        for(int i=0;i<cards.size();i++) {
+            BonusCard bc = cards.get(i);
+            BufferedImage img = bc.getImage();
+            if(img != null) {
+                g2.drawImage(img, x, y + i*(sizeH+gap), sizeW, sizeH, null);
+            } else {
+                g2.setColor(new Color(235,235,235));
+                g2.fillRoundRect(x, y + i*(sizeH+gap), sizeW, sizeH, 8,8);
+                g2.setColor(Color.DARK_GRAY);
+                g2.drawRoundRect(x, y + i*(sizeH+gap), sizeW, sizeH, 8,8);
+                g2.drawString(bc.getName(), x+8, y + i*(sizeH+gap)+20);
             }
         }
     }
@@ -1201,34 +2006,15 @@ private Bird promptCardChoice(String title) {
         g2.drawOval(eggX, eggY, 22, 30);
     }
 
-    private boolean canAffordBird(Player player, Bird bird) {
+    public boolean canAttemptPay(Player player, Bird bird) {
         if (player == null || bird == null) return false;
         TreeMap<String,Integer> costs = bird.getCosts();
-        if (costs == null || costs.isEmpty()) return true;
+        if (costs == null || costs.isEmpty() || costs.containsKey("no-food")) return true;
         TreeMap<String,Integer> food = player.playerGetFood();
-        if (food == null) return false;
-        int wildNeeded = costs.getOrDefault("wild", 0);
+        if (food == null || food.isEmpty()) return false;
         int totalAvailable = 0;
         for (int v : food.values()) totalAvailable += v;
-        // check specific costs
-        for (Map.Entry<String,Integer> e : costs.entrySet()) {
-            String type = e.getKey();
-            int amt = e.getValue() == null ? 0 : e.getValue();
-            if (type.equals("wild") || type.equals("no-food")) continue;
-            int have = food.getOrDefault(type, 0);
-            if (have < amt) {
-                int deficit = amt - have;
-                if (wildNeeded >= deficit) {
-                    wildNeeded -= deficit;
-                } else {
-                    return false;
-                }
-            }
-        }
-        if (wildNeeded > 0) {
-            if (totalAvailable < requiredNonWild(costs) + wildNeeded) return false;
-        }
-        return true;
+        return totalAvailable > 0;
     }
 
     private int requiredNonWild(TreeMap<String,Integer> costs) {
@@ -1240,36 +2026,88 @@ private Bird promptCardChoice(String title) {
         return sum;
     }
 
-    private void payForBird(Player player, Bird bird) {
-        if (player == null || bird == null) return;
+    public boolean payForBird(Player player, Bird bird) {
+        if (player == null || bird == null) return false;
         TreeMap<String,Integer> costs = bird.getCosts();
-        if (costs == null || costs.isEmpty()) return;
-        int wildNeeded = costs.getOrDefault("wild", 0);
-        for (Map.Entry<String,Integer> e : costs.entrySet()) {
-            String type = e.getKey();
-            int amt = e.getValue() == null ? 0 : e.getValue();
-            if (type.equals("wild") || type.equals("no-food")) continue;
-            int spend = Math.max(0, amt);
-            int have = player.playerGetFood().getOrDefault(type, 0);
-            if (have < spend) {
-                int useWild = spend - have;
-                spend = have;
-                wildNeeded -= useWild;
-            }
-            if (spend > 0) {
-                player.spendFood(type, spend);
-            }
+        if (costs == null || costs.isEmpty() || costs.containsKey("no-food")) return true;
+        TreeMap<String,Integer> food = player.playerGetFood();
+        if (food == null || food.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No food to spend.");
+            return false;
         }
-        if (wildNeeded > 0) {
-            // spend wild from any available foods
-            TreeMap<String,Integer> food = player.playerGetFood();
-            for (String ft : new ArrayList<String>(food.keySet())) {
-                while (wildNeeded > 0 && food.getOrDefault(ft,0) > 0) {
-                    player.spendFood(ft, 1);
-                    wildNeeded--;
+
+        int totalRequired = 0;
+        for (Map.Entry<String,Integer> e : costs.entrySet()) {
+            if(e.getKey().equals("no-food")) continue;
+            totalRequired += e.getValue() == null ? 0 : e.getValue();
+        }
+
+        boolean multiType = costs.size() > 1;
+        int choiceMode = 0; // 0 = exact, 1 = custom
+        if(multiType) {
+            String[] options = {"Pay all listed food","Choose one type (OR/custom)"};
+            choiceMode = JOptionPane.showOptionDialog(this,
+                "Select how to pay for " + bird.getName() + "\nPrinted cost: " + costs.toString(),
+                "Food payment",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                options[0]);
+            if(choiceMode < 0) choiceMode = 0;
+        }
+
+        if(choiceMode == 0) {
+            int wildNeeded = costs.getOrDefault("wild", 0);
+            for (Map.Entry<String,Integer> e : costs.entrySet()) {
+                String type = e.getKey();
+                int amt = e.getValue() == null ? 0 : e.getValue();
+                if (type.equals("wild") || type.equals("no-food")) continue;
+                int spend = Math.max(0, amt);
+                int have = player.playerGetFood().getOrDefault(type, 0);
+                if (have < spend) {
+                    int useWild = spend - have;
+                    spend = have;
+                    wildNeeded -= useWild;
                 }
-                if (wildNeeded <= 0) break;
+                if (spend > 0) {
+                    player.spendFood(type, spend);
+                }
             }
+            if (wildNeeded > 0) {
+                // spend wild from any available foods
+                for (String ft : new ArrayList<String>(food.keySet())) {
+                    while (wildNeeded > 0 && food.getOrDefault(ft,0) > 0) {
+                        player.spendFood(ft, 1);
+                        wildNeeded--;
+                    }
+                    if (wildNeeded <= 0) break;
+                }
+            }
+            return true;
+        } else {
+            int maxTokens = Math.max(1, totalRequired);
+            String raw = JOptionPane.showInputDialog(this, "How many food tokens to spend? (1-" + maxTokens + ")", "1");
+            int tokensToSpend = 1;
+            try {
+                tokensToSpend = Integer.parseInt(raw);
+            } catch(Exception ex) {}
+            if(tokensToSpend < 1) tokensToSpend = 1;
+            if(tokensToSpend > maxTokens) tokensToSpend = maxTokens;
+
+            for(int i=0;i<tokensToSpend;i++) {
+                if(player.playerGetFood().isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "No more food to spend.");
+                    return i>0;
+                }
+                String[] options = player.playerGetFood().keySet().toArray(new String[0]);
+                String choice = (String)JOptionPane.showInputDialog(this, "Choose food to spend (" + (tokensToSpend - i) + " left):", "Spend food", JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+                if(choice == null) {
+                    return i>0;
+                }
+                player.spendFood(choice, 1);
+            }
+            return true;
         }
     }
 
@@ -1278,6 +2116,18 @@ private Bird promptCardChoice(String title) {
         // Store selected items in current player's hand
         ArrayList<Bird> keptBirds = new ArrayList<>();
         Player currentPlayer = Player.players().get(Player.currentPlayerIndex);
+        if(chosenBonus == null && !bonusOffer.isEmpty()) {
+            chosenBonus = bonusOffer.get(0);
+        }
+        if(chosenBonus != null) {
+            chosenBonus.setPlayer(currentPlayer);
+            currentPlayer.playerGetBonus().add(chosenBonus);
+            // return unused to deck
+            for(BonusCard bc : bonusOffer) {
+                if(bc != chosenBonus) bonusDeck.add(bc);
+            }
+            Collections.shuffle(bonusDeck, rng);
+        }
         for (ItemRef item : selected) {
             if (item.type == ItemType.BIRD && item.bird != null) {
                 keptBirds.add(item.bird);
@@ -1286,7 +2136,7 @@ private Bird promptCardChoice(String title) {
                 String foodType = mapTokenToFoodType(item.tokenName);
                 currentPlayer.addFood(foodType, 1);
                 String playerName = playerNames.get(Player.currentPlayerIndex);
-                System.out.println(playerName + " kept token: " + item.tokenName + " (" + foodType + ")");
+            System.out.println(playerName + " kept token: " + item.tokenName + " (" + foodType + ")");
             }
         }
         currentPlayer.playerSetHand(keptBirds);
@@ -1295,8 +2145,11 @@ private Bird promptCardChoice(String title) {
        
         // Move to next player
         selected.clear();
+        bonusOffer.clear();
+        bonusRects.clear();
+        chosenBonus = null;
         Player.currentPlayerIndex++;
-       
+
         if (Player.currentPlayerIndex >= 4) {
             Player.currentPlayerIndex = 0;
             startingComplete = true;
@@ -1309,6 +2162,7 @@ private Bird promptCardChoice(String title) {
    
     public void startingScreen(Graphics g, int playerIndex)
     {
+        ensureBonusOffer(playerIndex);
         g.setColor(Color.BLACK);
         g.setFont(new Font("Arial", Font.BOLD, 24));
         String playerName = playerNames.get(playerIndex);
@@ -1413,6 +2267,39 @@ private Bird promptCardChoice(String title) {
         }
 
 
+        // Draw bonus card choices
+        bonusRects.clear();
+        g2.setFont(new Font("Arial", Font.BOLD, 20));
+        g2.setColor(Color.DARK_GRAY);
+        g2.drawString("Choose 1 Bonus Card", 20, getHeight() - 320);
+        int bonusW = 140;
+        int bonusH = 200;
+        int bonusY = getHeight() - 300;
+        int bonusX = 20;
+        int bonusGap = 24;
+        for(int i=0;i<bonusOffer.size();i++) {
+            BonusCard bc = bonusOffer.get(i);
+            int dx = bonusX + i*(bonusW + bonusGap);
+            int dy = bonusY;
+            Rectangle rect = new Rectangle(dx, dy, bonusW, bonusH);
+            bonusRects.add(rect);
+            BufferedImage img = bc.getImage();
+            if(img != null) {
+                g2.drawImage(img, dx, dy, bonusW, bonusH, null);
+            } else {
+                g2.setColor(new Color(235,235,235));
+                g2.fillRoundRect(dx, dy, bonusW, bonusH, 10,10);
+                g2.setColor(Color.DARK_GRAY);
+                g2.drawRoundRect(dx, dy, bonusW, bonusH, 10,10);
+                g2.drawString(bc.getName(), dx+10, dy+20);
+            }
+            if(bc == chosenBonus) {
+                g2.setColor(new Color(0, 140, 255));
+                g2.setStroke(new BasicStroke(4f));
+                g2.drawRoundRect(dx-2, dy-2, bonusW+4, bonusH+4, 12,12);
+            }
+        }
+
        
     }
     // Draw a bird card; if image is missing, render a simple placeholder with the bird name
@@ -1420,6 +2307,19 @@ private Bird promptCardChoice(String title) {
     {
         if(bird != null && bird.getImage() != null) {
             g.drawImage(bird.getImage(), x, y, width, height, null);
+            // draw zoom button
+            int btnSize = Math.max(16, width / 8);
+            int bx = x + width - btnSize - 4;
+            int by = y + 4;
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(new Color(0,0,0,140));
+            g2.fillRoundRect(bx, by, btnSize, btnSize, 6, 6);
+            g2.setColor(Color.WHITE);
+            g2.setStroke(new BasicStroke(2f));
+            g2.drawOval(bx + 4, by + 4, btnSize - 8, btnSize - 8);
+            g2.drawLine(bx + btnSize - 6, by + btnSize - 6, bx + btnSize - 2, by + btnSize - 2);
+            zoomButtons.add(new ZoomTarget(bird, new Rectangle(bx, by, btnSize, btnSize)));
             return;
         }
         Graphics2D g2 = (Graphics2D) g;
@@ -1452,6 +2352,38 @@ private Bird promptCardChoice(String title) {
         int pad = Math.max(2, (int)(size * 0.1));
         int inner = size - pad * 2;
         g2.drawImage(img, x + pad, y + pad, inner, inner, null);
+    }
+
+    // Draw zoom overlay centered
+    private void drawZoomOverlay(Graphics2D g2, BufferedImage img, String title) {
+        int w = getWidth();
+        int h = getHeight();
+        g2.setColor(new Color(0,0,0,160));
+        g2.fillRect(0,0,w,h);
+
+        if(img == null) return;
+        double maxScale = 0.85;
+        int targetW = (int)(w * maxScale);
+        int targetH = (int)(h * maxScale);
+        double scale = Math.min((double)targetW / img.getWidth(), (double)targetH / img.getHeight());
+        int drawW = (int)(img.getWidth() * scale);
+        int drawH = (int)(img.getHeight() * scale);
+        int dx = (w - drawW) / 2;
+        int dy = (h - drawH) / 2;
+        zoomRect = new Rectangle(dx, dy, drawW, drawH);
+
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.drawImage(img, dx, dy, drawW, drawH, null);
+
+        // title bar
+        if(title != null) {
+            g2.setColor(new Color(0,0,0,180));
+            g2.fillRoundRect(dx, dy - 36, Math.max(120, drawW/2), 28, 10, 10);
+            g2.setColor(Color.WHITE);
+            g2.setFont(new Font("Arial", Font.BOLD, 16));
+            g2.drawString(title, dx + 10, dy - 16);
+        }
     }
 
 
@@ -1538,6 +2470,15 @@ private Bird promptCardChoice(String title) {
     public void mouseClicked(MouseEvent e) {
         Point p = e.getPoint();
        System.out.println(p);
+        if(zoomActive) {
+            if(zoomRect == null || !zoomRect.contains(p)) {
+                zoomActive = false;
+                zoomBird = null;
+                zoomRect = null;
+                repaint();
+            }
+            return;
+        }
         if (!namesEntered) {
             // Check if GO button clicked
             for (Button btn : currentScreen) {
@@ -1586,6 +2527,7 @@ private Bird promptCardChoice(String title) {
 
 
         if(!startingComplete){
+            ensureBonusOffer(Player.currentPlayerIndex);
             // Click inside selection box slots -> remove item
             for (int i = 0; i < selectionSlots.size(); i++) {
                 Slot s = selectionSlots.get(i);
@@ -1593,6 +2535,16 @@ private Bird promptCardChoice(String title) {
                     selected.remove(s.item);
                     String playerName = playerNames.get(Player.currentPlayerIndex);
                     System.out.println(playerName + " removed: " + (s.item.type==ItemType.TOKEN ? s.item.tokenName : s.item.bird.getName()) + ". Now " + selected.size() + "/5");
+                    repaint();
+                    return;
+                }
+            }
+
+            // Bonus card selection
+            for(int i=0;i<bonusRects.size() && i<bonusOffer.size();i++) {
+                Rectangle r = bonusRects.get(i);
+                if(r.contains(p)) {
+                    chosenBonus = bonusOffer.get(i);
                     repaint();
                     return;
                 }
@@ -1625,6 +2577,15 @@ private Bird promptCardChoice(String title) {
                 if (isSelected(b)) continue; // already kept
                 Rectangle r = b.getBounds();
                 if (r != null && r.contains(p)) {
+                    // check zoom buttons first
+                    for(ZoomTarget z : zoomButtons) {
+                        if(z.bird == b && z.button.contains(p)) {
+                            zoomActive = true;
+                            zoomBird = b;
+                            repaint();
+                            return;
+                        }
+                    }
                     if (selected.size() < 5) {
                         selected.add(ItemRef.bird(b));
                         String playerName = playerNames.get(Player.currentPlayerIndex);
@@ -1651,6 +2612,15 @@ private Bird promptCardChoice(String title) {
                     for (Spot s : spots) {
                         Rectangle r = new Rectangle(s.x1, s.y1, s.getWidth(), s.getHeight());
                         if (r.contains(p) && s.getClickable()) {
+                            // zoom button check for placed birds
+                            for(ZoomTarget z : zoomButtons) {
+                                if(z.button.contains(p)) {
+                                    zoomActive = true;
+                                    zoomBird = z.bird;
+                                    repaint();
+                                    return;
+                                }
+                            }
                             handleSpotAction(s);
                             repaint();
                             return;
@@ -1675,6 +2645,7 @@ private Bird promptCardChoice(String title) {
     public void mouseMoved(MouseEvent e) {
         if (!startingComplete) {
             Point p = e.getPoint();
+            ensureBonusOffer(Player.currentPlayerIndex);
             // Hover over selection box items
             ItemRef prevSlot = hoverSlotItem;
             hoverSlotItem = null;
@@ -1759,6 +2730,8 @@ private Bird promptCardChoice(String title) {
         requestFocus();
     loadInitialImages();
     loadBirdImages();
+    loadBonusCardImages();
+    buildBonusDeck();
     rebuildDeckFromLoaded();
     try
     {
