@@ -2632,7 +2632,7 @@ private Bird promptCardChoice(String title) {
         int bonusGap = 24;
         int bonusMargin = 20;
         int totalW = bonusOffer.size() * bonusW + Math.max(0, bonusOffer.size() - 1) * bonusGap;
-        int bonusX = Math.max(bonusMargin, getWidth() - totalW - bonusMargin);
+        int bonusX = Math.max(bonusMargin, getWidth() - totalW - bonusMargin) - 250;
         int bonusY = getHeight() - bonusH - bonusMargin;
         g2.drawString("Choose 1 Bonus Card", bonusX, bonusY - 12);
         for(int i=0;i<bonusOffer.size();i++) {
