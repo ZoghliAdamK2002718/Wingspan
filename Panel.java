@@ -278,6 +278,8 @@ public void loadInitialImages()
     }
 }
 
+// BONUS CARDS DISABLED
+/*
 private void loadBonusCardImages() {
     try {
         Path dir = Paths.get("bonuscards");
@@ -299,6 +301,7 @@ private void loadBonusCardImages() {
         ex.printStackTrace();
     }
 }
+*/
 
 public void loadBirds(List<Bird> birds) {
     loadedBirds.clear();
@@ -453,6 +456,8 @@ private void rebuildDeckFromLoaded() {
     ensureFaceUp();
 }
 
+// BONUS CARDS DISABLED
+/*
 private void buildBonusDeck() {
     bonusDeck.clear();
     String[][] defs = {
@@ -493,6 +498,7 @@ private void buildBonusDeck() {
     }
     Collections.shuffle(bonusDeck, rng);
 }
+*/
 
 private String prettyName(String key) {
     String[] parts = key.split("_");
@@ -504,6 +510,8 @@ private String prettyName(String key) {
     return sb.toString().trim();
 }
 
+// BONUS CARDS DISABLED
+/*
 private void ensureBonusOffer(int playerIndex) {
     if(bonusOfferPlayerIndex == playerIndex && !bonusOffer.isEmpty()) return;
     bonusOffer.clear();
@@ -517,6 +525,7 @@ private void ensureBonusOffer(int playerIndex) {
         bonusOffer.add(bonusDeck.remove(0));
     }
 }
+*/
 
 private void ensureFaceUp() {
     while (faceUpBirds.size() < 3 && !birdDeck.isEmpty()) {
@@ -2457,6 +2466,8 @@ private Bird promptCardChoice(String title) {
         // Store selected items in current player's hand
         ArrayList<Bird> keptBirds = new ArrayList<>();
         Player currentPlayer = Player.players().get(Player.currentPlayerIndex);
+        // BONUS CARDS DISABLED
+        /*
         if(chosenBonus == null) {
             JOptionPane.showMessageDialog(this, "Select a bonus card to continue.");
             return;
@@ -2468,6 +2479,7 @@ private Bird promptCardChoice(String title) {
             if(bc != chosenBonus) bonusDeck.add(bc);
         }
         Collections.shuffle(bonusDeck, rng);
+        */
         for (ItemRef item : selected) {
             if (item.type == ItemType.BIRD && item.bird != null) {
                 keptBirds.add(item.bird);
@@ -2485,9 +2497,12 @@ private Bird promptCardChoice(String title) {
        
         // Move to next player
         selected.clear();
+        // BONUS CARDS DISABLED
+        /*
         bonusOffer.clear();
         bonusRects.clear();
         chosenBonus = null;
+        */
         Player.currentPlayerIndex++;
 
         if (Player.currentPlayerIndex >= 4) {
@@ -2508,17 +2523,22 @@ private Bird promptCardChoice(String title) {
    
     private void maybeCompleteStartingSelection() {
         if(selected.size() >= 5) {
+            // BONUS CARDS DISABLED - skip bonus card check
+            /*
             if(chosenBonus == null) {
                 JOptionPane.showMessageDialog(this, "Pick a bonus card before continuing.");
             } else {
                 finishPlayerSelection();
             }
+            */
+            finishPlayerSelection();
         }
     }
    
     public void startingScreen(Graphics g, int playerIndex)
     {
-        ensureBonusOffer(playerIndex);
+        // BONUS CARDS DISABLED
+        // ensureBonusOffer(playerIndex);
         g.setColor(Color.BLACK);
         g.setFont(new Font("Arial", Font.BOLD, 24));
         String playerName = playerNames.get(playerIndex);
@@ -2623,6 +2643,8 @@ private Bird promptCardChoice(String title) {
         }
 
 
+        // BONUS CARDS DISABLED
+        /*
         // Draw bonus card choices
         bonusRects.clear();
         g2.setFont(new Font("Arial", Font.BOLD, 20));
@@ -2657,6 +2679,7 @@ private Bird promptCardChoice(String title) {
                 g2.drawRoundRect(dx-2, dy-2, bonusW+4, bonusH+4, 12,12);
             }
         }
+        */
 
        
     }
@@ -2891,7 +2914,8 @@ private Bird promptCardChoice(String title) {
 
 
         if(!startingComplete){
-            ensureBonusOffer(Player.currentPlayerIndex);
+            // BONUS CARDS DISABLED
+            // ensureBonusOffer(Player.currentPlayerIndex);
             // Click inside selection box slots -> remove item
             for (int i = 0; i < selectionSlots.size(); i++) {
                 Slot s = selectionSlots.get(i);
@@ -2904,6 +2928,8 @@ private Bird promptCardChoice(String title) {
                 }
             }
 
+            // BONUS CARDS DISABLED
+            /*
             // Bonus card selection
             for(int i=0;i<bonusRects.size() && i<bonusOffer.size();i++) {
                 Rectangle r = bonusRects.get(i);
@@ -2914,7 +2940,7 @@ private Bird promptCardChoice(String title) {
                     return;
                 }
             }
-
+            */
 
             // Token circular hit-test (distance)
             for (TokenItem t : tokenItems) {
@@ -3025,7 +3051,8 @@ private Bird promptCardChoice(String title) {
     public void mouseMoved(MouseEvent e) {
         if (!startingComplete) {
             Point p = e.getPoint();
-            ensureBonusOffer(Player.currentPlayerIndex);
+            // BONUS CARDS DISABLED
+            // ensureBonusOffer(Player.currentPlayerIndex);
             // Hover over selection box items
             ItemRef prevSlot = hoverSlotItem;
             hoverSlotItem = null;
@@ -3136,8 +3163,9 @@ private Bird promptCardChoice(String title) {
         requestFocus();
     loadInitialImages();
     loadBirdImages();
-    loadBonusCardImages();
-    buildBonusDeck();
+    // BONUS CARDS DISABLED
+    // loadBonusCardImages();
+    // buildBonusDeck();
     rebuildDeckFromLoaded();
     try
     {
