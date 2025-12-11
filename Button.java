@@ -79,6 +79,20 @@ public class Button {
                 g.setColor(Color.BLUE);
                 g.drawRect(x1, y1, width, height);
             break;
+            case "CONTROLS":
+                // Draw a nice button for controls
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(new Color(70, 130, 180));
+                g2.fillRoundRect(x1, y1, width, height, 10, 10);
+                g2.setColor(Color.WHITE);
+                g2.setFont(new Font("Arial", Font.BOLD, 18));
+                FontMetrics fm = g2.getFontMetrics();
+                String text = "CONTROLS";
+                int textWidth = fm.stringWidth(text);
+                int textHeight = fm.getAscent();
+                g2.drawString(text, x1 + (width - textWidth) / 2, y1 + (height + textHeight) / 2 - 2);
+            break;
         }
         
     }

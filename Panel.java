@@ -34,6 +34,7 @@ HashMap<String, Bird> birdcards = new HashMap<String, Bird>();
 ArrayList<String> playerNames = new ArrayList<String>();
 //Player player1;
 private boolean namesEntered = false;
+private boolean showingControls = false;
 //private int currentPlayerIndex = 0;
 private boolean startingComplete = false;
 private ArrayList<JTextField> nameFields = new ArrayList<JTextField>();
@@ -69,15 +70,15 @@ private boolean gameFinished = false;
 private ArrayList<int[]> roundScores = new ArrayList<int[]>();
 private Rectangle nextRoundButton = new Rectangle();
 public static ArrayList<Button> miscellaneousScreen = new ArrayList<Button>();
-private ArrayList<String> feederDice = new ArrayList<String>(); // dice currently in the feeder
-private ArrayList<String> feederCup = new ArrayList<String>();  // dice already taken this round
+private ArrayList<String> feederDice = new ArrayList<String>();
+private ArrayList<String> feederCup = new ArrayList<String>();
 private static final String[] FEEDER_FACES = {
-    "grain_or_invertebrate", // dual face
-    "grain_or_invertebrate",
-    "fish_or_rodent",        // dual face
-    "fish_or_rodent",
+    "grain",
     "fruit",
-    "grain"
+    "invertebrate",
+    "rodent",
+    "fish",
+    "grain_or_invertebrate"
 };
 private static final String[][] BONUS_DEFS = {
     {"anatomist","Birds with a body part in their name"},
@@ -196,9 +197,7 @@ public void loadBirdImages() {
                 // Skip birds without images
             }
         }
-        System.out.println("====================================");
-        System.out.println("BIRD IMAGES: Successfully loaded " + successCount + " out of " + birdNames.length + " bird images from /birds/ folder");
-        System.out.println("====================================");
+
     } catch (Exception e) {
         System.out.println("ERROR loading bird images:");
         e.printStackTrace();
@@ -485,7 +484,6 @@ private Bird makeBird(String name, String sci, String nest, String abilityText, 
     return new Bird(name, sci, nest, habitats, ability, costCopy, new TreeMap<String,Integer>(), points, 0, eggCapacity, wingspan, new ArrayList<Bird>(), false, false, null, birdImage, 0, 0);
 }
 
-// On-demand bird image fetch so cards render even if initial preload failed
 private BufferedImage fetchBirdImage(String imageKey) {
     if(imageKey == null) return null;
     BufferedImage cached = birdImages.get(imageKey);
@@ -1418,6 +1416,18 @@ private ArrayList<Bird> defaultBirds() {
             int by2 = (btnY + btnH) * 1000 / Math.max(1, getHeight());
             Button goBtn = new Button("GO", "normal", miscpics.get("goBtnImg"), true, true, bx1, by1, bx2, by2);
             currentScreen.add(goBtn);
+            
+            // Create Controls button on the right side
+            int controlsBtnW = 180;
+            int controlsBtnH = 50;
+            int controlsBtnX = panelWidth - controlsBtnW - 40;
+            int controlsBtnY = panelHeight - controlsBtnH - 40;
+            int cbx1 = controlsBtnX * 1000 / Math.max(1, getWidth());
+            int cby1 = controlsBtnY * 1000 / Math.max(1, getHeight());
+            int cbx2 = (controlsBtnX + controlsBtnW) * 1000 / Math.max(1, getWidth());
+            int cby2 = (controlsBtnY + controlsBtnH) * 1000 / Math.max(1, getHeight());
+            Button controlsBtn = new Button("CONTROLS", "normal", null, true, true, cbx1, cby1, cbx2, cby2);
+            currentScreen.add(controlsBtn);
         }
        
         // Draw button
@@ -1425,6 +1435,66 @@ private ArrayList<Bird> defaultBirds() {
             btn.paint(g);
         }
     }
+    
+    public void controlsScreen(Graphics g) {
+        int panelWidth = getWidth();
+        int panelHeight = getHeight();
+        
+        // Draw title at top
+        g.setColor(new Color(50, 50, 50));
+        g.setFont(new Font("Arial", Font.BOLD, 48));
+        FontMetrics fm = g.getFontMetrics();
+        String title = "CONTROLS";
+        int titleWidth = fm.stringWidth(title);
+        g.drawString(title, (panelWidth - titleWidth) / 2, 100);
+        
+        // Draw controls list
+        g.setFont(new Font("Arial", Font.PLAIN, 22));
+        g.setColor(new Color(40, 40, 40));
+        
+        String[] controls = {
+            "• Right click on birds to lay eggs",
+            "• Last resort: Press Z to skip turn",
+            "• Press E to trade 2 food (which you have) for 1 any food",
+            "• Click the magnifying glass to zoom in",
+            "• Click the T on the birds to see tucked birds"
+        };
+        
+        int startY = 200;
+        int lineSpacing = 50;
+        
+        for (int i = 0; i < controls.length; i++) {
+            g.drawString(controls[i], 100, startY + i * lineSpacing);
+        }
+        
+        // Draw Go Back button in bottom right
+        int btnW = 180;
+        int btnH = 50;
+        int btnX = panelWidth - btnW - 40;
+        int btnY = panelHeight - btnH - 40;
+        
+        g.setColor(new Color(70, 130, 180));
+        g.fillRoundRect(btnX, btnY, btnW, btnH, 10, 10);
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Arial", Font.BOLD, 20));
+        fm = g.getFontMetrics();
+        String btnText = "GO BACK";
+        int textWidth = fm.stringWidth(btnText);
+        int textHeight = fm.getAscent();
+        g.drawString(btnText, btnX + (btnW - textWidth) / 2, btnY + (btnH + textHeight) / 2 - 2);
+        
+        // Store button bounds for click detection
+        if (miscellaneousScreen.isEmpty() || !miscellaneousScreen.get(0).getName().equals("BACK_FROM_CONTROLS")) {
+            miscellaneousScreen.clear();
+            int bx1 = btnX * 1000 / Math.max(1, getWidth());
+            int by1 = btnY * 1000 / Math.max(1, getHeight());
+            int bx2 = (btnX + btnW) * 1000 / Math.max(1, getWidth());
+            int by2 = (btnY + btnH) * 1000 / Math.max(1, getHeight());
+            Button backBtn = new Button("BACK_FROM_CONTROLS", "normal", null, true, true, bx1, by1, bx2, by2);
+            miscellaneousScreen.add(backBtn);
+        }
+    }
+
 @Override
     public void paint(Graphics g)
 {
@@ -1437,7 +1507,11 @@ private ArrayList<Bird> defaultBirds() {
             // paint solid bg for name screen
             g.setColor(new Color(200, 220, 235));
             g.fillRect(0, 0, getWidth(), getHeight());
-            realStartingScreen(g);
+            if(showingControls) {
+                controlsScreen(g);
+            } else {
+                realStartingScreen(g);
+            }
         } else if(!startingComplete) {
             // paint background for bird selection
             if (bg != null) {
@@ -3396,9 +3470,26 @@ public boolean canAttemptPay(Player player, Bird bird) {
             }
         }
         if (!namesEntered) {
-            // Check if GO button clicked
+            // Check if showing controls screen and Go Back button clicked
+            if (showingControls) {
+                for (Button btn : miscellaneousScreen) {
+                    if (btn.inBounds(e.getX(), e.getY()) && btn.getName().equals("BACK_FROM_CONTROLS")) {
+                        showingControls = false;
+                        miscellaneousScreen.clear();
+                        repaint();
+                        return;
+                    }
+                }
+            }
+            
+            // Check if GO or CONTROLS button clicked
             for (Button btn : currentScreen) {
                 System.out.println("Checking button: " + btn.getName() + " at click (" + e.getX() + "," + e.getY() + ")");
+                if (btn.inBounds(e.getX(), e.getY()) && btn.getName().equals("CONTROLS")) {
+                    showingControls = true;
+                    repaint();
+                    return;
+                }
                 if (btn.inBounds(e.getX(), e.getY()) && btn.getName().equals("GO")) {
                     System.out.println("GO button clicked!");
                     // Create players with entered names
@@ -3720,5 +3811,10 @@ public boolean canAttemptPay(Player player, Bird bird) {
     // Players will be created through the name entry screen
     // Bird images will be loaded when players are created
     repaint();
+    }
+    public static void drawControlsScreen(Graphics g)
+    {
+        g.drawString("Control Screen",getWidth()/2 , 300);
+
     }
 }
