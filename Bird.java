@@ -10,7 +10,7 @@ private Ability birdAbility;
 private TreeMap<String,Integer> costs;
 private TreeMap<String,Integer> cache;
 private int points, eggCount, eggCapacity, wingspan;
-private int tuckedCards = 0;
+private ArrayList<Bird> tucked = new ArrayList<Bird>();
 private ArrayList<Bird> prey;
 private boolean bonusCard, flocking;
 private  PriorityQueue<Bird> deck = new PriorityQueue<>();
@@ -156,10 +156,18 @@ private String power = "We need to add this later";
   }
   public void tuckCards(int amount) {
     if (amount <= 0) return;
-    tuckedCards += amount;
+    for(int i=0;i<amount;i++) {
+      tucked.add(null); // placeholder when a real card isn't provided
+    }
+  }
+  public void addTucked(Bird card) {
+    tucked.add(card);
+  }
+  public ArrayList<Bird> getTuckedList() {
+    return new ArrayList<Bird>(tucked);
   }
   public int getTuckedCards() {
-    return tuckedCards;
+    return tucked.size();
   }
   public void cacheFood(String foodType, int amount) {
     if (amount <= 0) return;

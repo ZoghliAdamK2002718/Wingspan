@@ -106,22 +106,49 @@ public static int currentPlayerIndex = 0;
         if(food == null) {
             food = new TreeMap<String,Integer>();
         }
-        food.put(foodType, food.getOrDefault(foodType, 0) + amount);
+        normalizeFoodMap();
+        String key = normalizeFoodKey(foodType);
+        if(key == null) return;
+        food.put(key, food.getOrDefault(key, 0) + amount);
     }
     public boolean spendFood(String foodType, int amount) {
         if(foodType == null || amount <= 0) return false;
         if(food == null) {
             food = new TreeMap<String,Integer>();
         }
-        int current = food.getOrDefault(foodType, 0);
+        normalizeFoodMap();
+        String key = normalizeFoodKey(foodType);
+        int current = food.getOrDefault(key, 0);
         if(current < amount) return false;
         int remaining = current - amount;
         if(remaining > 0) {
-            food.put(foodType, remaining);
+            food.put(key, remaining);
         } else {
-            food.remove(foodType);
+            food.remove(key);
         }
         return true;
+    }
+    private String normalizeFoodKey(String key) {
+        if(key == null) return null;
+        String k = key.toLowerCase().trim();
+        if(k.startsWith("seed") || k.startsWith("grain") || k.startsWith("wheat")) return "grain";
+        if(k.startsWith("invert")) return "invertebrate";
+        if(k.startsWith("rodent")) return "rodent";
+        if(k.startsWith("fish")) return "fish";
+        if(k.startsWith("fruit") || k.startsWith("berry")) return "fruit";
+        if(k.startsWith("wild")) return "wild";
+        if(k.equals("no-food")) return "no-food";
+        return k;
+    }
+    private void normalizeFoodMap() {
+        if(food == null || food.isEmpty()) return;
+        TreeMap<String,Integer> normed = new TreeMap<String,Integer>();
+        for(Map.Entry<String,Integer> e : food.entrySet()) {
+            String norm = normalizeFoodKey(e.getKey());
+            if(norm == null) continue;
+            normed.put(norm, normed.getOrDefault(norm,0) + (e.getValue()==null?0:e.getValue()));
+        }
+        food = normed;
     }
     public void playerSetBonus(ArrayList<BonusCard> b) {
         bonus = b;
