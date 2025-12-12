@@ -3,8 +3,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.*;
-import java.util.Collections;
-import java.util.Random;
 import java.util.List;
 import java.util.stream.*;
 import java.awt.image.BufferedImage;
@@ -1194,154 +1192,155 @@ private ArrayList<Bird> defaultBirds() {
     ArrayList<Bird> list = new ArrayList<Bird>();
 
     // Play an additional bird
-    list.add(makeBird("Downy Woodpecker","Picoides pubescens","Cavity","WHEN PLAYED: Play an additional bird in your forest. Pay its normal cost.",new String[]{"forest"},cost("invertebrate_or_grain_or_fruit",1),3,2,30));
-    list.add(makeBird("Eastern Bluebird","Sialia sialis","Cavity","WHEN PLAYED: Play an additional bird in your grassland. Pay its normal cost.",new String[]{"grassland"},cost("invertebrate",1,"fruit",1),4,5,33));
-    list.add(makeBird("Great Blue Heron","Ardea herodias","Platform","WHEN PLAYED: Play an additional bird in your wetland. Pay its normal cost.",new String[]{"wetland"},cost("invertebrate",1,"fish",1),5,2,183));
-    list.add(makeBird("Great Egret","Ardea alba","Platform","WHEN PLAYED: Play an additional bird in your wetland. Pay its normal cost.",new String[]{"wetland"},cost("fish",2,"rodent",1),7,3,130));
-    list.add(makeBird("House Wren","Troglodytes aedon","Cavity","WHEN PLAYED: Play an additional bird in this bird's habitat. Pay its normal cost.",new String[]{"forest","grassland"},cost("invertebrate",1),1,5,15));
-    list.add(makeBird("Mountain Bluebird","Sialia currucoides","Cavity","WHEN PLAYED: Play an additional bird in your grassland. Pay its normal cost.",new String[]{"grassland"},cost("invertebrate",1,"fruit",1),4,5,36));
-    list.add(makeBird("Red-Eyed Vireo","Vireo olivaceus","Wild","WHEN PLAYED: Play an additional bird in your forest. Pay its normal cost.",new String[]{"forest"},cost("invertebrate",1,"fruit",1),3,2,25));
-    list.add(makeBird("Ruby-Crowned Kinglet","Regulus calendula","Bowl","WHEN PLAYED: Play an additional bird in your forest. Pay its normal cost.",new String[]{"forest"},cost("invertebrate",1,"seed",1,"fruit",1),2,3,20));
-    list.add(makeBird("Savannah Sparrow","Passerculus sandwichensis","Ground","WHEN PLAYED: Play an additional bird in your grassland. Pay its normal cost.",new String[]{"grassland"},cost("invertebrate",1,"seed",1),2,3,18));
-    list.add(makeBird("Tufted Titmouse","Baeolophus bicolor","Cavity","WHEN PLAYED: Play an additional bird in your forest. Pay its normal cost.",new String[]{"forest"},cost("invertebrate",1,"seed",1,"fruit",1),2,3,25));
+    list.add(makeBird("Downy Woodpecker","Picoides pubescens","Cavity","WHEN PLAYED: Play an additional bird in your forest. Pay its normal cost.",new String[]{"forest"},cost("invertebrate_or_seed_or_fruit"),3,2,30));
+    list.add(makeBird("Eastern Bluebird","Sialia sialis","Cavity","WHEN PLAYED: Play an additional bird in your grassland. Pay its normal cost.",new String[]{"grassland"},cost("invertebrate_and_fruit"),4,5,33));
+    list.add(makeBird("Great Blue Heron","Ardea herodias","Platform","WHEN PLAYED: Play an additional bird in your wetland. Pay its normal cost.",new String[]{"wetland"},cost("invertebrate_and_fish"),5,2,183));
+    list.add(makeBird("Great Egret","Ardea alba","Platform","WHEN PLAYED: Play an additional bird in your wetland. Pay its normal cost.",new String[]{"wetland"},cost("fish_and_fish_and_rodent"),7,3,130));
+    list.add(makeBird("House Wren","Troglodytes aedon","Cavity","WHEN PLAYED: Play an additional bird in this bird's habitat. Pay its normal cost.",new String[]{"forest","grassland"},cost("invertebrate"),1,5,15));
+    list.add(makeBird("Mountain Bluebird","Sialia currucoides","Cavity","WHEN PLAYED: Play an additional bird in your grassland. Pay its normal cost.",new String[]{"grassland"},cost("invertebrate_and_fruit"),4,5,36));
+    list.add(makeBird("Red-Eyed Vireo","Vireo olivaceus","Wild","WHEN PLAYED: Play an additional bird in your forest. Pay its normal cost.",new String[]{"forest"},cost("invertebrate_or_fruit"),3,2,25));
+    list.add(makeBird("Ruby-Crowned Kinglet","Regulus calendula","Bowl","WHEN PLAYED: Play an additional bird in your forest. Pay its normal cost.",new String[]{"forest"},cost("invertebrate_or_seed_or_fruit"),2,3,20));
+    list.add(makeBird("Savannah Sparrow","Passerculus sandwichensis","Ground","WHEN PLAYED: Play an additional bird in your grassland. Pay its normal cost.",new String[]{"grassland"},cost("invertebrate_or_seed"),2,3,18));
+    list.add(makeBird("Tufted Titmouse","Baeolophus bicolor","Cavity","WHEN PLAYED: Play an additional bird in your forest. Pay its normal cost.",new String[]{"forest"},cost("invertebrate_or_seed_or_fruit"),2,3,25));
 
     // Rightmost move
-    list.add(makeBird("Bewick's Wren","Thryomanes bewickii","Cavity","WHEN ACTIVATED: If this bird is to the right of all other birds in its habitat, move it to another habitat.",new String[]{"forest","wetland","grassland"},cost("invertebrate",2,"seed",1),4,2,18));
-    list.add(makeBird("Blue Grosbeak","Passerina caerulea","Bowl","WHEN ACTIVATED: If this bird is to the right of all other birds in its habitat, move it to another habitat.",new String[]{"forest","grassland","wetland"},cost("invertebrate",1,"seed",2),4,3,28));
-    list.add(makeBird("Chimney Swift","Chaetura pelagica","Wild","WHEN ACTIVATED: If this bird is to the right of all other birds in its habitat, move it to another habitat.",new String[]{"forest","grassland","wetland"},cost("invertebrate",2),3,2,36));
-    list.add(makeBird("Common Nighthawk","Chordeiles minor","Ground","WHEN ACTIVATED: If this bird is to the right of all other birds in its habitat, move it to another habitat.",new String[]{"forest","grassland","wetland"},cost("invertebrate",2),3,2,56));
-    list.add(makeBird("Lincoln's Sparrow","Melospiza lincolnii","Ground","WHEN ACTIVATED: If this bird is to the right of all other birds in its habitat, move it to another habitat.",new String[]{"wetland","grassland"},cost("invertebrate",1,"seed",1),3,2,20));
-    list.add(makeBird("Yellow-Breasted Chat","Icteria virens","Bowl","WHEN ACTIVATED: If this bird is to the right of all other birds in its habitat, move it to another habitat.",new String[]{"wetland","grassland","forest"},cost("invertebrate",1,"fruit",2),5,3,25));
-    list.add(makeBird("Song Sparrow","Melospiza melodia","Bowl","WHEN ACTIVATED: If this bird is to the right of all other birds in its habitat, move it to another habitat.",new String[]{"forest","grassland","wetland"},cost("invertebrate",1,"seed",1,"fruit",1),0,5,20));
-    list.add(makeBird("White-Crowned Sparrow","Zonotrichia leucophrys","Ground","WHEN ACTIVATED: If this bird is to the right of all other birds in its habitat, move it to another habitat.",new String[]{"wetland","grassland","forest"},cost("invertebrate",1,"seed",1),2,5,25));
+    list.add(makeBird("Bewick's Wren","Thryomanes bewickii","Cavity","WHEN ACTIVATED: If this bird is to the right of all other birds in its habitat, move it to another habitat.",new String[]{"forest","wetland","grassland"},cost("invertebrate_and_inveritbrate_and_seed"),4,2,18));
+    list.add(makeBird("Blue Grosbeak","Passerina caerulea","Bowl","WHEN ACTIVATED: If this bird is to the right of all other birds in its habitat, move it to another habitat.",new String[]{"forest","grassland","wetland"},cost("invertebrate_and_seed_and_seed"),4,3,28));
+    list.add(makeBird("Chimney Swift","Chaetura pelagica","Wild","WHEN ACTIVATED: If this bird is to the right of all other birds in its habitat, move it to another habitat.",new String[]{"forest","grassland","wetland"},cost("invertebrate_and_invertibrate"),3,2,36));
+    list.add(makeBird("Common Nighthawk","Chordeiles minor","Ground","WHEN ACTIVATED: If this bird is to the right of all other birds in its habitat, move it to another habitat.",new String[]{"forest","grassland","wetland"},cost("invertebrate_and_invertebrate"),3,2,56));
+    list.add(makeBird("Lincoln's Sparrow","Melospiza lincolnii","Ground","WHEN ACTIVATED: If this bird is to the right of all other birds in its habitat, move it to another habitat.",new String[]{"wetland","grassland"},cost("invertebrate_and_seed"),3,2,20));
+    list.add(makeBird("Yellow-Breasted Chat","Icteria virens","Bowl","WHEN ACTIVATED: If this bird is to the right of all other birds in its habitat, move it to another habitat.",new String[]{"wetland","grassland","forest"},cost("invertebrate_and_fruit_and_fruit"),5,3,25));
+    list.add(makeBird("Song Sparrow","Melospiza melodia","Bowl","WHEN ACTIVATED: If this bird is to the right of all other birds in its habitat, move it to another habitat.",new String[]{"forest","grassland","wetland"},cost("invertebrate_or_seed_or_fruit"),0,5,20));
+    list.add(makeBird("White-Crowned Sparrow","Zonotrichia leucophrys","Ground","WHEN ACTIVATED: If this bird is to the right of all other birds in its habitat, move it to another habitat.",new String[]{"wetland","grassland","forest"},cost("invertebrate_and_seed"),2,5,25));
 
-    // Keep bonus card
-    list.add(makeBird("Atlantic Puffin","Fratercula arctica","Wild","WHEN PLAYED: Draw 2 new bonus cards and keep 1.",new String[]{"wetland"},cost("fish",3),8,1,53));
-    list.add(makeBird("Bell's Vireo","Vireo bellii","Wild","WHEN PLAYED: Draw 2 new bonus cards and keep 1.",new String[]{"grassland","forest"},cost("invertebrate",2),4,2,18));
-    list.add(makeBird("California Condor","Gymnogyps californianus","Ground","WHEN PLAYED: Draw 2 new bonus cards and keep 1.",new String[]{"forest","grassland","wetland"},cost("no-food",0),1,2,277));
-    list.add(makeBird("Cassin's Finch","Haemorhous cassinii","Bowl","WHEN PLAYED: Draw 2 new bonus cards and keep 1.",new String[]{"forest"},cost("seed",1,"fruit",1),4,3,30));
-    list.add(makeBird("Cerulean Warbler","Setophaga cerulea","Bowl","WHEN PLAYED: Draw 2 new bonus cards and keep 1.",new String[]{"forest"},cost("invertebrate",1,"seed",1),4,2,20));
-    list.add(makeBird("Chestnut-Collared Longspur","Calcarius ornatus","Ground","WHEN PLAYED: Draw 2 new bonus cards and keep 1.",new String[]{"grassland"},cost("invertebrate",1,"seed",2),5,4,25));
-    list.add(makeBird("Greater Prairie Chicken","Tympanuchus cupido","Ground","WHEN PLAYED: Draw 2 new bonus cards and keep 1.",new String[]{"grassland"},cost("invertebrate",1,"seed",2),5,4,71));
-    list.add(makeBird("King Rail","Rallus elegans","Platform","WHEN PLAYED: Draw 2 new bonus cards and keep 1.",new String[]{"wetland"},cost("invertebrate",1,"fish",1,"wild",1),4,6,51));
+    // Keep bonus card. 
+    list.add(makeBird("Atlantic Puffin","Fratercula arctica","Wild","WHEN PLAYED: Draw 2 new bonus cards and keep 1.",new String[]{"wetland"},cost("fish_and_fish_and_fish"),8,1,53));
+    list.add(makeBird("Bell's Vireo","Vireo bellii","Wild","WHEN PLAYED: Draw 2 new bonus cards and keep 1.",new String[]{"grassland","forest"},cost("invertebrate_and_invertebrate"),4,2,18));
+    list.add(makeBird("California Condor","Gymnogyps californianus","Ground","WHEN PLAYED: Draw 2 new bonus cards and keep 1.",new String[]{"forest","grassland","wetland"},cost("no-food"),1,2,277));
+    list.add(makeBird("Cassin's Finch","Haemorhous cassinii","Bowl","WHEN PLAYED: Draw 2 new bonus cards and keep 1.",new String[]{"forest"},cost("seed_and_fruit"),4,3,30));
+    list.add(makeBird("Cerulean Warbler","Setophaga cerulea","Bowl","WHEN PLAYED: Draw 2 new bonus cards and keep 1.",new String[]{"forest"},cost("invertebrate_and_seed"),4,2,20));
+    list.add(makeBird("Chestnut-Collared Longspur","Calcarius ornatus","Ground","WHEN PLAYED: Draw 2 new bonus cards and keep 1.",new String[]{"grassland"},cost("invertebrate_and_seed_and_seed"),5,4,25));
+    list.add(makeBird("Greater Prairie Chicken","Tympanuchus cupido","Ground","WHEN PLAYED: Draw 2 new bonus cards and keep 1.",new String[]{"grassland"},cost("invertebrate_and_seed_and_seed"),5,4,71));
+    list.add(makeBird("King Rail","Rallus elegans","Platform","WHEN PLAYED: Draw 2 new bonus cards and keep 1.",new String[]{"wetland"},cost("invertebrate_and_fish_and_wild"),4,6,51));
     list.add(makeBird("Painted Bunting","Passerina ciris","Bowl","WHEN PLAYED: Draw 2 new bonus cards and keep 1.",new String[]{"grassland"},cost("invertebrate",1,"seed",2),5,4,23));
-    list.add(makeBird("Red-Cockaded Woodpecker","Picoides borealis","Cavity","WHEN PLAYED: Draw 2 new bonus cards and keep 1.",new String[]{"forest"},cost("invertebrate",1,"fruit",1),4,2,36));
-    list.add(makeBird("Roseate Spoonbill","Platalea ajaja","Platform","WHEN PLAYED: Draw 2 new bonus cards and keep 1.",new String[]{"wetland"},cost("invertebrate",1,"seed",1,"fish",1),6,2,127));
-    list.add(makeBird("Spotted Owl","Strix occidentalis","Cavity","WHEN PLAYED: Draw 2 new bonus cards and keep 1.",new String[]{"forest"},cost("rodent",1),5,2,102));
-    list.add(makeBird("Sprague's Pipit","Anthus spragueii","Ground","WHEN PLAYED: Draw 2 new bonus cards and keep 1.",new String[]{"grassland"},cost("invertebrate",1,"seed",1),3,3,25));
-    list.add(makeBird("Whooping Crane","Grus americana","Ground","WHEN PLAYED: Draw 2 new bonus cards and keep 1.",new String[]{"wetland"},cost("wild",3),6,1,221));
-    list.add(makeBird("Wood Stork","Mycteria americana","Platform","WHEN PLAYED: Draw 2 new bonus cards and keep 1.",new String[]{"wetland"},cost("fish",1,"rodent",1,"wild",1),6,2,155));
+    list.add(makeBird("Red-Cockaded Woodpecker","Picoides borealis","Cavity","WHEN PLAYED: Draw 2 new bonus cards and keep 1.",new String[]{"forest"},cost("invertebrate_and_fruit"),4,2,36));
+    list.add(makeBird("Roseate Spoonbill","Platalea ajaja","Platform","WHEN PLAYED: Draw 2 new bonus cards and keep 1.",new String[]{"wetland"},cost("inveriebrate_and_fish_and_wild"),6,2,127));
+    list.add(makeBird("Spotted Owl","Strix occidentalis","Cavity","WHEN PLAYED: Draw 2 new bonus cards and keep 1.",new String[]{"forest"},cost("rodent_and_rodent"),5,2,102));
+    list.add(makeBird("Sprague's Pipit","Anthus spragueii","Ground","WHEN PLAYED: Draw 2 new bonus cards and keep 1.",new String[]{"grassland"},cost("invertebrate_and_seed"),3,3,25));
+    list.add(makeBird("Whooping Crane","Grus americana","Ground","WHEN PLAYED: Draw 2 new bonus cards and keep 1.",new String[]{"wetland"},cost("wild_and_wild_and_wild"),6,1,221));
+    list.add(makeBird("Wood Stork","Mycteria americana","Platform","WHEN PLAYED: Draw 2 new bonus cards and keep 1.",new String[]{"wetland"},cost("fish_and_rodent_and_wild"),6,2,155));
 
     // Look / tuck if small wingspan
-    list.add(makeBird("Barred Owl","Strix varia","Cavity","WHEN ACTIVATED: Look at a card from the deck. If less than 75cm, tuck it behind this bird. If not, discard it.",new String[]{"forest"},cost("rodent",1),3,2,107));
-    list.add(makeBird("Greater Roadrunner","Geococcyx californianus","Platform","WHEN ACTIVATED: Look at a card from the deck. If less than 50cm, tuck it behind this bird. If not, discard it.",new String[]{"grassland"},cost("invertebrate",1,"rodent",1,"wild",1),7,2,56));
-    list.add(makeBird("Cooper's Hawk","Accipiter cooperii","Platform","WHEN ACTIVATED: Look at a card from the deck. If less than 75cm, tuck it behind this bird. If not, discard it.",new String[]{"forest"},cost("invertebrate",1,"rodent",1),3,2,79));
-    list.add(makeBird("Golden Eagle","Aquila chrysaetos","Platform","WHEN ACTIVATED: Look at a card from the deck. If less than 100cm, tuck it behind this bird. If not, discard it.",new String[]{"grassland"},cost("rodent",3),8,1,201));
-    list.add(makeBird("Great Horned Owl","Bubo virginianus","Platform","WHEN ACTIVATED: Look at a card from the deck. If less than 100cm, tuck it behind this bird. If not, discard it.",new String[]{"forest"},cost("rodent",3),8,2,112));
-    list.add(makeBird("Northern Harrier","Circus cyaneus","Platform","WHEN ACTIVATED: Look at a card from the deck. If less than 75cm, tuck it behind this bird. If not, discard it.",new String[]{"wetland","grassland"},cost("rodent",1),3,2,109));
-    list.add(makeBird("Peregrine Falcon","Falco peregrinus","Platform","WHEN ACTIVATED: Look at a card from the deck. If less than 100cm, tuck it behind this bird. If not, discard it.",new String[]{"wetland","grassland"},cost("rodent",2,"wild",1),5,2,104));
-    list.add(makeBird("Red-Shouldered Hawk","Buteo lineatus","Platform","WHEN ACTIVATED: Look at a card from the deck. If less than 75cm, tuck it behind this bird. If not, discard it.",new String[]{"forest"},cost("rodent",1),3,2,102));
-    list.add(makeBird("Red-Tailed Hawk","Buteo jamaicensis","Platform","WHEN ACTIVATED: Look at a card from the deck. If less than 75cm, tuck it behind this bird. If not, discard it.",new String[]{"grassland","wetland"},cost("rodent",2),5,2,124));
-    list.add(makeBird("Swainson's Hawk","Buteo swainsoni","Platform","WHEN ACTIVATED: Look at a card from the deck. If less than 75cm, tuck it behind this bird. If not, discard it.",new String[]{"grassland"},cost("invertebrate",1,"rodent",1),5,2,130));
+    list.add(makeBird("Barred Owl","Strix varia","Cavity","WHEN ACTIVATED: Look at a card from the deck. If less than 75cm, tuck it behind this bird. If not, discard it.",new String[]{"forest"},cost("rodent"),3,2,107));
+    list.add(makeBird("Greater Roadrunner","Geococcyx californianus","Platform","WHEN ACTIVATED: Look at a card from the deck. If less than 50cm, tuck it behind this bird. If not, discard it.",new String[]{"grassland"},cost("invertebrate_and_rodent_and_wild"),7,2,56));
+    list.add(makeBird("Cooper's Hawk","Accipiter cooperii","Platform","WHEN ACTIVATED: Look at a card from the deck. If less than 75cm, tuck it behind this bird. If not, discard it.",new String[]{"forest"},cost("rodent"),3,2,79));
+    list.add(makeBird("Golden Eagle","Aquila chrysaetos","Platform","WHEN ACTIVATED: Look at a card from the deck. If less than 100cm, tuck it behind this bird. If not, discard it.",new String[]{"grassland"},cost("rodent_and_rodent_and_rodent"),8,1,201));
+    list.add(makeBird("Great Horned Owl","Bubo virginianus","Platform","WHEN ACTIVATED: Look at a card from the deck. If less than 100cm, tuck it behind this bird. If not, discard it.",new String[]{"forest"},cost("rodent_and_rodent_and_rodent"),8,2,112));
+    list.add(makeBird("Northern Harrier","Circus cyaneus","Platform","WHEN ACTIVATED: Look at a card from the deck. If less than 75cm, tuck it behind this bird. If not, discard it.",new String[]{"wetland","grassland"},cost("rodent"),3,2,109));
+    list.add(makeBird("Peregrine Falcon","Falco peregrinus","Platform","WHEN ACTIVATED: Look at a card from the deck. If less than 100cm, tuck it behind this bird. If not, discard it.",new String[]{"wetland","grassland"},cost("rodent_and_rodent"),5,2,104));
+    list.add(makeBird("Red-Shouldered Hawk","Buteo lineatus","Platform","WHEN ACTIVATED: Look at a card from the deck. If less than 75cm, tuck it behind this bird. If not, discard it.",new String[]{"forest"},cost("rodent_and_rodent"),3,2,102));
+    list.add(makeBird("Red-Tailed Hawk","Buteo jamaicensis","Platform","WHEN ACTIVATED: Look at a card from the deck. If less than 75cm, tuck it behind this bird. If not, discard it.",new String[]{"grassland","wetland"},cost("rodent_and_rodent"),5,2,124));
+    list.add(makeBird("Swainson's Hawk","Buteo swainsoni","Platform","WHEN ACTIVATED: Look at a card from the deck. If less than 75cm, tuck it behind this bird. If not, discard it.",new String[]{"grassland"},cost("invertebrate_and_rodent"),5,2,130));
 
-    // Roll dice cache
-    list.add(makeBird("American Kestrel","Falco sparverius","Cavity","WHEN ACTIVATED: Roll all dice not in birdfeeder. If any are rodent, cache 1 rodent from the supply on this bird.",new String[]{"grassland"},cost("invertebrate",1,"rodent",1),5,3,56));
-    list.add(makeBird("Barn Owl","Tyto alba","Cavity","WHEN ACTIVATED: Roll all dice not in birdfeeder. If any are rodent, cache 1 rodent from the supply on this bird.",new String[]{"forest","wetland","grassland"},cost("rodent",2),5,4,107));
-    list.add(makeBird("Anhinga","Anhinga anhinga","Platform","WHEN ACTIVATED: Roll all dice not in birdfeeder. If any are fish, cache 1 fish from the supply on this bird.",new String[]{"wetland"},cost("fish",3),6,2,114));
-    list.add(makeBird("Black Skimmer","Rynchops niger","Ground","WHEN ACTIVATED: Roll all dice not in birdfeeder. If any are fish, cache 1 fish from the supply on this bird.",new String[]{"wetland"},cost("fish",2),6,2,112));
-    list.add(makeBird("Burrowing Owl","Athene cunicularia","Wild","WHEN ACTIVATED: Roll all dice not in birdfeeder. If any are rodent, cache 1 rodent from the supply on this bird.",new String[]{"grassland"},cost("invertebrate",1,"rodent",1),5,4,53));
-    list.add(makeBird("Common Merganser","Mergus merganser","Cavity","WHEN ACTIVATED: Roll all dice not in birdfeeder. If any are fish, cache 1 fish from the supply on this bird.",new String[]{"wetland"},cost("fish",1,"wild",1),5,4,86));
-    list.add(makeBird("Eastern Screech Owl","Megascops asio","Cavity","WHEN ACTIVATED: Roll all dice not in birdfeeder. If any are rodent, cache 1 rodent from the supply on this bird.",new String[]{"forest"},cost("invertebrate",1,"rodent",1),4,2,51));
-    list.add(makeBird("Ferruginous Hawk","Buteo regalis","Platform","WHEN ACTIVATED: Roll all dice not in birdfeeder. If any are rodent, cache 1 rodent from the supply on this bird.",new String[]{"grassland"},cost("rodent",2),6,2,142));
-    list.add(makeBird("Mississippi Kite","Ictinia mississippiensis","Platform","WHEN ACTIVATED: Roll all dice not in birdfeeder. If any are rodent, cache 1 rodent from the supply on this bird.",new String[]{"grassland"},cost("invertebrate",1,"rodent",1),4,1,79));
-    list.add(makeBird("Snowy Egret","Egretta thula","Platform","WHEN ACTIVATED: Roll all dice not in birdfeeder. If any are fish, cache 1 fish from the supply on this bird.",new String[]{"wetland"},cost("invertebrate",1,"fish",1),4,2,104));
-    list.add(makeBird("White-Faced Ibis","Plegadis chihi","Platform","WHEN ACTIVATED: Roll all dice not in birdfeeder. If any are fish, cache 1 fish from the supply on this bird.",new String[]{"wetland"},cost("invertebrate",2,"fish",1),8,2,91));
-    list.add(makeBird("Willet","Tringa semipalmata","Ground","WHEN ACTIVATED: Roll all dice not in birdfeeder. If any are fish, cache 1 fish from the supply on this bird.",new String[]{"wetland"},cost("invertebrate",1,"fish",1),4,2,66));
+    // Roll dice cache 
+    list.add(makeBird("American Kestrel","Falco sparverius","Cavity","WHEN ACTIVATED: Roll all dice not in birdfeeder. If any are rodent, cache 1 rodent from the supply on this bird.",new String[]{"grassland"},cost("invertebrate_and_rodent"),5,3,56));
+    list.add(makeBird("Barn Owl","Tyto alba","Cavity","WHEN ACTIVATED: Roll all dice not in birdfeeder. If any are rodent, cache 1 rodent from the supply on this bird.",new String[]{"forest","wetland","grassland"},cost("rodent_and_rodent"),5,4,107));
+    list.add(makeBird("Anhinga","Anhinga anhinga","Platform","WHEN ACTIVATED: Roll all dice not in birdfeeder. If any are fish, cache 1 fish from the supply on this bird.",new String[]{"wetland"},cost("fish_and_fish"),6,2,114));
+    list.add(makeBird("Black Skimmer","Rynchops niger","Ground","WHEN ACTIVATED: Roll all dice not in birdfeeder. If any are fish, cache 1 fish from the supply on this bird.",new String[]{"wetland"},cost("fish_and_fish"),6,2,112));
+    list.add(makeBird("Burrowing Owl","Athene cunicularia","Wild","WHEN ACTIVATED: Roll all dice not in birdfeeder. If any are rodent, cache 1 rodent from the supply on this bird.",new String[]{"grassland"},cost("invertebrate_and_rodent"),5,4,53));
+    list.add(makeBird("Common Merganser","Mergus merganser","Cavity","WHEN ACTIVATED: Roll all dice not in birdfeeder. If any are fish, cache 1 fish from the supply on this bird.",new String[]{"wetland"},cost("fish_and_wild"),5,4,86));
+    list.add(makeBird("Eastern Screech Owl","Megascops asio","Cavity","WHEN ACTIVATED: Roll all dice not in birdfeeder. If any are rodent, cache 1 rodent from the supply on this bird.",new String[]{"forest"},cost("invertebrate_or_rodent"),4,2,51));
+    list.add(makeBird("Ferruginous Hawk","Buteo regalis","Platform","WHEN ACTIVATED: Roll all dice not in birdfeeder. If any are rodent, cache 1 rodent from the supply on this bird.",new String[]{"grassland"},cost("rodent_and_rodent"),6,2,142));
+    list.add(makeBird("Mississippi Kite","Ictinia mississippiensis","Platform","WHEN ACTIVATED: Roll all dice not in birdfeeder. If any are rodent, cache 1 rodent from the supply on this bird.",new String[]{"grassland"},cost("invertebrate_or_rodent"),4,1,79));
+    list.add(makeBird("Snowy Egret","Egretta thula","Platform","WHEN ACTIVATED: Roll all dice not in birdfeeder. If any are fish, cache 1 fish from the supply on this bird.",new String[]{"wetland"},cost("invertebrate_or_fish"),4,2,104));
+    list.add(makeBird("White-Faced Ibis","Plegadis chihi","Platform","WHEN ACTIVATED: Roll all dice not in birdfeeder. If any are fish, cache 1 fish from the supply on this bird.",new String[]{"wetland"},cost("invertebrate_and_invertebrate_and_fish"),8,2,91));
+    list.add(makeBird("Willet","Tringa semipalmata","Ground", "PREDATOR: WHEN ACTIVATED: Roll all dice not in birdfeeder. If any are fish, cache 1 fish from the supply on this bird.",new String[]{"wetland"},cost("invertebrate_or_fish"),4,2,66));
 
-    // Discard for resources/cards
-    list.add(makeBird("American Crow","Corvus brachyrhynchos","Platform","WHEN ACTIVATED: Discard 1 egg from any of your other birds to gain 1 wild from the supply.",new String[]{"forest","grassland","wetland"},cost("wild",1),4,2,99));
-    list.add(makeBird("Black-Crowned Night-Heron","Nycticorax nycticorax","Platform","WHEN ACTIVATED: Discard 1 egg from any of your other birds to gain 1 wild from the supply.",new String[]{"wetland"},cost("invertebrate",1,"fish",1,"rodent",1),9,2,112));
-    list.add(makeBird("Black Tern","Chlidonias niger","Wild","WHEN ACTIVATED: Draw 1 card. If you do, discard 1 card from your hand at the end of your turn.",new String[]{"wetland"},cost("invertebrate_or_fish",1),4,2,61));
-    list.add(makeBird("Black-Bellied Whistling Duck","Dendrocygna autumnalis","Cavity","WHEN ACTIVATED: Discard 1 seed to tuck 2 cards from the deck behind this bird.",new String[]{"wetland"},cost("seed",2),2,5,76));
-    list.add(makeBird("Killdeer","Charadrius vociferus","Ground","WHEN ACTIVATED: Discard 1 egg to draw 2 cards.",new String[]{"wetland","grassland"},cost("invertebrate_or_seed",1),1,3,46));
-    list.add(makeBird("Double-Crested Cormorant","Phalacrocorax auritus","Platform","WHEN ACTIVATED: Discard 1 fish to tuck 2 cards from the deck behind this bird.",new String[]{"wetland"},cost("fish",1,"wild",1),3,3,132));
-    list.add(makeBird("Franklin's Gull","Leucophaeus pipixcan","Wild","WHEN ACTIVATED: Discard 1 egg to draw 2 cards.",new String[]{"wetland","grassland"},cost("fish",1,"wild",1),3,2,91));
-    list.add(makeBird("Fish Crow","Corvus ossifragus","Platform","WHEN ACTIVATED: Discard 1 egg from any of your other birds to gain 1 wild from the supply.",new String[]{"wetland","grassland","forest"},cost("fish",1,"wild",1),6,2,91));
-    list.add(makeBird("Sandhill Crane","Antigone canadensis","Ground","WHEN ACTIVATED: Discard 1 seed to tuck 2 cards from the deck behind this bird.",new String[]{"wetland","grassland"},cost("seed",2,"wild",1),5,1,196));
+
+    // Discard for resources/cards 
+    list.add(makeBird("American Crow","Corvus brachyrhynchos","Platform","WHEN ACTIVATED: Discard 1 egg from any of your other birds to gain 1 wild from the supply.",new String[]{"forest","grassland","wetland"},cost("wild"),4,2,99));
+    list.add(makeBird("Black-Crowned Night-Heron","Nycticorax nycticorax","Platform","WHEN ACTIVATED: Discard 1 egg from any of your other birds to gain 1 wild from the supply.",new String[]{"wetland"},cost("invertebrate_and_fish_and_rodent"),9,2,112));
+    list.add(makeBird("Black Tern","Chlidonias niger","Wild","WHEN ACTIVATED: Draw 1 card. If you do, discard 1 card from your hand at the end of your turn.",new String[]{"wetland"},cost("invertebrate_or_fish"),4,2,61));
+    list.add(makeBird("Black-Bellied Whistling Duck","Dendrocygna autumnalis","Cavity","WHEN ACTIVATED: Discard 1 seed to tuck 2 cards from the deck behind this bird.",new String[]{"wetland"},cost("seed_and_seed"),2,5,76));
+    list.add(makeBird("Killdeer","Charadrius vociferus","Ground","WHEN ACTIVATED: Discard 1 egg to draw 2 cards.",new String[]{"wetland","grassland"},cost("invertebrate_or_seed"),1,3,46));
+    list.add(makeBird("Double-Crested Cormorant","Phalacrocorax auritus","Platform","WHEN ACTIVATED: Discard 1 fish to tuck 2 cards from the deck behind this bird.",new String[]{"wetland"},cost("fish_and_wild"),3,3,132));
+    list.add(makeBird("Franklin's Gull","Leucophaeus pipixcan","Wild","WHEN ACTIVATED: Discard 1 egg to draw 2 cards.",new String[]{"wetland","grassland"},cost("fish_and_wild"),3,2,91));
+    list.add(makeBird("Fish Crow","Corvus ossifragus","Platform","WHEN ACTIVATED: Discard 1 egg from any of your other birds to gain 1 wild from the supply.",new String[]{"wetland","grassland","forest"},cost("fish_and_wild"),6,2,91));
+    list.add(makeBird("Sandhill Crane","Antigone canadensis","Ground","WHEN ACTIVATED: Discard 1 seed to tuck 2 cards from the deck behind this bird.",new String[]{"wetland","grassland"},cost("seed_and_seed_and_wild"),5,1,196));
 
     // Lay eggs / on-turn/once-between-turns
     list.add(makeBird("American Avocet","Recurvirostra americana","Ground","ONCE BETWEEN TURNS: When another player takes the 'lay eggs' action, lay 1 egg on another bird with a ground nest.",new String[]{"wetland"},cost("invertebrate",2,"seed",1),6,2,79));
-    list.add(makeBird("Ash-Throated Flycatcher","Myiarchus cinerascens","Cavity","WHEN PLAYED: Lay 1 egg on each of your birds with a cavity nest.",new String[]{"grassland"},cost("invertebrate",1,"fruit",1),4,4,30));
-    list.add(makeBird("Baird's Sparrow","Ammodramus bairdii","Ground","WHEN ACTIVATED: Lay 1 egg on any bird.",new String[]{"grassland"},cost("invertebrate",1,"seed",1),3,2,23));
-    list.add(makeBird("Bobolink","Dolichonyx oryzivorus","Ground","WHEN PLAYED: Lay 1 egg on each of your birds with a ground nest.",new String[]{"grassland"},cost("invertebrate",1,"seed",2),4,3,30));
-    list.add(makeBird("Bronzed Cowbird","Molothrus aeneus","Bowl","ONCE BETWEEN TURNS: When another player takes the 'lay eggs' action, lay 1 egg on a bird with a bowl nest.",new String[]{"grassland"},cost("invertebrate",1,"seed",1),5,3,36));
-    list.add(makeBird("Brown-Headed Cowbird","Molothrus ater","Bowl","ONCE BETWEEN TURNS: When another player takes the 'lay eggs' action, lay 1 egg on a bird with a bowl nest.",new String[]{"grassland"},cost("seed",1),3,2,30));
-    list.add(makeBird("California Quail","Callipepla californica","Ground","WHEN ACTIVATED: Lay 1 egg on this bird.",new String[]{"grassland","forest"},cost("invertebrate",1,"seed",2),3,6,36));
-    list.add(makeBird("Cassin's Sparrow","Peucaea cassinii","Ground","WHEN ACTIVATED: Lay 1 egg on any bird.",new String[]{"grassland"},cost("invertebrate",1,"seed",1),3,2,20));
-    list.add(makeBird("Chipping Sparrow","Spizella passerina","Bowl","WHEN ACTIVATED: Lay 1 egg on any bird.",new String[]{"grassland","forest"},cost("invertebrate",1,"seed",1),1,3,23));
-    list.add(makeBird("Grasshopper Sparrow","Ammodramus savannarum","Ground","WHEN ACTIVATED: Lay 1 egg on any bird.",new String[]{"grassland"},cost("invertebrate",1,"seed",1),2,2,20));
-    list.add(makeBird("Inca Dove","Columbina inca","Platform","WHEN PLAYED: Lay 1 egg on each of your birds with a platform nest.",new String[]{"grassland"},cost("seed",2),2,4,28));
-    list.add(makeBird("Lazuli Bunting","Passerina amoena","Bowl","WHEN ACTIVATED: All players lay 1 egg on any 1 bowl bird. You may lay 1 egg on 1 additional bowl bird.",new String[]{"grassland"},cost("invertebrate",1,"seed",1,"fruit",1),4,4,23));
-    list.add(makeBird("Mourning Dove","Zenaida macroura","Platform","WHEN ACTIVATED: Lay 1 egg on this bird.",new String[]{"grassland","wetland"},cost("seed",1),0,5,46));
-    list.add(makeBird("Northern Bobwhite","Colinus virginianus","Ground","WHEN ACTIVATED: Lay 1 egg on this bird.",new String[]{"grassland"},cost("seed",3),5,6,33));
-    list.add(makeBird("Pileated Woodpecker","Dryocopus pileatus","Cavity","WHEN ACTIVATED: All players lay 1 egg on any 1 cavity bird. You may lay 1 egg on 1 additional cavity bird.",new String[]{"forest"},cost("invertebrate",1,"fruit",1),4,2,74));
-    list.add(makeBird("Western Meadowlark","Sturnella neglecta","Ground","WHEN ACTIVATED: All players lay 1 egg on any 1 ground bird. You may lay 1 egg on 1 additional ground bird.",new String[]{"grassland"},cost("invertebrate",1,"seed",1),2,4,38));
-    list.add(makeBird("Say's Phoebe","Sayornis saya","Bowl","WHEN PLAYED: Lay 1 egg on each of your birds with a bowl nest.",new String[]{"grassland"},cost("invertebrate",3),5,3,33));
+    list.add(makeBird("Ash-Throated Flycatcher","Myiarchus cinerascens","Cavity","WHEN PLAYED: Lay 1 egg on each of your birds with a cavity nest.",new String[]{"grassland"},cost("invertebrate_and_invertebrate_and_fruit"),4,4,30));
+    list.add(makeBird("Baird's Sparrow","Ammodramus bairdii","Ground","WHEN ACTIVATED: Lay 1 egg on any bird.",new String[]{"grassland"},cost("invertebrate_and_seed"),3,2,23));
+    list.add(makeBird("Bobolink","Dolichonyx oryzivorus","Ground","WHEN PLAYED: Lay 1 egg on each of your birds with a ground nest.",new String[]{"grassland"},cost("invertebrate_and_seed_and_seed"),4,3,30));
+    list.add(makeBird("Bronzed Cowbird","Molothrus aeneus","Bowl","ONCE BETWEEN TURNS: When another player takes the 'lay eggs' action, lay 1 egg on a bird with a bowl nest.",new String[]{"grassland"},cost("invertebrate_and_seed"),5,3,36));
+    list.add(makeBird("Brown-Headed Cowbird","Molothrus ater","Bowl","ONCE BETWEEN TURNS: When another player takes the 'lay eggs' action, lay 1 egg on a bird with a bowl nest.",new String[]{"grassland"},cost("seed"),3,2,30));
+    list.add(makeBird("California Quail","Callipepla californica","Ground","WHEN ACTIVATED: Lay 1 egg on this bird.",new String[]{"grassland","forest"},cost("invertebrate_and_seed_and_seed"),3,6,36));
+    list.add(makeBird("Cassin's Sparrow","Peucaea cassinii","Ground","WHEN ACTIVATED: Lay 1 egg on any bird.",new String[]{"grassland"},cost("invertebrate_and_seed"),3,2,20));
+    list.add(makeBird("Chipping Sparrow","Spizella passerina","Bowl","WHEN ACTIVATED: Lay 1 egg on any bird.",new String[]{"grassland","forest"},cost("invertebrate_or_seed"),1,3,23));
+    list.add(makeBird("Grasshopper Sparrow","Ammodramus savannarum","Ground","WHEN ACTIVATED: Lay 1 egg on any bird.",new String[]{"grassland"},cost("invertebrate_or_seed"),2,2,20));
+    list.add(makeBird("Inca Dove","Columbina inca","Platform","WHEN PLAYED: Lay 1 egg on each of your birds with a platform nest.",new String[]{"grassland"},cost("seed_and_seed"),2,4,28));
+    list.add(makeBird("Lazuli Bunting","Passerina amoena","Bowl","WHEN ACTIVATED: All players lay 1 egg on any 1 bowl bird. You may lay 1 egg on 1 additional bowl bird.",new String[]{"grassland"},cost("invertebrate_and_seed_and_fruit"),4,4,23));
+    list.add(makeBird("Mourning Dove","Zenaida macroura","Platform","WHEN ACTIVATED: Lay 1 egg on this bird.",new String[]{"grassland","wetland"},cost("seed"),0,5,46));
+    list.add(makeBird("Northern Bobwhite","Colinus virginianus","Ground","WHEN ACTIVATED: Lay 1 egg on this bird.",new String[]{"grassland"},cost("seed_and_seed_and_seed"),5,6,33));
+    list.add(makeBird("Pileated Woodpecker","Dryocopus pileatus","Cavity","WHEN ACTIVATED: All players lay 1 egg on any 1 cavity bird. You may lay 1 egg on 1 additional cavity bird.",new String[]{"forest"},cost("invertebrate_and_fruit"),4,2,74));
+    list.add(makeBird("Western Meadowlark","Sturnella neglecta","Ground","WHEN ACTIVATED: All players lay 1 egg on any 1 ground bird. You may lay 1 egg on 1 additional ground bird.",new String[]{"grassland"},cost("invertebrate_and_seed"),2,4,38));
+    list.add(makeBird("Say's Phoebe","Sayornis saya","Bowl","WHEN PLAYED: Lay 1 egg on each of your birds with a bowl nest.",new String[]{"grassland"},cost("invertebrate_and_invertebrate_and_invertebrate"),5,3,33));
 
     // Tuck
-    list.add(makeBird("American Coot","Fulica americana","Platform","WHEN ACTIVATED: Tuck 1 card from your hand behind this bird. If you do, draw 1 card.",new String[]{"wetland"},cost("seed",1,"wild",1),3,5,61));
-    list.add(makeBird("American Robin","Turdus migratorius","Bowl","WHEN ACTIVATED: Tuck 1 card from your hand behind this bird. If you do, draw 1 card.",new String[]{"forest","grassland"},cost("invertebrate",1,"fruit",1),1,4,43));
-    list.add(makeBird("American White Pelican","Pelecanus erythrorhynchos","Ground","WHEN ACTIVATED: Discard 1 fish to tuck 2 cards from the deck behind this bird.",new String[]{"wetland"},cost("fish",2),5,1,274));
-    list.add(makeBird("Barn Swallow","Hirundo rustica","Wild","WHEN ACTIVATED: Tuck 1 card from your hand behind this bird. If you do, draw 1 card.",new String[]{"grassland"},cost("invertebrate",1),1,3,38));
-    list.add(makeBird("Black-Bellied Whistling Duck","Dendrocygna autumnalis","Cavity","WHEN ACTIVATED: Discard 1 seed to tuck 2 cards from the deck behind this bird.",new String[]{"wetland"},cost("seed",2),2,5,76));
-    list.add(makeBird("Horned Lark","Eremophila alpestris","Ground","ONCE BETWEEN TURNS: When another player plays a bird in their grassland, tuck 1 card from your hand behind this bird.",new String[]{"grassland"},cost("invertebrate",1,"seed",1),5,4,30));
-    list.add(makeBird("House Finch","Haemorhous mexicanus","Bowl","WHEN ACTIVATED: Tuck 1 card from your hand behind this bird. If you do, draw 1 card.",new String[]{"forest","grassland"},cost("seed",1,"fruit",1),3,6,25));
-    list.add(makeBird("Pine Siskin","Spinus pinus","Bowl","WHEN ACTIVATED: Tuck 1 card from your hand behind this bird. If you do, gain 1 seed from the supply.",new String[]{"forest"},cost("seed",2),3,2,23));
-    list.add(makeBird("Purple Martin","Progne subis","Cavity","WHEN ACTIVATED: Tuck 1 card from your hand behind this bird. If you do, draw 1 card.",new String[]{"wetland","grassland"},cost("invertebrate",1),2,3,46));
-    list.add(makeBird("Pygmy Nuthatch","Sitta pygmaea","Cavity","WHEN ACTIVATED: Tuck 1 card from your hand behind this bird. If you do, gain 1 invertebrate or seed from the supply.",new String[]{"forest"},cost("invertebrate",1,"seed",1),2,4,20));
-    list.add(makeBird("Yellow-Headed Blackbird","Xanthocephalus xanthocephalus","Bowl","WHEN ACTIVATED: Tuck 1 card from your hand behind this bird. If you do, you may also lay 1 egg on this bird.",new String[]{"wetland","grassland"},cost("invertebrate",1,"seed",1),4,3,38));
-    list.add(makeBird("Yellow-Rumped Warbler","Setophaga coronata","Bowl","WHEN ACTIVATED: Tuck 1 card from your hand behind this bird. If you do, draw 1 card.",new String[]{"forest"},cost("invertebrate",1,"seed",1,"fruit",1),1,4,23));
+    list.add(makeBird("American Coot","Fulica americana","Platform","WHEN ACTIVATED: Tuck 1 card from your hand behind this bird. If you do, draw 1 card.",new String[]{"wetland"},cost("seed_and_wild"),3,5,61));
+    list.add(makeBird("American Robin","Turdus migratorius","Bowl","WHEN ACTIVATED: Tuck 1 card from your hand behind this bird. If you do, draw 1 card.",new String[]{"forest","grassland"},cost("invertebrate_or_fruit"),1,4,43));
+    list.add(makeBird("American White Pelican","Pelecanus erythrorhynchos","Ground","WHEN ACTIVATED: Discard 1 fish to tuck 2 cards from the deck behind this bird.",new String[]{"wetland"},cost("fish_and_fish"),5,1,274));
+    list.add(makeBird("Barn Swallow","Hirundo rustica","Wild","WHEN ACTIVATED: Tuck 1 card from your hand behind this bird. If you do, draw 1 card.",new String[]{"grassland"},cost("invertebrate"),1,3,38));
+    list.add(makeBird("Black-Bellied Whistling Duck","Dendrocygna autumnalis","Cavity","WHEN ACTIVATED: Discard 1 seed to tuck 2 cards from the deck behind this bird.",new String[]{"wetland"},cost("seed_and_seed"),2,5,76));
+    list.add(makeBird("Horned Lark","Eremophila alpestris","Ground","ONCE BETWEEN TURNS: When another player plays a bird in their grassland, tuck 1 card from your hand behind this bird.",new String[]{"grassland"},cost("invertebrate_and_seed"),5,4,30));
+    list.add(makeBird("House Finch","Haemorhous mexicanus","Bowl","WHEN ACTIVATED: Tuck 1 card from your hand behind this bird. If you do, draw 1 card.",new String[]{"forest","grassland"},cost("seed_and_fruit"),3,6,25));
+    list.add(makeBird("Pine Siskin","Spinus pinus","Bowl","WHEN ACTIVATED: Tuck 1 card from your hand behind this bird. If you do, gain 1 seed from the supply.",new String[]{"forest"},cost("seed_and_seed"),3,2,23));
+    list.add(makeBird("Purple Martin","Progne subis","Cavity","WHEN ACTIVATED: Tuck 1 card from your hand behind this bird. If you do, draw 1 card.",new String[]{"wetland","grassland"},cost("invertebrate"),2,3,46));
+    list.add(makeBird("Pygmy Nuthatch","Sitta pygmaea","Cavity","WHEN ACTIVATED: Tuck 1 card from your hand behind this bird. If you do, gain 1 invertebrate or seed from the supply.",new String[]{"forest"},cost("invertebrate_and_seed"),2,4,20));
+    list.add(makeBird("Yellow-Headed Blackbird","Xanthocephalus xanthocephalus","Bowl","WHEN ACTIVATED: Tuck 1 card from your hand behind this bird. If you do, you may also lay 1 egg on this bird.",new String[]{"wetland","grassland"},cost("invertebrate_and_seed"),4,3,38));
+    list.add(makeBird("Yellow-Rumped Warbler","Setophaga coronata","Bowl","WHEN ACTIVATED: Tuck 1 card from your hand behind this bird. If you do, draw 1 card.",new String[]{"forest"},cost("invertebrate_and_seed"),1,4,23));
 
     // Draw cards
-    list.add(makeBird("American Bittern","Botaurus lentiginosus","Platform","WHEN ACTIVATED: Player(s) with the fewest birds in their wetland draw 1 card.",new String[]{"wetland"},cost("invertebrate",1,"fish",1),7,2,107));
-    list.add(makeBird("American Oystercatcher","Haematopus palliatus","Ground","WHEN PLAYED: Draw cards equal to the number of players +1. Each player selects 1, you keep the extra.",new String[]{"wetland"},cost("invertebrate",2),5,2,81));
-    list.add(makeBird("Black-Necked Stilt","Himantopus mexicanus","Ground","WHEN PLAYED: Draw 2 cards.",new String[]{"wetland"},cost("invertebrate",2),4,2,74));
-    list.add(makeBird("Black Tern","Chlidonias niger","Wild","WHEN ACTIVATED: Draw 1 card. If you do, discard 1 card at end of turn.",new String[]{"wetland"},cost("invertebrate_or_fish",1),4,2,61));
-    list.add(makeBird("Mallard","Anas platyrhynchos","Ground","WHEN ACTIVATED: Draw 1 card.",new String[]{"wetland"},cost("invertebrate",1,"seed",1),0,3,89));
-    list.add(makeBird("Killdeer","Charadrius vociferus","Ground","WHEN ACTIVATED: Discard 1 egg to draw 2 cards.",new String[]{"wetland","grassland"},cost("invertebrate_or_seed",1),1,3,46));
-    list.add(makeBird("Northern Shoveler","Spatula clypeata","Ground","WHEN ACTIVATED: All players draw 1 card from the deck.",new String[]{"wetland"},cost("invertebrate",1,"seed",2),7,4,76));
-    list.add(makeBird("Purple Gallinule","Porphyrio martinicus","Platform","WHEN ACTIVATED: All players draw 1 card from the deck.",new String[]{"wetland"},cost("seed",1,"fruit",1,"wild",1),7,4,56));
-    list.add(makeBird("Pied-Billed Grebe","Podilymbus podiceps","Platform","WHEN ACTIVATED: Draw 2 cards. If you do, discard 1 card from your hand at the end of your turn.",new String[]{"wetland"},cost("invertebrate",1,"fish",1),0,4,41));
-    list.add(makeBird("Ruddy Duck","Oxyura jamaicensis","Platform","WHEN ACTIVATED: Draw 2 cards. If you do, discard 1 card from your hand at the end of your turn.",new String[]{"wetland"},cost("invertebrate",1,"seed",1),0,5,48));
-    list.add(makeBird("Wood Duck","Aix sponsa","Cavity","WHEN ACTIVATED: Draw 2 cards. If you do, discard 1 card from your hand at the end of your turn.",new String[]{"wetland","forest"},cost("seed",2,"fruit",1),4,4,76));
+    list.add(makeBird("American Bittern","Botaurus lentiginosus","Platform","WHEN ACTIVATED: Player(s) with the fewest birds in their wetland draw 1 card.",new String[]{"wetland"},cost("invertebrate_and_fish_and_rodent"),7,2,107));
+    list.add(makeBird("American Oystercatcher","Haematopus palliatus","Ground","WHEN PLAYED: Draw cards equal to the number of players +1. Each player selects 1, you keep the extra.",new String[]{"wetland"},cost("invertebrate"),5,2,81));
+    list.add(makeBird("Black-Necked Stilt","Himantopus mexicanus","Ground","WHEN PLAYED: Draw 2 cards.",new String[]{"wetland"},cost("invertebrate_and_invertebrate"),4,2,74));
+    list.add(makeBird("Black Tern","Chlidonias niger","Wild","WHEN ACTIVATED: Draw 1 card. If you do, discard 1 card at end of turn.",new String[]{"wetland"},cost("invertebrate_or_fish"),4,2,61));
+    list.add(makeBird("Mallard","Anas platyrhynchos","Ground","WHEN ACTIVATED: Draw 1 card.",new String[]{"wetland"},cost("invertebrate_or_seed"),0,3,89));
+    list.add(makeBird("Killdeer","Charadrius vociferus","Ground","WHEN ACTIVATED: Discard 1 egg to draw 2 cards.",new String[]{"wetland","grassland"},cost("invertebrate_or_seed"),1,3,46));
+    list.add(makeBird("Northern Shoveler","Spatula clypeata","Ground","WHEN ACTIVATED: All players draw 1 card from the deck.",new String[]{"wetland"},cost("invertebrate_and_seed_and_seed"),7,4,76));
+    list.add(makeBird("Purple Gallinule","Porphyrio martinicus","Platform","WHEN ACTIVATED: All players draw 1 card from the deck.",new String[]{"wetland"},cost("seed_and_fruit_and_wild"),7,4,56));
+    list.add(makeBird("Pied-Billed Grebe","Podilymbus podiceps","Platform","WHEN ACTIVATED: Draw 2 cards. If you do, discard 1 card from your hand at the end of your turn.",new String[]{"wetland"},cost("invertebrate_and_fish_and_rodent"),0,4,41));
+    list.add(makeBird("Ruddy Duck","Oxyura jamaicensis","Platform","WHEN ACTIVATED: Draw 2 cards. If you do, discard 1 card from your hand at the end of your turn.",new String[]{"wetland"},cost("invertebrate_or_seed"),0,5,48));
+    list.add(makeBird("Wood Duck","Aix sponsa","Cavity","WHEN ACTIVATED: Draw 2 cards. If you do, discard 1 card from your hand at the end of your turn.",new String[]{"wetland","forest"},cost("seed_and_seed_and_fruit"),4,4,76));
 
     // Trade
-    list.add(makeBird("Green Heron","Butorides virescens","Platform","WHEN ACTIVATED: Trade 1 wild for any other type from the supply.",new String[]{"wetland"},cost("invertebrate",1,"fish",1),4,3,66));
+    list.add(makeBird("Green Heron","Butorides virescens","Platform","WHEN ACTIVATED: Trade 1 wild for any other type from the supply.",new String[]{"wetland"},cost("invertebrate_or_fish"),4,3,66));
 
     // All players gain
-    list.add(makeBird("Baltimore Oriole","Icterus galbula","Wild","WHEN ACTIVATED: All players gain 1 fruit from the supply.",new String[]{"forest"},cost("invertebrate",1,"fruit",2),9,2,30));
-    list.add(makeBird("Eastern Phoebe","Sayornis phoebe","Wild","WHEN ACTIVATED: All players gain 1 invertebrate from the supply.",new String[]{"forest","grassland","wetland"},cost("invertebrate",1),3,4,28));
-    list.add(makeBird("Osprey","Pandion haliaetus","Platform","WHEN ACTIVATED: All players gain 1 fish from the supply.",new String[]{"wetland"},cost("fish",1),5,2,160));
-    list.add(makeBird("Red Crossbill","Loxia curvirostra","Bowl","WHEN ACTIVATED: All players gain 1 seed from the supply.",new String[]{"forest"},cost("seed",2),6,2,28));
-    list.add(makeBird("Scissor-Tailed Flycatcher","Tyrannus forficatus","Bowl","WHEN ACTIVATED: All players gain 1 invertebrate from the supply.",new String[]{"grassland"},cost("invertebrate",2,"fruit",1),8,2,38));
-    list.add(makeBird("Spotted Sandpiper","Actitis macularius","Ground","WHEN ACTIVATED: All players draw 1 card from the deck.",new String[]{"wetland"},cost("invertebrate",1),5,2,38));
-    list.add(makeBird("Wilson's Snipe","Gallinago delicata","Ground","WHEN ACTIVATED: All players draw 1 card from the deck.",new String[]{"wetland"},cost("invertebrate",1),5,2,41));
-    list.add(makeBird("Western Meadowlark","Sturnella neglecta","Ground","WHEN ACTIVATED: All players lay 1 egg on any 1 ground bird. You may lay 1 egg on 1 additional ground bird.",new String[]{"grassland"},cost("invertebrate",1,"seed",1),2,4,38));
+    list.add(makeBird("Baltimore Oriole","Icterus galbula","Wild","WHEN ACTIVATED: All players gain 1 fruit from the supply.",new String[]{"forest"},cost("invertebrate_and_fruit_and_fruit"),9,2,30));
+    list.add(makeBird("Eastern Phoebe","Sayornis phoebe","Wild","WHEN ACTIVATED: All players gain 1 invertebrate from the supply.",new String[]{"forest","grassland","wetland"},cost("invertebrate_or_fruit"),3,4,28));
+    list.add(makeBird("Osprey","Pandion haliaetus","Platform","WHEN ACTIVATED: All players gain 1 fish from the supply.",new String[]{"wetland"},cost("fish"),5,2,160));
+    list.add(makeBird("Red Crossbill","Loxia curvirostra","Bowl","WHEN ACTIVATED: All players gain 1 seed from the supply.",new String[]{"forest"},cost("seed_and_seed"),6,2,28));
+    list.add(makeBird("Scissor-Tailed Flycatcher","Tyrannus forficatus","Bowl","WHEN ACTIVATED: All players gain 1 invertebrate from the supply.",new String[]{"grassland"},cost("invertebrate_and_invertebrate_and_fruit"),8,2,38));
+    list.add(makeBird("Spotted Sandpiper","Actitis macularius","Ground","WHEN ACTIVATED: All players draw 1 card from the deck.",new String[]{"wetland"},cost("invertebrate"),5,2,38));
+    list.add(makeBird("Wilson's Snipe","Gallinago delicata","Ground","WHEN ACTIVATED: All players draw 1 card from the deck.",new String[]{"wetland"},cost("invertebrate"),5,2,41));
+    list.add(makeBird("Western Meadowlark","Sturnella neglecta","Ground","WHEN ACTIVATED: All players lay 1 egg on any 1 ground bird. You may lay 1 egg on 1 additional ground bird.",new String[]{"grassland"},cost("invertebrate_and_seed"),2,4,38));
 
     // Gain food
-    list.add(makeBird("Acorn Woodpecker","Melanerpes formicivorus","Cavity","WHEN ACTIVATED: Gain 1 seed from the birdfeeder, if available. You may cache it on this bird.",new String[]{"forest"},cost("seed",3),5,4,46));
-    list.add(makeBird("American Goldfinch","Spinus tristis","Bowl","WHEN PLAYED: Gain 3 seed from the supply.",new String[]{"grassland"},cost("seed",2),3,3,23));
-    list.add(makeBird("Bald Eagle","Haliaeetus leucocephalus","Platform","WHEN PLAYED: Gain all fish that are in the birdfeeder.",new String[]{"wetland"},cost("fish",2,"rodent",1),9,2,203));
-    list.add(makeBird("Blue Jay","Cyanocitta cristata","Bowl","WHEN ACTIVATED: Gain 1 seed from the birdfeeder, if available. You may cache it on this bird.",new String[]{"forest"},cost("seed",1,"wild",1),3,2,41));
-    list.add(makeBird("Baltimore Oriole","Icterus galbula","Wild","WHEN ACTIVATED: All players gain 1 fruit from the supply.",new String[]{"forest"},cost("invertebrate",1,"fruit",2),9,2,30));
-    list.add(makeBird("Indigo Bunting","Passerina cyanea","Bowl","WHEN ACTIVATED: Gain 1 invertebrate or fruit from the birdfeeder, if available.",new String[]{"grassland","forest"},cost("invertebrate",1,"seed",1,"fruit",1),5,3,20));
-    list.add(makeBird("Northern Cardinal","Cardinalis cardinalis","Bowl","WHEN ACTIVATED: Gain 1 fruit from the supply.",new String[]{"forest"},cost("seed",1,"fruit",1),3,5,30));
-    list.add(makeBird("Red-Bellied Woodpecker","Melanerpes carolinus","Cavity","WHEN ACTIVATED: Gain 1 seed from the birdfeeder, if available. You may cache it on this bird.",new String[]{"forest"},cost("invertebrate",1,"seed",1),1,3,41));
-    list.add(makeBird("Rose-Breasted Grosbeak","Pheucticus ludovicianus","Bowl","WHEN ACTIVATED: Gain 1 seed or fruit from the birdfeeder, if available.",new String[]{"forest"},cost("invertebrate",1,"seed",1,"fruit",1),6,3,33));
-    list.add(makeBird("Western Tanager","Piranga ludoviciana","Bowl","WHEN ACTIVATED: Gain 1 invertebrate or fruit from the birdfeeder, if available.",new String[]{"forest"},cost("invertebrate",2,"fruit",1),6,2,30));
-    list.add(makeBird("Yellow-Bellied Sapsucker","Sphyrapicus varius","Cavity","WHEN ACTIVATED: Gain 1 invertebrate from the supply.",new String[]{"forest"},cost("invertebrate",1),3,3,41));
-    list.add(makeBird("Spotted Towhee","Pipilo maculatus","Ground","WHEN ACTIVATED: Gain 1 seed from the supply.",new String[]{"grassland"},cost("invertebrate",1,"seed",1),0,4,28));
-    list.add(makeBird("Steller's Jay","Cyanocitta stelleri","Bowl","WHEN ACTIVATED: Gain 1 seed from the birdfeeder, if available. You may cache it on this bird.",new String[]{"forest"},cost("seed",2,"wild",1),5,2,48));
+    list.add(makeBird("Acorn Woodpecker","Melanerpes formicivorus","Cavity","WHEN ACTIVATED: Gain 1 seed from the birdfeeder, if available. You may cache it on this bird.",new String[]{"forest"},cost("seed_and_seed_and_seed"),5,4,46));
+    list.add(makeBird("American Goldfinch","Spinus tristis","Bowl","WHEN PLAYED: Gain 3 seed from the supply.",new String[]{"grassland"},cost("seed_and_seed"),3,3,23));
+    list.add(makeBird("Bald Eagle","Haliaeetus leucocephalus","Platform","WHEN PLAYED: Gain all fish that are in the birdfeeder.",new String[]{"wetland"},cost("fish_and_fish_and_rodent"),9,2,203));
+    list.add(makeBird("Blue Jay","Cyanocitta cristata","Bowl","WHEN ACTIVATED: Gain 1 seed from the birdfeeder, if available. You may cache it on this bird.",new String[]{"forest"},cost("seed_and_wild"),3,2,41));
+    list.add(makeBird("Baltimore Oriole","Icterus galbula","Wild","WHEN ACTIVATED: All players gain 1 fruit from the supply.",new String[]{"forest"},cost("invertebrate_and_fruit_and_fruit"),9,2,30));
+    list.add(makeBird("Indigo Bunting","Passerina cyanea","Bowl","WHEN ACTIVATED: Gain 1 invertebrate or fruit from the birdfeeder, if available.",new String[]{"grassland","forest"},cost("invertebrate_and_seed_and_fruit"),5,3,20));
+    list.add(makeBird("Northern Cardinal","Cardinalis cardinalis","Bowl","WHEN ACTIVATED: Gain 1 fruit from the supply.",new String[]{"forest"},cost("seed_and_fruit"),3,5,30));
+    list.add(makeBird("Red-Bellied Woodpecker","Melanerpes carolinus","Cavity","WHEN ACTIVATED: Gain 1 seed from the birdfeeder, if available. You may cache it on this bird.",new String[]{"forest"},cost("invertebrate_or_seed"),1,3,41));
+    list.add(makeBird("Rose-Breasted Grosbeak","Pheucticus ludovicianus","Bowl","WHEN ACTIVATED: Gain 1 seed or fruit from the birdfeeder, if available.",new String[]{"forest"},cost("invertebrate_and_seed_and_fruit"),6,3,33));
+    list.add(makeBird("Western Tanager","Piranga ludoviciana","Bowl","WHEN ACTIVATED: Gain 1 invertebrate or fruit from the birdfeeder, if available.",new String[]{"forest"},cost("invertebrate_and_invertebrate_and_fruit"),6,2,30));
+    list.add(makeBird("Yellow-Bellied Sapsucker","Sphyrapicus varius","Cavity","WHEN ACTIVATED: Gain 1 invertebrate from the supply.",new String[]{"forest"},cost("invertebrate_and_fruit"),3,3,41));
+    list.add(makeBird("Spotted Towhee","Pipilo maculatus","Ground","WHEN ACTIVATED: Gain 1 seed from the supply.",new String[]{"grassland"},cost("invertebrate_or_seed_or_fruit"),0,4,28));
+    list.add(makeBird("Steller's Jay","Cyanocitta stelleri","Bowl","WHEN ACTIVATED: Gain 1 seed from the birdfeeder, if available. You may cache it on this bird.",new String[]{"forest"},cost("seed_and_seed_and_wild"),5,2,48));
 
     // Remove any birds whose images were missing
     list.removeIf(Objects::isNull);
@@ -3925,7 +3924,7 @@ public boolean canAttemptPay(Player player, Bird bird) {
     // Bird images will be loaded when players are created
     repaint();
     }
-    public static void drawControlsScreen(Graphics g)
+    public void drawControlsScreen(Graphics g)
     {
         g.drawString("Control Screen",getWidth()/2 , 300);
 
